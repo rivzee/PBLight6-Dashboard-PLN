@@ -1,9 +1,0 @@
-parameters:
-    level: 0
-    paths:
-        - app
-        - routes
-    excludePaths:
-        - app/Http/Middleware/*
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
