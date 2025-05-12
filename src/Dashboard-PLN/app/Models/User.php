@@ -45,4 +45,28 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+        /**
+     * Cek apakah user adalah master admin (asisten manajer)
+     */
+    public function isMasterAdmin(): bool
+    {
+        return $this->role === 'asisten_manager';
+    }
+
+    /**
+     * Cek apakah user adalah admin (PIC bidang)
+     */
+    public function isAdmin(): bool
+    {
+        return strpos($this->role, 'pic_') === 0;
+    }
+
+    /**
+     * Cek apakah user adalah karyawan biasa
+     */
+    public function isKaryawan(): bool
+    {
+        return $this->role === 'karyawan';
+    }
 }
