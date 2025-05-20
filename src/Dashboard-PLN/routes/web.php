@@ -24,15 +24,12 @@ use App\Models\NilaiKPI;
         // Dashboard utama, setelah login diarahkan berdasarkan role
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        // Route lama tidak digunakan lagi karena sudah digabung di index()
+         // Route lama tidak digunakan lagi karena sudah digabung di index()
         // Berikut ini menjadi alias saja untuk kompatibilitas
         Route::get('/dashboard/master', [DashboardController::class, 'master'])->name('dashboard.master');
         Route::get('/dashboard/admin', [DashboardController::class, 'admin'])->name('dashboard.admin');
         Route::get('/dashboard/user', [DashboardController::class, 'user'])->name('dashboard.user');
-
-        // Dashboard lama untuk PIC admin per bidang sudah tidak digunakan lagi
-        // (semua diarahkan ke dashboard.admin)
-
+        
         // Dashboard untuk PIC admin per bidang
         Route::get('/dashboard/admin/keuangan', function () {
             return view('dashboard.admin_keuangan');
@@ -226,3 +223,4 @@ use App\Models\NilaiKPI;
             Route::post('/kpi', [KPIController::class, 'store'])->name('kpi.store');
         });
     });
+

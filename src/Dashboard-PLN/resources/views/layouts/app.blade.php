@@ -87,6 +87,67 @@ use Illuminate\Support\Str;
                   width var(--transition-speed) ease;
     }
 
+    /* Layouts untuk header */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Tombol toggle sidebar */
+    .sidebar-toggle {
+      display: none;
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 8px;
+      margin-right: 10px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-toggle:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Tombol ikon di topbar */
+    .topbar-icon-btn {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 50%;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .topbar-icon-btn:hover {
+      background: rgba(0, 0, 0, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .topbar-icon-btn i {
+      font-size: 16px;
+      color: white;
+    }
+
     /* Sidebar yang lebih modern */
     .sidebar {
       width: var(--sidebar-width);
@@ -263,21 +324,15 @@ use Illuminate\Support\Str;
     }
 
     .time-display {
-      display: block;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      color: var(--pln-light-blue);
-      position: relative;
+      display: none;
     }
 
     .time-colon {
-      display: inline-block;
-      animation: blink 1s infinite;
+      display: none;
     }
 
     .time-seconds {
-      font-size: 0.9em;
-      opacity: 0.8;
+      display: none;
     }
 
     @keyframes blink {
@@ -365,9 +420,11 @@ use Illuminate\Support\Str;
 
       .sidebar {
         width: 0;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        z-index: 1001;
       }
 
-      .sidebar:hover {
+      .sidebar.expanded {
         width: var(--sidebar-expanded);
       }
 
@@ -375,11 +432,63 @@ use Illuminate\Support\Str;
         margin-left: 0;
         width: 100%;
       }
+
+      .sidebar-toggle {
+        display: block;
+      }
+
+      .header-left {
+        flex: 1;
+      }
+
+      .header-title {
+        font-size: 16px;
+      }
+
+      .header-subtitle {
+        font-size: 11px;
+      }
+
+      .profile-name {
+        max-width: 100px;
+      }
+
+      .notification-dropdown {
+        right: -50px;
+      }
     }
 
     @media (max-width: 768px) {
       .date-display {
         display: none;
+      }
+
+      .header-right {
+        gap: 8px;
+      }
+
+      .theme-switch-wrapper {
+        margin-right: 8px;
+      }
+
+      .profile-name {
+        display: none;
+      }
+
+      .notification-dropdown {
+        width: 280px;
+        right: -10px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .theme-switch-wrapper {
+        display: none;
+      }
+
+      .notification-dropdown {
+        width: 250px;
+        right: -70px;
       }
     }
 
@@ -533,35 +642,631 @@ use Illuminate\Support\Str;
       margin-bottom: 5px;
     }
 
-    /* Badge notifikasi */
+    /* Badge notifikasi - Improved */
     .notification-badge {
       display: none;
       position: absolute;
-      top: 8px;
+      top: 6px;
       right: 8px;
-      background-color: #e74c3c;
+      background: linear-gradient(135deg, #e74c3c, #ff6b6b);
       color: white;
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       min-width: 20px;
       height: 20px;
-      border-radius: 10px;
+      border-radius: 50px;
       text-align: center;
       justify-content: center;
       align-items: center;
       font-weight: bold;
-      padding: 0 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      padding: 0 6px;
+      box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transform-origin: center center;
+      z-index: 5;
     }
 
-    /* Animasi badge */
+    /* Badge notifikasi untuk menu dropdown */
+    .notification-badge-menu {
+      display: none;
+      background: linear-gradient(135deg, #e74c3c, #ff6b6b);
+      color: white;
+      font-size: 0.65rem;
+      min-width: 20px;
+      height: 20px;
+      border-radius: 50px;
+      text-align: center;
+      line-height: 20px;
+      font-weight: bold;
+      padding: 0 6px;
+      box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      margin-left: auto;
+    }
+
+    /* User Profile Menu */
+    .user-profile-menu {
+      position: relative;
+      margin-right: 15px;
+    }
+
+    .profile-trigger {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      padding: 8px 15px;
+      border-radius: 30px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .profile-trigger:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .profile-img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .profile-icon {
+      width: 30px;
+      height: 30px;
+      background: var(--pln-blue);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .profile-name {
+      margin: 0 10px;
+      font-size: 14px;
+      color: white;
+      font-weight: 500;
+      max-width: 150px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .profile-trigger i.fa-chevron-down {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      transition: transform 0.3s ease;
+    }
+
+    .profile-menu {
+      position: absolute;
+      top: calc(100% + 15px);
+      right: 0;
+      width: 240px;
+      background: var(--pln-surface);
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--pln-border);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    /* Tampilkan menu saat hover pada profil */
+    .user-profile-menu:hover .profile-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    /* Tampilkan tanda panah saat hover */
+    .user-profile-menu:hover .profile-trigger i.fa-chevron-down {
+      transform: rotate(180deg);
+    }
+
+    .profile-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .profile-menu-header {
+      padding: 15px;
+      border-bottom: 1px solid var(--pln-border);
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .profile-title {
+      margin: 0;
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--pln-text);
+    }
+
+    .profile-subtitle {
+      margin: 5px 0 0;
+      font-size: 12px;
+      color: var(--pln-text-secondary);
+    }
+
+    .profile-menu-items {
+      padding: 10px 0;
+    }
+
+    .profile-menu-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 15px;
+      color: var(--pln-text);
+      transition: all 0.3s ease;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .profile-menu-item:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--pln-light-blue);
+    }
+
+    .profile-menu-item i {
+      margin-right: 10px;
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+      color: var(--pln-text-secondary);
+    }
+
+    .profile-menu-item:hover i {
+      color: var(--pln-light-blue);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--pln-border);
+      margin: 8px 0;
+    }
+
+    .logout-btn-menu {
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--pln-text);
+      font-size: 14px;
+    }
+
+    .logout-btn-menu:hover {
+      color: #e74c3c;
+    }
+
+    .logout-btn-menu:hover i {
+      color: #e74c3c;
+    }
+
+    /* Animasi badge - Enhanced */
     @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
+      0% { transform: scale(1); box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4); }
+      50% { transform: scale(1.2); box-shadow: 0 2px 12px rgba(231, 76, 60, 0.7); }
+      100% { transform: scale(1); box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4); }
     }
 
     .notification-badge:not(:empty) {
-      animation: pulse 2s infinite;
+      animation: pulse 1.5s infinite;
+    }
+
+    /* Hover effect for notification menu item */
+    .sidebar-menu a:hover .notification-badge {
+      background: linear-gradient(135deg, #ff6b6b, #e74c3c);
+    }
+
+    /* Animasi Logout Modern */
+    @keyframes fadeOutScale {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      70% {
+        opacity: 0.7;
+        transform: scale(1.05);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+    }
+
+    @keyframes spinFade {
+      0% {
+        transform: rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: rotate(180deg);
+        opacity: 0;
+      }
+    }
+
+    .logout-animation {
+      animation: fadeOutScale 0.5s ease forwards;
+    }
+
+    .logout-icon-animation {
+      display: inline-block;
+      animation: spinFade 0.5s ease forwards;
+    }
+
+    /* Overlay saat logout */
+    .logout-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .logout-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .logout-message {
+      color: white;
+      font-size: 1.5rem;
+      margin-top: 20px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s ease;
+    }
+
+    .logout-overlay.active .logout-message {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .logout-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid var(--pln-light-blue);
+      animation: spin 1s linear infinite;
+      opacity: 0;
+      transform: scale(0.7);
+      transition: all 0.5s ease;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .logout-overlay.active .logout-spinner {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Modal Profil Styles */
+    .profile-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(5px);
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      display: none; /* Diatur melalui JS */
+    }
+
+    .profile-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .profile-modal-content {
+      width: 90%;
+      max-width: 600px;
+      background: var(--pln-surface);
+      border-radius: 16px;
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      transform: translateY(20px) scale(0.95);
+      transition: all 0.3s ease;
+      border: 1px solid var(--pln-border);
+    }
+
+    .profile-modal.active .profile-modal-content {
+      transform: translateY(0) scale(1);
+    }
+
+    .profile-modal-header {
+      padding: 20px 25px;
+      background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--pln-border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-modal-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.2), transparent 70%);
+      z-index: 1;
+    }
+
+    .profile-modal-title {
+      color: white;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 0;
+      position: relative;
+      z-index: 2;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .profile-modal-close {
+      background: rgba(0, 0, 0, 0.2);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 2;
+    }
+
+    .profile-modal-close:hover {
+      background: rgba(0, 0, 0, 0.3);
+      transform: rotate(90deg);
+    }
+
+    .profile-modal-body {
+      padding: 25px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .profile-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--pln-border);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .profile-tab {
+      background: none;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 20px;
+      color: var(--pln-text-secondary);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .profile-tab:hover {
+      color: var(--pln-light-blue);
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .profile-tab.active {
+      background: var(--pln-light-blue);
+      color: white;
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+    }
+
+    .profile-tab-content {
+      display: none;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .profile-tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 25px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
+      border: none;
+      border-radius: 30px;
+      padding: 10px 20px;
+      font-weight: 600;
+      color: white;
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .btn-primary i {
+      margin-right: 8px;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+    }
+
+    .profile-photo-preview {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      overflow: hidden;
+      border: 5px solid var(--pln-border);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      background: var(--pln-accent-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile-photo-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-photo-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: var(--pln-text-secondary);
+      background: var(--pln-accent-bg);
+    }
+
+    .profile-photo-upload-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .photo-upload-btn {
+      background: var(--pln-light-blue);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+    }
+
+    .photo-upload-btn:hover {
+      background: var(--pln-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .photo-input {
+      display: none;
+    }
+
+    .photo-filename {
+      font-size: 0.85rem;
+      color: var(--pln-text-secondary);
+    }
+
+    .password-input-group {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--pln-text-secondary);
+      cursor: pointer;
+    }
+
+    .password-strength {
+      margin-top: 15px;
+    }
+
+    .strength-bar {
+      height: 5px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      margin-bottom: 5px;
+      overflow: hidden;
+    }
+
+    .strength-progress {
+      height: 100%;
+      width: 0;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      background: linear-gradient(90deg, #dc3545, #ffc107, #28a745);
+      background-size: 300% 100%;
+    }
+
+    .strength-text {
+      font-size: 0.8rem;
+      color: var(--pln-text-secondary);
+    }
+
+    @media (max-width: 576px) {
+      .profile-modal-content {
+        width: 95%;
+      }
+
+      .profile-tabs {
+        gap: 5px;
+      }
+
+      .profile-tab {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+      }
+
+      .profile-modal-body {
+        padding: 15px;
+      }
     }
   </style>
   @yield('styles')
@@ -662,27 +1367,12 @@ use Illuminate\Support\Str;
 
         {{-- Menu untuk semua user --}}
         <li>
-          <a href="{{ route('kpi.history') }}" class="{{ request()->routeIs('kpi.history') ? 'active' : '' }}">
+          <a href="{{ route('kpi.index') }}" class="{{ request()->routeIs('kpi.index') ? 'active' : '' }}">
             <i class="fas fa-history icon"></i>
             <span class="menu-text">Riwayat KPI</span>
           </a>
         </li>
-        <li>
-          <a href="{{ route('notifikasi.index') }}" class="{{ request()->routeIs('notifikasi.*') ? 'active' : '' }}">
-            <i class="fas fa-bell icon"></i>
-            <span class="menu-text">Notifikasi</span>
-            <span class="notification-badge" id="notification-count"></span>
-          </a>
-        </li>
       </ul>
-
-      <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <button type="submit" class="logout-btn">
-          <i class="fas fa-sign-out-alt logout-icon"></i>
-          <span class="logout-text">Log Out</span>
-        </button>
-      </form>
     </div>
 
     <!-- Header yang lebih modern -->
@@ -692,7 +1382,8 @@ use Illuminate\Support\Str;
         <p class="header-subtitle">PT PLN MANDAU CIPTA TENAGA NUSANTARA</p>
       </div>
 
-      <div style="display: flex; align-items: center;">
+      <div class="header-right">
+        <!-- Toggle tema -->
         <div class="theme-switch-wrapper">
           <i class="fas fa-moon theme-icon"></i>
           <label class="theme-switch">
@@ -702,7 +1393,7 @@ use Illuminate\Support\Str;
           <i class="fas fa-sun theme-icon"></i>
         </div>
 
-        @if(!request()->routeIs('akun.*'))
+        <!-- Tanggal & jam -->
         <div class="date-display" id="date-display">
           <i class="far fa-calendar-alt"></i>
           <span>
@@ -785,7 +1476,6 @@ use Illuminate\Support\Str;
                 <span class="weekend-badge">Akhir Pekan</span>
               @endif
             </span>
-            <span class="time-display" id="live-time"></span>
           </span>
 
           <div class="date-tooltip">
@@ -796,7 +1486,46 @@ use Illuminate\Support\Str;
             <div class="tooltip-info">{{ date('L') ? 'Tahun Kabisat' : 'Bukan Tahun Kabisat' }}</div>
           </div>
         </div>
-        @endif
+
+        <!-- Menu profil -->
+        <div class="user-profile-menu">
+          <div class="profile-trigger" onclick="toggleProfileMenu()">
+            @if(Auth::user()->profile_photo)
+              <img src="{{ Storage::url(Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}" class="profile-img">
+            @else
+              <div class="profile-icon">
+                <i class="fas fa-user"></i>
+              </div>
+            @endif
+            <span class="profile-name">{{ Auth::user()->name }}</span>
+            <i class="fas fa-chevron-down"></i>
+            <span class="notification-badge" id="notification-count"></span>
+          </div>
+          <div class="profile-menu" id="profile-menu">
+            <div class="profile-menu-header">
+              <div class="profile-info">
+                <h6 class="profile-title">{{ Auth::user()->name }}</h6>
+                <p class="profile-subtitle">{{ Auth::user()->email }}</p>
+              </div>
+            </div>
+            <div class="profile-menu-items">
+              <a href="#" class="profile-menu-item" onclick="openProfileModal(event)">
+                <i class="fas fa-user-edit"></i> Edit Profil
+              </a>
+              <a href="{{ route('notifikasi.index') }}" class="profile-menu-item">
+                <i class="fas fa-bell"></i> Notifikasi
+                <span class="notification-badge-menu" id="notification-count-menu"></span>
+              </a>
+              <div class="divider"></div>
+              <form action="{{ route('logout') }}" method="POST" class="logout-form">
+                @csrf
+                <button type="submit" class="profile-menu-item logout-btn-menu">
+                  <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -806,38 +1535,209 @@ use Illuminate\Support\Str;
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Overlay untuk animasi logout -->
+  <div class="logout-overlay" id="logoutOverlay">
+    <div class="logout-spinner"></div>
+    <div class="logout-message">Keluar Dari Sistem...</div>
+  </div>
+
+  <!-- Modal Edit Profil -->
+  <div class="profile-modal" id="profileModal">
+    <div class="profile-modal-content">
+      <div class="profile-modal-header">
+        <h5 class="profile-modal-title">Edit Profil</h5>
+        <button type="button" class="profile-modal-close" id="closeProfileModal" onclick="closeProfileModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="profile-modal-body">
+        <div class="profile-tabs">
+          <button class="profile-tab active" data-tab="info">Informasi Dasar</button>
+          <button class="profile-tab" data-tab="photo">Foto Profil</button>
+          <button class="profile-tab" data-tab="password">Ubah Password</button>
+        </div>
+
+        <div class="profile-tab-content active" id="tab-info">
+          <form id="updateProfileForm" action="/profile" method="POST">
+            @csrf
+            <input type="hidden" name="update_type" value="profile">
+
+            <div class="form-group">
+              <label for="name" class="form-label">Nama Lengkap</label>
+              <input type="text" class="form-control" id="name" name="name" value="{{ Auth::user()->name }}">
+            </div>
+
+            <div class="form-group">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" name="email" value="{{ Auth::user()->email }}">
+            </div>
+
+            <div class="form-group">
+              <label for="phone" class="form-label">Nomor Telepon</label>
+              <input type="text" class="form-control" id="phone" name="phone" value="{{ Auth::user()->phone ?? '' }}">
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i> Simpan Perubahan
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="profile-tab-content" id="tab-photo">
+          <form id="updatePhotoForm" action="/profile/photo" method="POST" enctype="multipart/form-data">
+            @csrf
+
+            <div class="profile-photo-preview">
+              @if(Auth::user()->profile_photo)
+                <img src="{{ Storage::url(Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}" id="photoPreview">
+              @else
+                <div class="profile-photo-placeholder">
+                  <i class="fas fa-user"></i>
+                </div>
+              @endif
+            </div>
+
+            <div class="profile-photo-upload-container">
+              <label for="profile_photo" class="photo-upload-btn">
+                <i class="fas fa-camera"></i> Pilih Foto
+              </label>
+              <input type="file" id="profile_photo" name="profile_photo" accept="image/*" class="photo-input">
+              <span class="photo-filename" id="photoFilename">Tidak ada file yang dipilih</span>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" id="uploadPhotoBtn" disabled>
+                <i class="fas fa-upload"></i> Upload Foto
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="profile-tab-content" id="tab-password">
+          <form id="updatePasswordForm" action="/profile" method="POST">
+            @csrf
+            <input type="hidden" name="update_type" value="password">
+
+            <!-- Tampilkan pesan sukses yang lebih menonjol -->
+            @if(session('success'))
+            <div class="alert alert-success mb-4" style="background: linear-gradient(135deg, #28a745, #5cb85c); color: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);">
+              <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-check-circle mr-2" style="font-size: 20px;"></i>
+                <strong>{{ session('success') }}</strong>
+              </div>
+              <p class="mb-0" style="font-size: 14px;">
+                Untuk menggunakan password baru Anda, silakan:
+                <ol class="mt-2 mb-0" style="padding-left: 20px;">
+                  <li>Klik Logout di menu profil</li>
+                  <li>Login kembali dengan password baru Anda</li>
+                </ol>
+              </p>
+            </div>
+            @endif
+
+            <!-- Success message yang akan ditampilkan via JavaScript -->
+            <div id="manual-success-message" style="display:none;" class="alert alert-success mb-4" style="background: linear-gradient(135deg, #28a745, #5cb85c); color: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);">
+              <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-check-circle mr-2" style="font-size: 20px;"></i>
+                <strong>Password berhasil diperbarui!</strong>
+              </div>
+              <p class="mb-0" style="font-size: 14px;">
+                Untuk menggunakan password baru Anda, silakan:
+                <ol class="mt-2 mb-0" style="padding-left: 20px;">
+                  <li>Klik Logout di menu profil</li>
+                  <li>Login kembali dengan password baru Anda</li>
+                </ol>
+              </p>
+            </div>
+
+            <!-- Tampilkan error jika ada -->
+            @if($errors->any())
+            <div class="alert alert-danger mb-3">
+                <ul class="mb-0">
+                    @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            @endif
+
+            <div class="form-group">
+              <label for="password" class="form-label">Password Baru</label>
+              <div class="password-input-group">
+                <input type="password" class="form-control" id="password" name="password" required>
+                <button type="button" class="password-toggle">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="password_confirmation" class="form-label">Konfirmasi Password</label>
+              <div class="password-input-group">
+                <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" required>
+                <button type="button" class="password-toggle">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="password-strength">
+              <div class="strength-bar">
+                <div class="strength-progress" id="passwordStrength"></div>
+              </div>
+              <span class="strength-text" id="strengthText">Belum diisi</span>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">
+                <i class="fas fa-lock"></i> Perbarui Password
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Live clock script yang lebih baik -->
   <script>
-    function updateClock() {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, '0');
-      const minutes = String(now.getMinutes()).padStart(2, '0');
-      const seconds = String(now.getSeconds()).padStart(2, '0');
-
-      // Update jam secara real-time dengan detik
-      const timeDisplay = document.getElementById('live-time');
-      if (timeDisplay) {
-        // Animasi transisi saat detik berubah
-        timeDisplay.style.transition = 'opacity 0.2s';
-        timeDisplay.style.opacity = '0.5';
-
-        setTimeout(() => {
-          timeDisplay.innerHTML = `${hours}<span class="time-colon">:</span>${minutes} <span class="time-seconds">${seconds}</span> WIB`;
-          timeDisplay.style.opacity = '1';
-        }, 100);
-
-        // Update every second
-        setTimeout(updateClock, 1000);
-      }
-    }
-
     // Start the clock when page loads
     document.addEventListener('DOMContentLoaded', function() {
-      // Jalankan updateClock jika tidak berada di halaman Data Akun
-      @if(!request()->routeIs('akun.*'))
-      updateClock();
+      console.log('DOM fully loaded');
 
-      // Toggle tooltip saat date display diklik
+      // Debugging tombol edit profil
+      const editProfileBtn = document.getElementById('editProfileBtn');
+      const profileModal = document.getElementById('profileModal');
+
+      console.log('Edit Profile Button:', editProfileBtn);
+      console.log('Profile Modal:', profileModal);
+
+      if (editProfileBtn) {
+        console.log('Adding click event to Edit Profile button');
+        editProfileBtn.addEventListener('click', function(e) {
+          console.log('Edit Profile button clicked');
+          e.preventDefault();
+
+          if (profileModal) {
+            console.log('Opening profile modal');
+            // Tambahkan display flex
+            profileModal.style.display = 'flex';
+            profileModal.style.justifyContent = 'center';
+            profileModal.style.alignItems = 'center';
+
+            // Tampilkan modal
+            profileModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+          } else {
+            console.error('Profile modal not found');
+          }
+        });
+      }
+
+      // Toggle tooltip dan fungsi lain
       const dateDisplay = document.getElementById('date-display');
       if (dateDisplay) {
         dateDisplay.addEventListener('click', function() {
@@ -851,7 +1751,6 @@ use Illuminate\Support\Str;
           }
         });
       }
-      @endif
 
       // Theme Switcher dengan animasi transisi
       const themeToggle = document.getElementById('theme-toggle');
@@ -886,6 +1785,7 @@ use Illuminate\Support\Str;
           .then(data => {
             const count = data.count;
             const badge = document.getElementById('notification-count');
+            const badgeMenu = document.getElementById('notification-count-menu');
 
             if (badge) {
               if (count > 0) {
@@ -893,6 +1793,15 @@ use Illuminate\Support\Str;
                 badge.style.display = 'inline-flex';
               } else {
                 badge.style.display = 'none';
+              }
+            }
+
+            if (badgeMenu) {
+              if (count > 0) {
+                badgeMenu.textContent = count > 99 ? '99+' : count;
+                badgeMenu.style.display = 'inline-block';
+              } else {
+                badgeMenu.style.display = 'none';
               }
             }
           })
@@ -905,60 +1814,352 @@ use Illuminate\Support\Str;
       // Perbarui jumlah notifikasi setiap 1 menit
       setInterval(fetchUnreadNotifications, 60000);
 
-      // Mobile sidebar toggle
-      const sidebarToggle = document.createElement('button');
-      sidebarToggle.className = 'sidebar-toggle';
-      sidebarToggle.innerHTML = '<i class="fas fa-bars"></i>';
-      sidebarToggle.style.display = 'none';
+      // Animasi modern untuk logout
+      const logoutForm = document.querySelector('.logout-form');
+      const logoutButton = document.querySelector('.logout-btn-menu');
+      const logoutOverlay = document.getElementById('logoutOverlay');
 
-      // Add to DOM for mobile
-      document.querySelector('.header-text').before(sidebarToggle);
+      if (logoutForm && logoutButton) {
+        logoutForm.addEventListener('submit', function(e) {
+          e.preventDefault();
 
-      // Show toggle button on mobile
-      if (window.innerWidth < 992) {
-        sidebarToggle.style.display = 'block';
-        sidebarToggle.style.background = 'transparent';
-        sidebarToggle.style.border = 'none';
-        sidebarToggle.style.color = 'white';
-        sidebarToggle.style.fontSize = '1.5rem';
-        sidebarToggle.style.cursor = 'pointer';
-        sidebarToggle.style.marginRight = '15px';
+          // Animasikan ikon logout
+          const logoutIcon = logoutButton.querySelector('i');
+          logoutIcon.classList.add('logout-icon-animation');
+
+          // Animasikan tombol logout
+          logoutButton.classList.add('logout-animation');
+
+          // Tutup dropdown menu
+          const profileMenu = document.getElementById('profile-menu');
+          if (profileMenu) {
+            profileMenu.style.opacity = '0';
+            profileMenu.style.visibility = 'hidden';
+          }
+
+          // Tampilkan overlay logout
+          setTimeout(function() {
+            logoutOverlay.classList.add('active');
+
+            // Kirim form setelah animasi selesai
+            setTimeout(function() {
+              logoutForm.submit();
+            }, 1500);
+          }, 300);
+        });
       }
 
-      // Toggle sidebar on mobile
-      sidebarToggle.addEventListener('click', function() {
-        const sidebar = document.querySelector('.sidebar');
-        if (sidebar.style.width === '260px') {
-          sidebar.style.width = '0';
-        } else {
-          sidebar.style.width = '260px';
-        }
-      });
+      // Fungsi untuk mengelola modal profil
+      const closeProfileModal = document.getElementById('closeProfileModal');
 
-      // Close sidebar when clicking outside on mobile
-      document.addEventListener('click', function(event) {
-        const sidebar = document.querySelector('.sidebar');
-        const sidebarToggle = document.querySelector('.sidebar-toggle');
+      // Tutup modal profil
+      if (closeProfileModal && profileModal) {
+        console.log('Setting up close modal button');
+        closeProfileModal.addEventListener('click', function() {
+          console.log('Close button clicked');
+          profileModal.classList.remove('active');
+          setTimeout(function() {
+            profileModal.style.display = '';
+          }, 300);
+          document.body.style.overflow = '';
+        });
 
-        if (window.innerWidth < 992 &&
-            sidebar.style.width === '260px' &&
-            !sidebar.contains(event.target) &&
-            event.target !== sidebarToggle) {
-          sidebar.style.width = '0';
-        }
-      });
+        // Tutup juga saat mengklik di luar modal
+        profileModal.addEventListener('click', function(e) {
+          if (e.target === profileModal) {
+            console.log('Clicked outside modal content');
+            profileModal.classList.remove('active');
+            setTimeout(function() {
+              profileModal.style.display = '';
+            }, 300);
+            document.body.style.overflow = '';
+          }
+        });
+      }
 
-      // Adjust on resize
-      window.addEventListener('resize', function() {
-        if (window.innerWidth < 992) {
-          sidebarToggle.style.display = 'block';
-        } else {
-          sidebarToggle.style.display = 'none';
-          document.querySelector('.sidebar').style.width = '';
-        }
-      });
+      // Fungsi untuk tabs di modal profil
+      const profileTabs = document.querySelectorAll('.profile-tab');
+      const tabContents = document.querySelectorAll('.profile-tab-content');
+
+      if (profileTabs.length && tabContents.length) {
+        profileTabs.forEach(tab => {
+          tab.addEventListener('click', function() {
+            // Hapus kelas active dari semua tab
+            profileTabs.forEach(t => t.classList.remove('active'));
+            // Tambahkan kelas active pada tab yang diklik
+            this.classList.add('active');
+
+            // Sembunyikan semua konten tab
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Tampilkan konten tab yang sesuai
+            const tabId = 'tab-' + this.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+          });
+        });
+      }
+
+      // Fungsi untuk preview foto profil
+      const photoInput = document.getElementById('profile_photo');
+      const photoPreview = document.getElementById('photoPreview');
+      const photoFilename = document.getElementById('photoFilename');
+      const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
+
+      if (photoInput) {
+        photoInput.addEventListener('change', function() {
+          if (this.files && this.files[0]) {
+            const file = this.files[0];
+            const reader = new FileReader();
+
+            // Update nama file
+            photoFilename.textContent = file.name;
+
+            // Aktifkan tombol upload
+            if (uploadPhotoBtn) {
+              uploadPhotoBtn.disabled = false;
+            }
+
+            // Preview foto
+            reader.onload = function(e) {
+              if (photoPreview) {
+                // Jika elemen img sudah ada
+                if (photoPreview.tagName === 'IMG') {
+                  photoPreview.src = e.target.result;
+                }
+                // Jika perlu membuat elemen img baru
+                else {
+                  const photoPlaceholder = document.querySelector('.profile-photo-placeholder');
+                  if (photoPlaceholder) {
+                    const photoContainer = photoPlaceholder.parentElement;
+                    photoPlaceholder.remove();
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.id = 'photoPreview';
+                    img.alt = 'Preview';
+                    photoContainer.appendChild(img);
+                  }
+                }
+              }
+            };
+
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      // Password strength check
+      const passwordInput = document.getElementById('password');
+      const confirmPasswordInput = document.getElementById('password_confirmation');
+      const passwordStrength = document.getElementById('passwordStrength');
+      const strengthText = document.getElementById('strengthText');
+
+      if (passwordInput && passwordStrength && strengthText) {
+        passwordInput.addEventListener('input', function() {
+          const password = this.value;
+          let strength = 0;
+          let status = '';
+
+          if (password.length > 0) {
+            // Periksa panjang
+            if (password.length >= 8) strength += 25;
+            // Periksa huruf kecil
+            if (password.match(/[a-z]/)) strength += 25;
+            // Periksa huruf besar
+            if (password.match(/[A-Z]/)) strength += 25;
+            // Periksa angka dan karakter khusus
+            if (password.match(/[0-9]/) || password.match(/[^a-zA-Z0-9]/)) strength += 25;
+
+            // Tentukan status
+            if (strength <= 25) {
+              status = 'Lemah';
+              passwordStrength.style.width = '25%';
+              passwordStrength.style.backgroundPosition = '0% 0%';
+            } else if (strength <= 50) {
+              status = 'Sedang';
+              passwordStrength.style.width = '50%';
+              passwordStrength.style.backgroundPosition = '50% 0%';
+            } else if (strength <= 75) {
+              status = 'Kuat';
+              passwordStrength.style.width = '75%';
+              passwordStrength.style.backgroundPosition = '75% 0%';
+            } else {
+              status = 'Sangat Kuat';
+              passwordStrength.style.width = '100%';
+              passwordStrength.style.backgroundPosition = '100% 0%';
+            }
+          } else {
+            status = 'Belum diisi';
+            passwordStrength.style.width = '0%';
+          }
+
+          strengthText.textContent = status;
+        });
+      }
+
+      // Toggle visibility password
+      const passwordToggles = document.querySelectorAll('.password-toggle');
+
+      if (passwordToggles.length) {
+        passwordToggles.forEach(toggle => {
+          toggle.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('input');
+            const icon = this.querySelector('i');
+
+            if (input.type === 'password') {
+              input.type = 'text';
+              icon.classList.remove('fa-eye');
+              icon.classList.add('fa-eye-slash');
+            } else {
+              input.type = 'password';
+              icon.classList.remove('fa-eye-slash');
+              icon.classList.add('fa-eye');
+            }
+          });
+        });
+      }
     });
   </script>
+
+  <!-- Skrip khusus untuk fungsi modal profil -->
+  <script>
+    // Fungsi untuk toggle menu profil
+    function toggleProfileMenu() {
+      const profileMenu = document.getElementById('profile-menu');
+      if (profileMenu.style.opacity === '1') {
+        profileMenu.style.opacity = '0';
+        profileMenu.style.visibility = 'hidden';
+        profileMenu.style.transform = 'translateY(-10px)';
+      } else {
+        profileMenu.style.opacity = '1';
+        profileMenu.style.visibility = 'visible';
+        profileMenu.style.transform = 'translateY(0)';
+      }
+    }
+
+    // Fungsi untuk membuka modal profil
+    function openProfileModal(e) {
+      e.preventDefault();
+      const profileModal = document.getElementById('profileModal');
+
+      // Tutup dropdown profil
+      const profileMenu = document.getElementById('profile-menu');
+      profileMenu.style.opacity = '0';
+      profileMenu.style.visibility = 'hidden';
+
+      // Tampilkan modal
+      profileModal.style.display = 'flex';
+      profileModal.style.justifyContent = 'center';
+      profileModal.style.alignItems = 'center';
+      profileModal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Fungsi untuk menutup modal profil
+    function closeProfileModal() {
+      const profileModal = document.getElementById('profileModal');
+      profileModal.classList.remove('active');
+      setTimeout(function() {
+        profileModal.style.display = 'none';
+      }, 300);
+      document.body.style.overflow = '';
+    }
+
+    // Menambahkan event click untuk area modal
+    document.addEventListener('DOMContentLoaded', function() {
+      const profileModal = document.getElementById('profileModal');
+
+      if (profileModal) {
+        profileModal.addEventListener('click', function(e) {
+          if (e.target === this) {
+            closeProfileModal();
+          }
+        });
+      }
+    });
+  </script>
+
   @yield('scripts')
+
+  <!-- Script untuk alert password -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Cari elemen penting
+      const passwordForm = document.getElementById('updatePasswordForm');
+      const manualSuccessMsg = document.getElementById('manual-success-message');
+      const profileTabs = document.querySelectorAll('.profile-tab');
+      const passwordTab = document.querySelector('.profile-tab[data-tab="password"]');
+
+      // Fungsi untuk mengaktifkan tab password
+      function activatePasswordTab() {
+        if (!passwordTab) return;
+
+        // Aktifkan tab button
+        profileTabs.forEach(tab => tab.classList.remove('active'));
+        passwordTab.classList.add('active');
+
+        // Aktifkan konten tab
+        const tabContents = document.querySelectorAll('.profile-tab-content');
+        tabContents.forEach(content => content.classList.remove('active'));
+        document.getElementById('tab-password').classList.add('active');
+      }
+
+      // Cek jika form password disubmit
+      if (passwordForm) {
+        passwordForm.addEventListener('submit', function(e) {
+          // Simpan state form submission ke localStorage
+          localStorage.setItem('password_form_submitted', 'true');
+          localStorage.setItem('password_submit_time', Date.now());
+        });
+      }
+
+      // Cek jika ada flag bahwa form telah disubmit sebelumnya
+      const wasSubmitted = localStorage.getItem('password_form_submitted');
+      const submitTime = localStorage.getItem('password_submit_time');
+      const currentTime = Date.now();
+
+      // Jika form baru saja disubmit (dalam 5 detik terakhir)
+      if (wasSubmitted === 'true' && submitTime && (currentTime - submitTime < 5000)) {
+        console.log('Form was recently submitted, showing manual success message');
+
+        // Tampilkan pesan sukses manual
+        if (manualSuccessMsg) {
+          manualSuccessMsg.style.display = 'block';
+
+          // Animasi pesan
+          setTimeout(function() {
+            manualSuccessMsg.style.transition = 'all 0.3s ease';
+            manualSuccessMsg.style.transform = 'scale(1.03)';
+            setTimeout(function() {
+              manualSuccessMsg.style.transform = 'scale(1)';
+            }, 300);
+          }, 500);
+        }
+
+        // Aktifkan tab password
+        activatePasswordTab();
+
+        // Hapus flag agar tidak muncul lagi di refresh berikutnya
+        localStorage.removeItem('password_form_submitted');
+        localStorage.removeItem('password_submit_time');
+      }
+
+      // Cek jika ada success message dari session
+      const sessionSuccessMsg = document.querySelector('.profile-tab-content .alert-success:not(#manual-success-message)');
+      if (sessionSuccessMsg) {
+        console.log('Session success message found, highlighting tab');
+        activatePasswordTab();
+
+        // Animasi pesan
+        setTimeout(function() {
+          sessionSuccessMsg.style.transition = 'all 0.3s ease';
+          sessionSuccessMsg.style.transform = 'scale(1.03)';
+          setTimeout(function() {
+            sessionSuccessMsg.style.transform = 'scale(1)';
+          }, 300);
+        }, 500);
+      }
+    });
+  </script>
 </body>
 </html>

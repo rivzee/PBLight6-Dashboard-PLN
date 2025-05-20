@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Models\AktivitasLog;
 
 class AuthController extends Controller
 {
@@ -91,6 +92,15 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        // Catat aktivitas logout
+        if (Auth::check()) {
+            AktivitasLog::logLogout(
+                Auth::user(),
+                $request->ip(),
+                $request->userAgent()
+            );
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

@@ -1,0 +1,608 @@
+/*
+ * PLN Dashboard Animations & Effects
+ * File ini berisi animasi dan efek visual yang digunakan di seluruh aplikasi
+ */
+
+/* === ANIMATIONS === */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+    100% { opacity: 0.6; transform: scale(1); }
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Animasi tambahan */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+@keyframes shine {
+    from { background-position: -200% center; }
+    to { background-position: 200% center; }
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes rotateIn {
+    from { transform: rotate(-5deg) scale(0.9); opacity: 0; }
+    to { transform: rotate(0) scale(1); opacity: 1; }
+}
+
+@keyframes progressLoad {
+    from { width: 0; }
+}
+
+/* === ANIMATION CLASSES === */
+.fade-in { animation: fadeIn 0.8s ease-out forwards; }
+.fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+.fade-in-down { animation: fadeInDown 0.8s ease-out forwards; }
+.fade-in-left { animation: fadeInLeft 0.8s ease-out forwards; }
+.fade-in-right { animation: fadeInRight 0.8s ease-out forwards; }
+.pulse { animation: pulse 1.5s infinite ease-in-out; }
+.float { animation: float 3s ease-in-out infinite; }
+.scale-in { animation: scaleIn 0.5s ease-out forwards; }
+.rotate-in { animation: rotateIn 0.6s ease-out forwards; }
+
+/* Delay animasi */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
+/* === GLASSMORPHISM === */
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-effect {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Glass effect yang ditingkatkan */
+.glass-morphism {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        0 2px 8px rgba(0, 123, 255, 0.1),
+        inset 0 1px 1px rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+}
+
+.glass-morphism:hover {
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.15),
+        0 3px 12px rgba(0, 123, 255, 0.15),
+        inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    transform: translateY(-5px);
+}
+
+.glass-morphism-light {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.glass-card-header {
+    background: rgba(0, 123, 255, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 16px 16px 0 0;
+}
+
+/* === GRADIENT EFFECTS === */
+.gradient-blue {
+    background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
+    background-size: 200% 100%;
+    animation: gradientShift 8s ease infinite;
+}
+
+.gradient-border-top {
+    position: relative;
+}
+
+.gradient-border-top::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue), var(--pln-blue));
+    background-size: 200% 100%;
+    animation: gradientShift 8s ease infinite;
+}
+
+/* Gradien tambahan */
+.gradient-blue-dark {
+    background: linear-gradient(135deg, #005db4, #0078e7, #2b5797);
+    background-size: 200% 100%;
+    animation: gradientShift 8s ease infinite;
+}
+
+.gradient-card {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.gradient-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+    z-index: -1;
+    border-radius: inherit;
+}
+
+.gradient-text {
+    background: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 100%;
+    animation: gradientShift 8s ease infinite;
+}
+
+.gradient-border {
+    position: relative;
+    z-index: 0;
+}
+
+.gradient-border::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(to right, var(--pln-blue), var(--pln-light-blue), var(--pln-blue));
+    background-size: 200% 100%;
+    animation: gradientShift 8s ease infinite;
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+/* === BUTTON EFFECTS === */
+.btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: 0.5s;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.ripple {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+}
+
+/* Button modern */
+.btn-modern {
+    border-radius: 30px;
+    padding: 10px 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}
+
+.btn-modern::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.08), transparent);
+    z-index: -1;
+}
+
+.btn-modern:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon i {
+    transition: all 0.3s ease;
+    margin-right: 8px;
+}
+
+.btn-icon:hover i {
+    transform: translateX(3px);
+}
+
+/* === TABLE STYLES === */
+.modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+.modern-table th {
+    background: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
+    color: white;
+    padding: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.modern-table th:first-child {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+.modern-table th:last-child {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.modern-table tbody tr {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.modern-table tbody tr:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.modern-table td {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    transition: all 0.3s ease;
+}
+
+.modern-table tbody tr td:first-child {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+.modern-table tbody tr td:last-child {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+/* === BADGES & INDICATORS === */
+.modern-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.modern-badge:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Badge tambahan */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.status-badge i {
+    margin-right: 5px;
+    font-size: 0.8rem;
+}
+
+.status-badge:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.status-badge-success {
+    background: linear-gradient(135deg, #3aa755, #4bbe65);
+    color: white;
+}
+
+.status-badge-warning {
+    background: linear-gradient(135deg, #f7941d, #ffb74d);
+    color: white;
+}
+
+.status-badge-danger {
+    background: linear-gradient(135deg, #dc3545, #ef5350);
+    color: white;
+}
+
+.status-badge-info {
+    background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
+    color: white;
+}
+
+/* === PROGRESS BARS === */
+.modern-progress {
+    height: 8px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.modern-progress-bar {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
+    transition: width 0.5s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+    animation: progressLoad 1s ease-out forwards;
+}
+
+.modern-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%);
+    animation: shine 2s infinite linear;
+    background-size: 200% 100%;
+}
+
+/* === UTILITY CLASSES === */
+.shadow-hover {
+    transition: all 0.3s ease;
+}
+
+.shadow-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.icon-spin:hover i {
+    transform: rotate(15deg);
+    transition: transform 0.3s ease;
+}
+
+/* Utility tambahan */
+.shadow-soft {
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.08),
+        0 5px 15px rgba(0, 123, 255, 0.05);
+}
+
+.shadow-inset {
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.border-highlight {
+    border-left: 4px solid var(--pln-blue);
+}
+
+.shine-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.shine-effect::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 20%;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(30deg);
+    animation: shine 3s infinite linear;
+}
+
+/* === CARDS & CONTAINERS === */
+.modern-card {
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--pln-surface);
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.1),
+        0 5px 15px rgba(0, 123, 255, 0.05);
+    transition: all 0.3s ease;
+    animation: fadeIn 0.6s ease-out forwards;
+    border: 1px solid var(--pln-border);
+}
+
+.modern-card:hover {
+    transform: translateY(-5px);
+    box-shadow:
+        0 15px 40px rgba(0, 0, 0, 0.15),
+        0 10px 20px rgba(0, 123, 255, 0.1);
+}
+
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-7px) scale(1.01);
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.1),
+        0 10px 20px rgba(0, 123, 255, 0.1);
+}
+
+/* === EMPTY STATES === */
+.empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    color: rgba(0, 123, 255, 0.3);
+    margin-bottom: 20px;
+    display: inline-block;
+    animation: float 3s ease-in-out infinite;
+}
+
+.empty-state-text {
+    color: var(--pln-text-secondary);
+    margin-bottom: 20px;
+}
+
+.empty-state-btn {
+    display: inline-block;
+    padding: 8px 20px;
+    background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
+    color: white;
+    border-radius: 30px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.empty-state-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+}

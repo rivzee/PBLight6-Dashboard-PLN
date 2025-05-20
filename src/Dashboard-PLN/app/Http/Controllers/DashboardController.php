@@ -96,6 +96,8 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
+
+
         // Dapatkan tahun dan bulan saat ini atau dari parameter request
         $tahun = request('tahun', date('Y'));
         $bulan = request('bulan', date('m'));
@@ -144,7 +146,16 @@ class DashboardController extends Controller
             $indikators = collect($indikators);
         }
 
-        return view('dashboard.admin', compact('bidang', 'indikators', 'rataRata', 'historiData', 'tahun', 'bulan', 'periodeTipe'));
+        return view('dashboard.admin', compact(
+            'bidang',
+            'indikators',
+            'rataRata',
+            'historiData',
+            'tahun',
+            'bulan',
+            'periodeTipe'
+        ));
+
     }
 
     /**
@@ -261,4 +272,3 @@ class DashboardController extends Controller
         }
     }
 }
-    
