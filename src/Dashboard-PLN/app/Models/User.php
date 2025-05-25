@@ -2,31 +2,32 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Traits\ActivityLoggable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, ActivityLoggable;
 
     /**
-     * The attributes that are mass assignable.
+     * Atribut yang boleh diisi massal.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Atribut yang disembunyikan saat array atau JSON.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -34,15 +35,97 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Atribut yang harus dikonversi tipe datanya.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    /**
+     * Realisasi yang diinput oleh user ini
+     */
+    public function realisasis(): HasMany
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasMany(Realisasi::class);
+    }
+
+    /**
+     * Realisasi yang diverifikasi oleh user ini
+     */
+    public function verifiedRealisasis(): HasMany
+    {
+        return $this->hasMany(Realisasi::class, 'verifikasi_oleh');
+    }
+
+    /**
+     * Cek apakah user adalah master admin (asisten manajer)
+     */
+    public function isMasterAdmin(): bool
+    {
+        return $this->role === 'asisten_manager';
+    }
+
+    /**
+     * Cek apakah user adalah admin (PIC bidang)
+     */
+    public function isAdmin(): bool
+    {
+        return strpos($this->role, 'pic_') === 0;
+    }
+
+    /**
+     * Cek apakah user adalah karyawan biasa
+     */
+    public function isKaryawan(): bool
+    {
+        return $this->role === 'karyawan';
+    }
+
+    /**
+     * Mendapatkan bidang yang dikelola oleh PIC ini
+     */
+    public function getBidang()
+    {
+        if (!$this->isAdmin()) {
+            return null;
+        }
+
+        return Bidang::where('role_pic', $this->role)->first();
+    }
+
+    /**
+     * Mendapatkan indikator yang menjadi tanggung jawab PIC ini
+     */
+    public function getIndikators()
+    {
+        $bidang = $this->getBidang();
+        if (!$bidang) {
+            return collect();
+        }
+
+        return $bidang->indikators()->get();
+    }
+
+    /**
+     * Alias untuk getIndikators() (bentuk singular)
+     */
+    public function indikator()
+    {
+        $bidang = $this->getBidang();
+        if (!$bidang) {
+            return $this->hasMany(Indikator::class, 'id', 'id')->where('id', 0);
+        }
+
+        return $bidang->indikator();
+    }
+
+    /**
+     * Mendapatkan judul untuk log aktivitas
+     */
+    public function getActivityLogTitle()
+    {
+        return $this->name;
     }
 }
