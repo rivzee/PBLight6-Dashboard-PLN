@@ -51,9 +51,8 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard.admin_pengembangan_bisnis');
     })->name('dashboard.admin.pengembangan_bisnis');
 
-    Route::get('/dashboard/admin/human-capital', function () {
-        return view('dashboard.admin_human_capital');
-    })->name('dashboard.admin.human_capital');
+Route::get('/dashboard/admin/human_capital', [DashboardController::class, 'adminHumanCapital'])->name('dashboard.admin.human_capital');
+
 
     Route::get('/dashboard/admin/k3l', function () {
         return view('dashboard.admin_k3l');

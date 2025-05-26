@@ -1,5 +1,3 @@
-@php
-// Redirect ke admin.blade.php
-header('Location: ' . route('dashboard'));
-exit;
-@endphp
+@extends('dashboard.admin')
+
+@section('title', 'Dashboard Bidang Perencanaan Korporat')

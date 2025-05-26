@@ -65,12 +65,6 @@ class DatabaseSeeder extends Seeder
                 'role' => 'pic_human_capital',
             ],
             [
-                'name' => 'PIC Hukum',
-                'email' => 'hukum@pln.co.id',
-                'password' => Hash::make('pic12345'),
-                'role' => 'pic_hukum',
-            ],
-            [
                 'name' => 'PIC K3L',
                 'email' => 'k3l@pln.co.id',
                 'password' => Hash::make('pic12345'),

@@ -54,12 +54,6 @@ class BidangSeeder extends Seeder
                 'nama' => 'Bidang Human Capital',
                 'kode' => 'HCM',
                 'role_pic' => 'pic_human_capital',
-                'deskripsi' => 'Bertanggung jawab untuk KPI bidang SDM',
-            ],
-            [
-                'nama' => 'Bidang Hukum',
-                'kode' => 'HKM',
-                'role_pic' => 'pic_hukum',
                 'deskripsi' => 'Bertanggung jawab untuk KPI E1-E4',
             ],
             [

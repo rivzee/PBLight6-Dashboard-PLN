@@ -30,7 +30,6 @@ class IndikatorSeeder extends Seeder
         $bidangMrk = Bidang::where('kode', 'MRK')->first();
         $bidangPbn = Bidang::where('kode', 'PBN')->first();
         $bidangHcm = Bidang::where('kode', 'HCM')->first();
-        $bidangHkm = Bidang::where('kode', 'HKM')->first();
         $bidangK3l = Bidang::where('kode', 'K3L')->first();
 
         // Indikator untuk Pilar A (Nilai Ekonomi dan Sosial)
@@ -205,49 +204,48 @@ class IndikatorSeeder extends Seeder
 
         // Indikator untuk Pilar E (Pengembangan Talenta)
         $indikatorsE = [
-            // Bidang Hukum (E1-E4)
+            //Bidang Human Capital
             [
                 'pilar_id' => $pilarE->id,
-                'bidang_id' => $bidangHkm->id,
+                'bidang_id' => $bidangHcm->id,
                 'kode' => 'E1',
-                'nama' => 'Kepatuhan Hukum',
-                'deskripsi' => 'Indeks Kepatuhan Hukum',
+                'nama' => 'Rasio Talent Milenial',
+                'deskripsi' => 'Persentase tenaga kerja milenial terhadap total tenaga kerja di organisasi.',
                 'bobot' => 20,
                 'target' => 100,
                 'urutan' => 1,
             ],
             [
                 'pilar_id' => $pilarE->id,
-                'bidang_id' => $bidangHkm->id,
+                'bidang_id' => $bidangHcm->id,
                 'kode' => 'E2',
-                'nama' => 'Resolusi Sengketa',
-                'deskripsi' => 'Efektivitas Resolusi Sengketa',
+                'nama' => 'Rasio Talent Perempuan',
+                'deskripsi' => 'Persentase tenaga kerja perempuan terhadap total tenaga kerja di organisasi.',
                 'bobot' => 20,
                 'target' => 100,
                 'urutan' => 2,
             ],
             [
                 'pilar_id' => $pilarE->id,
-                'bidang_id' => $bidangHkm->id,
+                'bidang_id' => $bidangHcm->id,
                 'kode' => 'E3',
-                'nama' => 'Perizinan',
-                'deskripsi' => 'Penyelesaian Perizinan',
+                'nama' => 'Rasio Pemenuhan Kualifikasi Organ Pengelola Risiko SH/AP',
+                'deskripsi' => 'Persentase pemenuhan kualifikasi kompetensi oleh anggota Organ Pengelola Risiko Sumber Daya Manusia (SH) dan Administrasi & Personalia (AP).',
                 'bobot' => 20,
                 'target' => 100,
                 'urutan' => 3,
             ],
             [
                 'pilar_id' => $pilarE->id,
-                'bidang_id' => $bidangHkm->id,
+                'bidang_id' => $bidangHcm->id,
                 'kode' => 'E4',
-                'nama' => 'Kontrak Hukum',
-                'deskripsi' => 'Penyelesaian Kontrak Hukum',
+                'nama' => 'Human Capital Readiness (HCR) & Organizational Capital Readiness (OCR) dan Produktivitas Pegawai',
+                'deskripsi' => 'Indeks kesiapan sumber daya manusia (HCR) dan kesiapan modal organisasi (OCR) serta tingkat produktivitas pegawai dalam organisasi.',
                 'bobot' => 20,
                 'target' => 100,
                 'urutan' => 4,
             ],
-
-            // Bidang K3L (E5)
+             // Bidang K3L (E5)
             [
                 'pilar_id' => $pilarE->id,
                 'bidang_id' => $bidangK3l->id,
@@ -259,6 +257,7 @@ class IndikatorSeeder extends Seeder
                 'urutan' => 5,
             ],
         ];
+
 
         // Indikator untuk Pilar F (Kepatuhan)
         $indikatorsF = [
