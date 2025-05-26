@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AkunController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DataKinerjaController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Bidang;
 use App\Models\Indikator;
@@ -51,8 +53,9 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard.admin_pengembangan_bisnis');
     })->name('dashboard.admin.pengembangan_bisnis');
 
-Route::get('/dashboard/admin/human_capital', [DashboardController::class, 'adminHumanCapital'])->name('dashboard.admin.human_capital');
-
+    Route::get('/dashboard/admin/human-capital', function () {
+        return view('dashboard.admin_human_capital');
+    })->name('dashboard.admin.human_capital');
 
     Route::get('/dashboard/admin/k3l', function () {
         return view('dashboard.admin_k3l');
@@ -66,6 +69,15 @@ Route::get('/dashboard/admin/human_capital', [DashboardController::class, 'admin
         return view('dashboard.admin_sekretaris');
     })->name('dashboard.admin.sekretaris_perusahaan');
 
+        // CRUD Akun - sudah dikonfigurasi di controller
+    Route::resource('akun', AkunController::class);
+
+    // Routes untuk Data Kinerja
+    Route::get('/dataKinerja', [DataKinerjaController::class, 'index'])->name('dataKinerja.index');
+    Route::get('/dataKinerja/pilar/{id?}', [DataKinerjaController::class, 'pilar'])->name('dataKinerja.pilar');
+    Route::get('/dataKinerja/bidang/{id?}', [DataKinerjaController::class, 'bidang'])->name('dataKinerja.bidang');
+    Route::get('/dataKinerja/indikator/{id}', [DataKinerjaController::class, 'indikator'])->name('dataKinerja.indikator');
+    Route::get('/dataKinerja/perbandingan', [DataKinerjaController::class, 'perbandingan'])->name('dataKinerja.perbandingan');
 
 });
 
