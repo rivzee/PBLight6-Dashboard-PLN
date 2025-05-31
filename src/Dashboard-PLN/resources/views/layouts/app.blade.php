@@ -1324,12 +1324,6 @@ use Illuminate\Support\Str;
           </a>
         </li>
         <li>
-          <a href="#" class="{{ request()->routeIs('eksporPdf.*') ? 'active' : '' }}">
-            <i class="fas fa-file-pdf icon"></i>
-            <span class="menu-text">Ekspor PDF</span>
-          </a>
-        </li>
-        <li>
           <a href="#" class="{{ request()->routeIs('aktivitasLog.*') ? 'active' : '' }}">
             <i class="fas fa-history icon"></i>
             <span class="menu-text">Log Aktivitas</span>
@@ -1340,7 +1334,7 @@ use Illuminate\Support\Str;
      {{-- Menu untuk Admin (PIC Bidang) --}}
         @if(Str::startsWith(Auth::user()->role, 'pic_'))
         <li>
-          <a href="#" class="{{ request()->routeIs('dataKinerja.*') ? 'active' : '' }}">
+          <a href="{{route('dataKinerja.index')}}" class="{{ request()->routeIs('dataKinerja.*') ? 'active' : '' }}">
             <i class="fas fa-chart-bar icon"></i>
             <span class="menu-text">Data Kinerja</span>
           </a>
@@ -1357,21 +1351,10 @@ use Illuminate\Support\Str;
             <span class="menu-text">Laporan KPI</span>
           </a>
         </li>
-                <li>
-          <a href="#" class="{{ request()->routeIs('eksporPdf.*') ? 'active' : '' }}">
-            <i class="fas fa-file-pdf icon"></i>
-            <span class="menu-text">Ekspor PDF</span>
-          </a>
-        </li>
+
         @endif
 
         {{-- Menu untuk semua user --}}
-        <li>
-          <a href="#" class="{{ request()->routeIs('dataKinerja.*') ? 'active' : '' }}">
-            <i class="fas fa-chart-bar icon"></i>
-            <span class="menu-text">Data Kinerja</span>
-          </a>
-        </li>
         <li>
           <a href="#" class="{{ request()->routeIs('eksporPdf.*') ? 'active' : '' }}">
             <i class="fas fa-file-pdf icon"></i>
