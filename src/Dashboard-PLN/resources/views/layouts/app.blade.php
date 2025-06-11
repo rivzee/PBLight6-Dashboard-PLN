@@ -1324,6 +1324,12 @@ use Illuminate\Support\Str;
           </a>
         </li>
         <li>
+          <a href="{{route('realisasi.index')}}" class="{{ request()->routeIs('realisasi.*') ? 'active' : '' }}">
+            <i class="fas fa-tasks icon"></i>
+            <span class="menu-text">Data Realisasi</span>
+          </a>
+        </li>
+        <li>
           <a href="#" class="{{ request()->routeIs('aktivitasLog.*') ? 'active' : '' }}">
             <i class="fas fa-history icon"></i>
             <span class="menu-text">Log Aktivitas</span>
@@ -1340,9 +1346,9 @@ use Illuminate\Support\Str;
           </a>
         </li>
         <li>
-          <a href="#" class="{{ request()->routeIs('realisasi.*') ? 'active' : '' }}">
+          <a href="{{route('realisasi.index')}}" class="{{ request()->routeIs('realisasi.*') ? 'active' : '' }}">
             <i class="fas fa-tasks icon"></i>
-            <span class="menu-text">Realisasi</span>
+            <span class="menu-text">Data Realisasi</span>
           </a>
         </li>
         <li>

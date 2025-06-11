@@ -6,6 +6,7 @@ use App\Http\Controllers\AkunController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TahunPenilaianController;
 use App\Http\Controllers\DataKinerjaController;
+use App\Http\Controllers\RealisasiController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Bidang;
 use App\Models\Indikator;
@@ -79,6 +80,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dataKinerja/bidang/{id?}', [DataKinerjaController::class, 'bidang'])->name('dataKinerja.bidang');
     Route::get('/dataKinerja/indikator/{id}', [DataKinerjaController::class, 'indikator'])->name('dataKinerja.indikator');
     Route::get('/dataKinerja/perbandingan', [DataKinerjaController::class, 'perbandingan'])->name('dataKinerja.perbandingan');
+
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/realisasi', [RealisasiController::class, 'index'])->name('realisasi.index');
+        Route::get('/realisasi/{indikator}/create', [RealisasiController::class, 'create'])->name('realisasi.create');
+        Route::post('/realisasi/{indikator}', [RealisasiController::class, 'store'])->name('realisasi.store');
+        Route::get('/realisasi/{indikator}/edit', [RealisasiController::class, 'edit'])->name('realisasi.edit');
+    Route::put('/realisasi/{id}', [RealisasiController::class, 'update'])->name('realisasi.update');
+
+    });
 
      // Resource controllers untuk fitur CRUD
     Route::resource('verifikasi', VerifikasiController::class);
