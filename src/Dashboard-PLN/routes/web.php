@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TahunPenilaianController;
 use App\Http\Controllers\DataKinerjaController;
 use App\Http\Controllers\RealisasiController;
+use App\Http\Controllers\VerifikasiController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Bidang;
 use App\Models\Indikator;
@@ -96,5 +97,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tahunPenilaian/{id}/activate', [TahunPenilaianController::class, 'activate'])->name('tahunPenilaian.activate');
     Route::get('/tahunPenilaian/{id}/lock', [TahunPenilaianController::class, 'lock'])->name('tahunPenilaian.lock');
     Route::get('/tahunPenilaian/{id}/unlock', [TahunPenilaianController::class, 'unlock'])->name('tahunPenilaian.unlock');
+
+     Route::resource('verifikasi', VerifikasiController::class)->except(['create', 'edit', 'store']);
+     Route::post('/verifikasi/massal', [VerifikasiController::class, 'verifikasiMassal'])->name('verifikasi.massal');
 });
 

@@ -1300,7 +1300,7 @@ use Illuminate\Support\Str;
           </a>
         </li>
         <li>
-          <a href="#" class="{{ request()->routeIs('verifikasi.*') ? 'active' : '' }}">
+          <a href="{{ route('verifikasi.index') }}" class="{{ request()->routeIs('verifikasi.*') ? 'active' : '' }}">
             <i class="fas fa-check-circle icon"></i>
             <span class="menu-text">Verifikasi</span>
           </a>
