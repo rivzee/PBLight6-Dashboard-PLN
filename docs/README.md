@@ -39,6 +39,3 @@ php artisan migrate --seed
 # 6. Jalankan server lokal
 php artisan serve
 
-## 
-
-![Login Page](https://github.com/rivzee/PBLight6-Dashboard-PLN.git/main/docs/Login.png?raw=true)
