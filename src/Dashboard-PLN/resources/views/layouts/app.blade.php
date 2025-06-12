@@ -1318,7 +1318,7 @@ use Illuminate\Support\Str;
           </a>
         </li>
         <li>
-          <a href="#" class="{{ request()->routeIs('targetKinerja.*') ? 'active' : '' }}">
+          <a href="{{route('targetKinerja.index')}}" class="{{ request()->routeIs('targetKinerja.*') ? 'active' : '' }}">
             <i class="fas fa-bullseye icon"></i>
             <span class="menu-text">Target Kinerja</span>
           </a>
