@@ -33,7 +33,7 @@ class VerifikasiController extends Controller
         $query = Realisasi::with(['indikator.bidang', 'indikator.pilar', 'user'])
             ->where('tahun', $tahun)
             ->where('bulan', $bulan)
-            ->where('diverifikasi', false)
+            // ->where('diverifikasi', false)
             ->orderBy('created_at', 'desc');
 
         if ($bidangId) {
@@ -95,13 +95,16 @@ class VerifikasiController extends Controller
             $user,
             'verify',
             'Memverifikasi nilai KPI ' . $realisasi->indikator->kode . ' - ' . $realisasi->indikator->nama,
+            
+            '-',
+            $request->ip(),
             [
                 'indikator_id' => $realisasi->indikator_id,
                 'nilai' => $realisasi->nilai,
                 'tahun' => $realisasi->tahun,
                 'bulan' => $realisasi->bulan,
             ],
-            $request->ip(),
+            '',
             $request->userAgent()
         );
 

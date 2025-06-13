@@ -272,15 +272,16 @@ class AktivitasLog extends Model
             'tipe' => $tipe,
             'judul' => $judul,
             'deskripsi' => $deskripsi,
-            'data' => $data,
+            'data' => is_array($data) ? json_encode($data) : $data,
             'ip_address' => $ipAddress,
             'user_agent' => $userAgent,
         ];
 
-        if ($model) {
+        if ($model && is_object($model)) {
             $logData['loggable_type'] = get_class($model);
             $logData['loggable_id'] = $model->getKey();
         }
+
 
         return self::create($logData);
     }

@@ -100,5 +100,7 @@ Route::middleware(['auth'])->group(function () {
 
      Route::resource('verifikasi', VerifikasiController::class)->except(['create', 'edit', 'store']);
      Route::post('/verifikasi/massal', [VerifikasiController::class, 'verifikasiMassal'])->name('verifikasi.massal');
+     Route::put('/verifikasi/{id}', [VerifikasiController::class, 'update'])->name('verifikasi.update');
+
 });
 
