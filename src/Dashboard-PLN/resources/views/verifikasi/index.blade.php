@@ -600,79 +600,77 @@
     </div>
 
     @if($realisasis->count() > 0)
-        <form action="{{ route('verifikasi.massal') }}" method="POST" id="form-verifikasi-massal">
-            @csrf
+    <div class="table-container">
+        <table class="verifikasi-table">
+            <thead>
+                <tr>
+                    {{-- Kolom checkbox dihapus --}}
+                    <th width="10%">KPI</th>
+                    <th width="20%">Indikator</th>
+                    <th width="15%">Bidang</th>
+                    <th width="10%">Periode</th>
+                    <th width="8%">Nilai</th>
+                    <th width="10%">Uploaded By</th>
+                    <th width="15%">Status</th>
+                    <th width="12%">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($realisasis as $realisasi)
+                    <tr>
+                        {{-- Kolom checkbox dihapus --}}
+                        <td>{{ $realisasi->indikator->kode }}</td>
+                        <td>{{ $realisasi->indikator->nama }}</td>
+                        <td>{{ $realisasi->indikator->bidang->nama }}</td>
+                        <td>{{ $realisasi->tahun }}-{{ $realisasi->bulan }}</td>
+                        <td>{{ $realisasi->nilai }}</td>
+                        <td>{{ $realisasi->user->name }}</td>
+                        <td>
+                            @if ($realisasi->diverifikasi)
+                                <span class="badge bg-success text-white fw-bold rounded-pill">
+                                    Telah Diverifikasi
+                                </span>
+                            @else
+                                <span class="badge bg-warning text-dark fw-bold rounded-pill">
+                                    Belum Diverifikasi
+                                </span>
+                            @endif
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="{{ route('verifikasi.show', $realisasi->id) }}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i> Detail
+                                </a>
 
-            <div class="mb-3">
-                <button type="submit" class="btn btn-success" {{ isset($isPeriodeLocked) && $isPeriodeLocked ? 'disabled' : '' }} id="btn-verifikasi-massal" disabled>
-                    <i class="fas fa-check-double"></i> <span>Verifikasi Terpilih</span>
-                </button>
-            </div>
+                                @if (!$realisasi->diverifikasi && empty($isPeriodeLocked))
+                                    <form action="{{ route('verifikasi.update', $realisasi->id) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Yakin verifikasi?')">
+                                            <i class="fas fa-check"></i> Verifikasi
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="btn btn-success btn-sm disabled">
+                                        <i class="fas fa-check"></i> Sudah Diverifikasi
+                                    </span>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 
-            <div class="table-container">
-                <table class="verifikasi-table">
-                    <thead>
-                        <tr>
-                            <th width="5%">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="checkAll" {{ isset($isPeriodeLocked) && $isPeriodeLocked ? 'disabled' : '' }}>
-                                </div>
-                            </th>
-                            <th width="10%">KPI</th>
-                            <th width="25%">Indikator</th>
-                            <th width="15%">Bidang</th>
-                            <th width="10%">Periode</th>
-                            <th width="10%">Nilai</th>
-                            <th width="10%">Uploaded By</th>
-                            <th width="15%">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($realisasis as $realisasi)
-                            <tr>
-                                <td>
-                                    <div class="form-check">
-                                        <input class="form-check-input check-item" type="checkbox" name="nilai_ids[]"
-                                               value="{{ $realisasi->id }}" {{ isset($isPeriodeLocked) && $isPeriodeLocked ? 'disabled' : '' }}>
-                                    </div>
-                                </td>
-                                <td>{{ $realisasi->indikator->kode }}</td>
-                                <td>{{ $realisasi->indikator->nama }}</td>
-                                <td>{{ $realisasi->indikator->bidang->nama }}</td>
-                                <td>{{ $realisasi->tahun }}-{{ $realisasi->bulan }}</td>
-                                <td>{{ $realisasi->nilai }}</td>
-                                <td>{{ $realisasi->user->name }}</td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('verifikasi.show', $realisasi->id) }}" class="btn btn-sm btn-info">
-                                            <i class="fas fa-eye"></i> <span>Detail</span>
-                                        </a>
-                                        @if(!isset($isPeriodeLocked) || !$isPeriodeLocked)
-                                        <form action="{{ route('verifikasi.update', $realisasi->id) }}" method="POST" style="display: inline-block;">
-                                            @csrf
-                                            @method('PUT')
-                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Yakin verifikasi KPI ini?')">
-                                                <i class="fas fa-check"></i> <span>Verifikasi</span>
-                                            </button>
-                                        </form>
-                                        @endif
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </form>
-
-        <div class="mt-4">
-            {{ $realisasis->appends(['tahun' => $tahun, 'bulan' => $bulan, 'bidang_id' => $bidangId])->links() }}
-        </div>
-    @else
-        <div class="alert alert-info">
-            <i class="fas fa-info-circle"></i> Tidak ada data KPI yang menunggu verifikasi untuk periode ini.
-        </div>
-    @endif
+    <div class="mt-4">
+        {{ $realisasis->appends(['tahun' => $tahun, 'bulan' => $bulan, 'bidang_id' => $bidangId])->links() }}
+    </div>
+@else
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> Tidak ada data KPI yang menunggu verifikasi untuk periode ini.
+    </div>
+@endif
 </div>
 @endsection
 
@@ -762,5 +760,6 @@
             }, 100 + (index * 50));
         });
     });
+    
 </script>
 @endsection

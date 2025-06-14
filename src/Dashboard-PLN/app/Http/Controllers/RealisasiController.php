@@ -5,149 +5,181 @@ namespace App\Http\Controllers;
 use App\Models\Realisasi;
 use App\Models\Indikator;
 use App\Models\TahunPenilaian;
+use App\Models\TargetKPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
+
 class RealisasiController extends Controller
 {
-    public function index(Request $request)
-    {
-        $user = Auth::user();
 
-        $tahun = $request->input('tahun', date('Y'));
-        $bulan = $request->input('bulan', date('n'));
-        $tanggal = $request->input('tanggal');
 
-        if (!$tanggal) {
-            $tanggal = Carbon::createFromDate($tahun, $bulan, 1)->toDateString();
+public function index(Request $request)
+{
+    $user = Auth::user();
+
+    $tanggal = $request->input('tanggal', Carbon::today()->toDateString());
+    $parsedDate = Carbon::parse($tanggal);
+    $tahun = $parsedDate->year;
+
+    $indikatorsQuery = Indikator::with([
+        'pilar',
+        'bidang',
+        'targetKPI' => function ($query) use ($tahun) {
+            $query->whereHas('tahunPenilaian', function ($q) use ($tahun) {
+                $q->where('tahun', $tahun);
+            });
+        },
+            'realisasis' => function ($query) use ($tanggal) {
+            $query->whereDate('tanggal', $tanggal);
         }
 
-        $indikatorsQuery = Indikator::with(['pilar', 'bidang']);
+    ]);
 
-        // Filter role
-        if ($user->isMasterAdmin()) {
-            // master admin lihat semua indikator
-        } elseif ($user->isAdmin()) {
-            $bidang = $user->getBidang();
-            if (!$bidang) {
-                return redirect()->route('dashboard')->with('error', 'Bidang tidak ditemukan.');
-            }
-            $indikatorsQuery->where('bidang_id', $bidang->id);
-        } else {
-            return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses ke fitur ini.');
+    if ($user->isMasterAdmin()) {
+        // akses semua indikator
+    } elseif ($user->isAdmin()) {
+        $bidang = $user->getBidang();
+        if (!$bidang) {
+            return redirect()->route('dashboard')->with('error', 'Bidang tidak ditemukan.');
         }
-
-        // Eager loading realisasi, filter sesuai user dan tanggal
-        $indikatorsQuery->with([
-            'realisasis' => function ($query) use ($user, $tanggal) {
-                $query->where('user_id', $user->id)->whereDate('tanggal', $tanggal);
-            },
-        ]);
-
-        $indikators = $indikatorsQuery->orderBy('kode')->paginate(10)->withQueryString();
-
-        // Untuk tiap indikator, ambil realisasi (jika ada)
-        foreach ($indikators as $indikator) {
-            if ($user->isMasterAdmin()) {
-                // Master admin ambil realisasi siapa pun yang ada duluan
-                $realisasi = Realisasi::where('indikator_id', $indikator->id)->whereDate('tanggal', $tanggal)->first();
-            } else {
-                // Admin biasa atau PIC lihat berdasarkan user login
-                $realisasi = Realisasi::where('indikator_id', $indikator->id)->where('user_id', $user->id)->whereDate('tanggal', $tanggal)->first();
-            }
-
-            $indikator->realisasi = $realisasi;
-            $indikator->persentase = $realisasi->persentase ?? 0;
-            $indikator->nilai_id = $realisasi->id ?? null;
-        }
-
-        return view('realisasi.index', compact('indikators', 'tanggal', 'tahun', 'bulan'));
+        $indikatorsQuery->where('bidang_id', $bidang->id);
+    } else {
+        return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses.');
     }
 
-    public function create($indikatorId)
-    {
-        $indikator = Indikator::with(['pilar', 'bidang'])->findOrFail($indikatorId);
-        $user = Auth::user();
+    $indikators = $indikatorsQuery->orderBy('kode')->paginate(10)->withQueryString();
 
-        // Master Admin (asisten_manager) boleh input semua indikator
-        if ($user->isMasterAdmin()) {
-            // Akses penuh
-        }
-        // Admin bidang (pic_*) hanya boleh input jika indikator sesuai bidang mereka
-        elseif ($user->isAdmin()) {
-            $bidang = \App\Models\Bidang::where('role_pic', $user->role)->first();
+    foreach ($indikators as $indikator) {
+        $realisasi = $indikator->realisasis->first(); // Sudah di-eager load
 
-            if (!$bidang || $bidang->id !== $indikator->bidang_id) {
-                abort(403, 'Anda tidak memiliki akses untuk indikator ini.');
-            }
-        } else {
-            abort(403, 'Anda tidak memiliki akses ke fitur ini.');
+$targetKPI = $indikator->targetKPI
+    ->where('tahunPenilaian.tahun', $tahun)
+    ->first(); // pastikan ambil yang sesuai tahun
+$target_nilai = $targetKPI ? $targetKPI->target_tahunan : 0;
+
+        $persentase = 0;
+        if ($realisasi && $target_nilai > 0) {
+            $persentase = $targetKPI
+                ? $targetKPI->hitungPersentasePencapaian($realisasi->nilai)
+                : ($realisasi->nilai / $target_nilai) * 100;
         }
 
-        return view('realisasi.create', compact('indikator'));
+        // Tambahan atribut untuk view
+        $indikator->realisasi = $realisasi;
+        $indikator->persentase = $persentase;
+        $indikator->nilai_id = $realisasi?->id;
+        $indikator->diverifikasi = $realisasi?->diverifikasi ?? false;
+        $indikator->verifikasi_oleh = $realisasi?->verifikasi_oleh;
+        $indikator->verifikasi_pada = $realisasi?->verifikasi_pada;
+        $indikator->target_nilai = $target_nilai;
     }
 
-    public function store(Request $request, Indikator $indikator)
-    {
-        $request->validate([
-            'tanggal' => 'required|date',
-            'nilai' => 'required|numeric|min:0',
-            'keterangan' => 'nullable|string|max:1000',
-        ]);
+    return view('realisasi.index', compact('indikators', 'tanggal', 'tahun'));
+}
 
-        $tanggal = \Carbon\Carbon::parse($request->tanggal);
-        $user = auth()->user();
 
-        // Cek apakah user berwenang menginput indikator ini
-        if (!$user->isMasterAdmin() && !$user->isAdmin()) {
-            abort(403, 'Anda tidak memiliki hak untuk input realisasi.');
-        }
 
-        // Jika admin/pic, cek apakah indikator milik bidang yang sesuai
-        if ($user->isAdmin() && $indikator->bidang->role_pic !== $user->role) {
-            abort(403, 'Indikator ini tidak termasuk dalam bidang Anda.');
-        }
 
-        $realisasi = new Realisasi([
-            'indikator_id' => $indikator->id,
-            'user_id' => $user->id,
-            'tanggal' => $tanggal->toDateString(),
-            'tahun' => $tanggal->year,
-            'bulan' => $tanggal->month,
-            'periode_tipe' => 'harian',
-            'nilai' => $request->nilai,
-            'persentase' => $indikator->target > 0 ? ($request->nilai / $indikator->target) * 100 : 0,
-            'keterangan' => $request->keterangan,
-            'diverifikasi' => false,
-        ]);
 
-        $realisasi->save();
 
-        return redirect()->route('realisasi.index')->with('success', 'Realisasi berhasil disimpan.');
+public function create($indikatorId)
+{
+    $indikator = Indikator::with(['pilar', 'bidang'])->findOrFail($indikatorId);
+    $user = Auth::user();
+
+    // Master Admin (asisten_manager) boleh input semua indikator
+    if ($user->isMasterAdmin()) {
+        // Akses penuh
     }
+    // Admin bidang (pic_*) hanya boleh input jika indikator sesuai bidang mereka
+    elseif ($user->isAdmin()) {
+        $bidang = \App\Models\Bidang::where('role_pic', $user->role)->first();
+
+        if (!$bidang || $bidang->id !== $indikator->bidang_id) {
+            abort(403, 'Anda tidak memiliki akses untuk indikator ini.');
+        }
+    } else {
+        abort(403, 'Anda tidak memiliki akses ke fitur ini.');
+    }
+
+    return view('realisasi.create', compact('indikator'));
+}
+
+
+
+
+public function store(Request $request, Indikator $indikator)
+{
+    $request->validate([
+        'tanggal' => 'required|date',
+        'nilai' => 'required|numeric|min:0',
+        'keterangan' => 'nullable|string|max:1000',
+    ]);
+
+    $tanggal = \Carbon\Carbon::parse($request->tanggal);
+    $user = auth()->user();
+
+    // Cek apakah user berwenang menginput indikator ini
+    if (!$user->isMasterAdmin() && !$user->isAdmin()) {
+        abort(403, 'Anda tidak memiliki hak untuk input realisasi.');
+    }
+
+    // Jika admin/pic, cek apakah indikator milik bidang yang sesuai
+    if ($user->isAdmin() && $indikator->bidang->role_pic !== $user->role) {
+        abort(403, 'Indikator ini tidak termasuk dalam bidang Anda.');
+    }
+
+
+    $realisasi = new Realisasi([
+        'indikator_id' => $indikator->id,
+        'user_id' => $user->id,
+        'tanggal' => $tanggal->toDateString(),
+        'tahun' => $tanggal->year,
+        'bulan' => $tanggal->month,
+        'periode_tipe' => 'harian',
+        'nilai' => $request->nilai,
+        'persentase' => $indikator->target > 0 ? ($request->nilai / $indikator->target) * 100 : 0,
+        'keterangan' => $request->keterangan,
+        'diverifikasi' => false,
+    ]);
+
+    $realisasi->save();
+
+    return redirect()->route('realisasi.index')->with('success', 'Realisasi berhasil disimpan.');
+}
+
+
+
 
     public function edit(Request $request, $indikatorId)
     {
         $indikator = Indikator::with(['pilar', 'bidang'])->findOrFail($indikatorId);
         $user = Auth::user();
 
-        if ($user->role !== 'master_admin' && $user->bidang_id !== $indikator->bidang_id) {
-            abort(403, 'Anda tidak memiliki akses untuk indikator ini.');
+        if ($user->isAdmin()) {
+            $bidang = $user->getBidang();
+            if (!$bidang || $indikator->bidang_id !== $bidang->id) {
+                abort(403, 'Anda tidak memiliki akses untuk indikator ini.');
+            }
+        } elseif (!$user->isMasterAdmin()) {
+            abort(403, 'Anda tidak memiliki akses ke fitur ini.');
         }
 
-        $tahun = $request->input('tahun', date('Y'));
-        $bulan = $request->input('bulan', date('n'));
-        $periode_tipe = $request->input('periode_tipe', 'bulanan');
+        $tanggal = $request->input('tanggal', now()->toDateString());
 
-        $realisasi = Realisasi::where('indikator_id', $indikator->id)->where('tahun', $tahun)->where('bulan', $bulan)->where('periode_tipe', $periode_tipe)->first();
+        $realisasi = Realisasi::where('indikator_id', $indikator->id)
+            ->whereDate('tanggal', $tanggal)
+            ->first();
 
         if (!$realisasi) {
             return redirect()->back()->with('error', 'Data realisasi tidak ditemukan.');
         }
 
-        return view('realisasi.edit', compact('indikator', 'realisasi', 'tahun', 'bulan', 'periode_tipe'));
+        return view('realisasi.edit', compact('indikator', 'realisasi', 'tanggal'));
     }
+
 
     public function update(Request $request, $id)
     {
@@ -155,12 +187,18 @@ class RealisasiController extends Controller
         $indikator = $realisasi->indikator;
         $user = Auth::user();
 
-        if ($user->role !== 'master_admin' && $user->bidang_id !== $indikator->bidang_id) {
+        if ($user->isAdmin()) {
+            $bidang = $user->getBidang();
+            if (!$bidang || $indikator->bidang_id !== $bidang->id) {
+                abort(403, 'Anda tidak diizinkan mengedit realisasi ini.');
+            }
+        } elseif (!$user->isMasterAdmin()) {
             abort(403, 'Anda tidak diizinkan mengedit realisasi ini.');
         }
 
+
         $validated = $request->validate([
-            'nilai' => 'required|numeric|min:0|max:100',
+        'nilai' => 'required|numeric|min:0',
         ]);
 
         $realisasi->update([
@@ -171,4 +209,6 @@ class RealisasiController extends Controller
 
         return redirect()->route('realisasi.index')->with('success', 'Realisasi berhasil diperbarui.');
     }
+
+
 }
