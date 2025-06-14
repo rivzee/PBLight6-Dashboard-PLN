@@ -1362,7 +1362,7 @@ use Illuminate\Support\Str;
 
         {{-- Menu untuk semua user --}}
         <li>
-          <a href="#" class="{{ request()->routeIs('eksporPdf.*') ? 'active' : '' }}">
+          <a href="{{ route('eksporPdf.index') }}" class="{{ request()->routeIs('eksporPdf.*') ? 'active' : '' }}">
             <i class="fas fa-file-pdf icon"></i>
             <span class="menu-text">Ekspor PDF</span>
           </a>
