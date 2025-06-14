@@ -31,10 +31,10 @@ public function index(Request $request)
                 $q->where('tahun', $tahun);
             });
         },
-        'realisasis' => function ($query) use ($user, $tanggal) {
-            $query->where('user_id', $user->id)
-                ->whereDate('tanggal', $tanggal);
+            'realisasis' => function ($query) use ($tanggal) {
+            $query->whereDate('tanggal', $tanggal);
         }
+
     ]);
 
     if ($user->isMasterAdmin()) {
