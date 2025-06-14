@@ -158,26 +158,28 @@ public function store(Request $request, Indikator $indikator)
         $indikator = Indikator::with(['pilar', 'bidang'])->findOrFail($indikatorId);
         $user = Auth::user();
 
-        if ($user->role !== 'master_admin' && $user->bidang_id !== $indikator->bidang_id) {
-            abort(403, 'Anda tidak memiliki akses untuk indikator ini.');
+        if ($user->isAdmin()) {
+            $bidang = $user->getBidang();
+            if (!$bidang || $indikator->bidang_id !== $bidang->id) {
+                abort(403, 'Anda tidak memiliki akses untuk indikator ini.');
+            }
+        } elseif (!$user->isMasterAdmin()) {
+            abort(403, 'Anda tidak memiliki akses ke fitur ini.');
         }
 
-        $tahun = $request->input('tahun', date('Y'));
-        $bulan = $request->input('bulan', date('n'));
-        $periode_tipe = $request->input('periode_tipe', 'bulanan');
+        $tanggal = $request->input('tanggal', now()->toDateString());
 
         $realisasi = Realisasi::where('indikator_id', $indikator->id)
-            ->where('tahun', $tahun)
-            ->where('bulan', $bulan)
-            ->where('periode_tipe', $periode_tipe)
+            ->whereDate('tanggal', $tanggal)
             ->first();
 
         if (!$realisasi) {
             return redirect()->back()->with('error', 'Data realisasi tidak ditemukan.');
         }
 
-        return view('realisasi.edit', compact('indikator', 'realisasi', 'tahun', 'bulan', 'periode_tipe'));
+        return view('realisasi.edit', compact('indikator', 'realisasi', 'tanggal'));
     }
+
 
     public function update(Request $request, $id)
     {
@@ -185,12 +187,18 @@ public function store(Request $request, Indikator $indikator)
         $indikator = $realisasi->indikator;
         $user = Auth::user();
 
-        if ($user->role !== 'master_admin' && $user->bidang_id !== $indikator->bidang_id) {
+        if ($user->isAdmin()) {
+            $bidang = $user->getBidang();
+            if (!$bidang || $indikator->bidang_id !== $bidang->id) {
+                abort(403, 'Anda tidak diizinkan mengedit realisasi ini.');
+            }
+        } elseif (!$user->isMasterAdmin()) {
             abort(403, 'Anda tidak diizinkan mengedit realisasi ini.');
         }
 
+
         $validated = $request->validate([
-            'nilai' => 'required|numeric|min:0|max:100',
+        'nilai' => 'required|numeric|min:0',
         ]);
 
         $realisasi->update([

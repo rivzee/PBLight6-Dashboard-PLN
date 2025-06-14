@@ -264,14 +264,14 @@
             <h2><i class="fas fa-edit me-2"></i>Edit Realisasi KPI</h2>
             <div class="page-header-subtitle">
                 Ubah data realisasi kinerja untuk periode:
-                {{ \Carbon\Carbon::create(null, $nilaiKPI->bulan, 1)->locale('id')->monthName }} {{ $nilaiKPI->tahun }}
-                @if($nilaiKPI->periode_tipe == 'mingguan')
-                (Minggu {{ $nilaiKPI->minggu }})
+                {{ \Carbon\Carbon::create(null, $realisasi->bulan, 1)->locale('id')->monthName }} {{ $realisasi->tahun }}
+                @if($realisasi->periode_tipe == 'mingguan')
+                (Minggu {{ $realisasi->minggu }})
                 @endif
             </div>
         </div>
         <div class="page-header-actions">
-            @if($nilaiKPI->diverifikasi)
+            @if($realisasi->diverifikasi)
                 <div class="page-header-badge">
                     <i class="fas fa-check-circle"></i> Sudah Diverifikasi
                 </div>
@@ -291,7 +291,7 @@
     <div class="form-card">
         <div class="card-header">
             <h6 class="m-0 font-weight-bold">Form Edit Realisasi</h6>
-            @if($nilaiKPI->diverifikasi)
+            @if($realisasi->diverifikasi)
                 <span class="status-badge verified">
                     <i class="fas fa-check-circle"></i> Sudah Diverifikasi
                 </span>
@@ -308,54 +308,54 @@
                     <div class="col-md-6">
                         <div class="info-row">
                             <div class="info-label">Kode:</div>
-                            <div class="info-value">{{ $nilaiKPI->indikator->kode }}</div>
+                            <div class="info-value">{{ $realisasi->indikator->kode }}</div>
                         </div>
                         <div class="info-row">
                             <div class="info-label">Nama:</div>
-                            <div class="info-value">{{ $nilaiKPI->indikator->nama }}</div>
+                            <div class="info-value">{{ $realisasi->indikator->nama }}</div>
                         </div>
                         <div class="info-row">
                             <div class="info-label">Target:</div>
-                            <div class="info-value">{{ number_format($nilaiKPI->indikator->target, 2) }}</div>
+                            <div class="info-value">{{ number_format($realisasi->indikator->target, 2) }}</div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="info-row">
                             <div class="info-label">Bidang:</div>
-                            <div class="info-value">{{ $nilaiKPI->indikator->bidang->nama }}</div>
+                            <div class="info-value">{{ $realisasi->indikator->bidang->nama }}</div>
                         </div>
                         <div class="info-row">
                             <div class="info-label">Periode:</div>
                             <div class="info-value">
-                                {{ \Carbon\Carbon::create(null, $nilaiKPI->bulan, 1)->locale('id')->monthName }} {{ $nilaiKPI->tahun }}
-                                @if($nilaiKPI->periode_tipe == 'mingguan')
-                                (Minggu {{ $nilaiKPI->minggu }})
+                                {{ \Carbon\Carbon::create(null, $realisasi->bulan, 1)->locale('id')->monthName }} {{ $realisasi->tahun }}
+                                @if($realisasi->periode_tipe == 'mingguan')
+                                (Minggu {{ $realisasi->minggu }})
                                 @endif
                             </div>
                         </div>
                         <div class="info-row">
                             <div class="info-label">Tipe:</div>
-                            <div class="info-value">{{ ucfirst($nilaiKPI->periode_tipe ?? 'Bulanan') }}</div>
+                            <div class="info-value">{{ ucfirst($realisasi->periode_tipe ?? 'Bulanan') }}</div>
                         </div>
                     </div>
                 </div>
-                @if($nilaiKPI->indikator->deskripsi)
+                @if($realisasi->indikator->deskripsi)
                     <div class="info-row mt-2">
                         <div class="info-label">Deskripsi:</div>
-                        <div class="info-value">{{ $nilaiKPI->indikator->deskripsi }}</div>
+                        <div class="info-value">{{ $realisasi->indikator->deskripsi }}</div>
                     </div>
                 @endif
             </div>
 
-            <form method="POST" action="{{ route('realisasi.update', $nilaiKPI->id) }}" id="formEdit">
+            <form method="POST" action="{{ route('realisasi.update', $realisasi->id) }}" id="formEdit">
                 @csrf
                 @method('PUT')
 
                 <div class="form-group mb-4">
                     <label for="nilai">Nilai Realisasi <span class="text-danger">*</span></label>
                     <input type="number" step="0.01" class="form-control @error('nilai') is-invalid @enderror"
-                           id="nilai" name="nilai" value="{{ old('nilai', $nilaiKPI->nilai) }}" required
-                           {{ $nilaiKPI->diverifikasi && !auth()->user()->isMasterAdmin() ? 'readonly' : '' }}>
+                           id="nilai" name="nilai" value="{{ old('nilai', $realisasi->nilai) }}" required
+                           {{ $realisasi->diverifikasi && !auth()->user()->isMasterAdmin() ? 'readonly' : '' }}>
                     @error('nilai')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -365,8 +365,8 @@
                 </div>
 
                 <div class="target-visual mb-4">
-                    <div class="target-progress" id="targetProgress" style="width: {{ min(($nilaiKPI->nilai / $nilaiKPI->indikator->target) * 100, 100) }}%"></div>
-                    <div class="target-value" id="targetValue">{{ number_format(($nilaiKPI->nilai / $nilaiKPI->indikator->target) * 100, 1) }}%</div>
+                    <div class="target-progress" id="targetProgress" style="width: {{ min(($realisasi->nilai / $realisasi->indikator->target) * 100, 100) }}%"></div>
+                    <div class="target-value" id="targetValue">{{ number_format(($realisasi->nilai / $realisasi->indikator->target) * 100, 1) }}%</div>
                 </div>
                 <div class="text-center text-muted small mb-4">
                     <i class="fas fa-info-circle me-1"></i>
@@ -377,7 +377,7 @@
                     <label for="keterangan">Keterangan</label>
                     <textarea class="form-control @error('keterangan') is-invalid @enderror"
                               id="keterangan" name="keterangan" rows="3"
-                              {{ $nilaiKPI->diverifikasi && !auth()->user()->isMasterAdmin() ? 'readonly' : '' }}>{{ old('keterangan', $nilaiKPI->keterangan) }}</textarea>
+                              {{ $realisasi->diverifikasi && !auth()->user()->isMasterAdmin() ? 'readonly' : '' }}>{{ old('keterangan', $realisasi->keterangan) }}</textarea>
                     @error('keterangan')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -386,20 +386,20 @@
                     </small>
                 </div>
 
-                @if(!$nilaiKPI->diverifikasi || auth()->user()->isMasterAdmin())
+                @if(!$realisasi->diverifikasi || auth()->user()->isMasterAdmin())
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary btn-action" id="btnSubmit">
                             <i class="fas fa-save"></i> Simpan Perubahan
                         </button>
 
-                        @if(auth()->user()->isMasterAdmin() && !$nilaiKPI->diverifikasi)
-                            <a href="{{ route('realisasi.verify', $nilaiKPI->id) }}" class="btn btn-success btn-action">
+                        @if(auth()->user()->isMasterAdmin() && !$realisasi->diverifikasi)
+                            <a href="{{ route('realisasi.verify', $realisasi->id) }}" class="btn btn-success btn-action">
                                 <i class="fas fa-check-circle"></i> Verifikasi
                             </a>
                         @endif
 
-                        @if(auth()->user()->isMasterAdmin() && $nilaiKPI->diverifikasi)
-                            <a href="{{ route('realisasi.unverify', $nilaiKPI->id) }}" class="btn btn-warning btn-action">
+                        @if(auth()->user()->isMasterAdmin() && $realisasi->diverifikasi)
+                            <a href="{{ route('realisasi.unverify', $realisasi->id) }}" class="btn btn-warning btn-action">
                                 <i class="fas fa-times-circle"></i> Batal Verifikasi
                             </a>
                         @endif
@@ -420,6 +420,7 @@
 </div>
 @endsection
 
+
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -428,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const nilaiInput = document.getElementById('nilai');
     const targetProgress = document.getElementById('targetProgress');
     const targetValue = document.getElementById('targetValue');
-    const target = {{ $nilaiKPI->indikator->target }};
+    const target = {{ $realisasi->indikator->target }};
 
     // Update progress bar saat nilai berubah
     nilaiInput.addEventListener('input', function() {
@@ -450,7 +451,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Set warna awal progress bar
-    const initialPercentage = ({{ $nilaiKPI->nilai }} / target) * 100;
+    const initialPercentage = ({{ $realisasi->nilai }} / target) * 100;
     if (initialPercentage >= 90) {
         targetProgress.style.background = 'linear-gradient(90deg, #28a745, #75c94e)';
     } else if (initialPercentage >= 70) {
