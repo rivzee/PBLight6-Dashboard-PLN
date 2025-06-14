@@ -6,6 +6,7 @@ use App\Http\Controllers\AkunController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TahunPenilaianController;
 use App\Http\Controllers\DataKinerjaController;
+use App\Http\Controllers\EksporPdfController;
 use App\Http\Controllers\RealisasiController;
 use App\Http\Controllers\VerifikasiController;
 use App\Http\Controllers\TargetKinerjaController;
@@ -108,6 +109,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tahunPenilaian/{id}/activate', [TahunPenilaianController::class, 'activate'])->name('tahunPenilaian.activate');
     Route::get('/tahunPenilaian/{id}/lock', [TahunPenilaianController::class, 'lock'])->name('tahunPenilaian.lock');
     Route::get('/tahunPenilaian/{id}/unlock', [TahunPenilaianController::class, 'unlock'])->name('tahunPenilaian.unlock');
+
+     Route::get('/ekspor-pdf', [EksporPdfController::class, 'index'])->name('eksporPdf.index');
+        Route::post('/ekspor-pdf/bidang', [EksporPdfController::class, 'eksporBidang'])->name('eksporPdf.bidang');
+        Route::post('/ekspor-pdf/pilar', [EksporPdfController::class, 'eksporPilar'])->name('eksporPdf.pilar');
+        Route::post('/ekspor-pdf/keseluruhan', [EksporPdfController::class, 'eksporKeseluruhan'])->name('eksporPdf.keseluruhan');
+
 
      Route::resource('verifikasi', VerifikasiController::class)->except(['create', 'edit', 'store']);
      Route::post('/verifikasi/massal', [VerifikasiController::class, 'verifikasiMassal'])->name('verifikasi.massal');
