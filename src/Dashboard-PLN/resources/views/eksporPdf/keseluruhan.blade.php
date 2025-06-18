@@ -164,8 +164,8 @@
                     foreach($pilar->indikators as $indikator) {
                         $totalIndikator++;
 
-                        if($indikator->nilaiKPIs->isNotEmpty()) {
-                            $pencapaian = $indikator->nilaiKPIs->first()->pencapaian;
+                        if($indikator->realisasis->isNotEmpty()) {
+                            $pencapaian = $indikator->realisasis->first()->pencapaian;
                             $totalPencapaian += $pencapaian;
                             $totalCount++;
 
@@ -228,30 +228,30 @@
                             <td>{{ $indikator->nama }}</td>
                             <td>{{ $indikator->bidang->nama }}</td>
                             <td class="text-right">
-                                @if($indikator->nilaiKPIs->isNotEmpty())
-                                    {{ number_format($indikator->nilaiKPIs->first()->target, 2) }}
+                                @if($indikator->realisasis->isNotEmpty())
+                                    {{ number_format($indikator->realisasis->first()->target, 2) }}
                                 @else
                                     -
                                 @endif
                             </td>
                             <td class="text-right">
-                                @if($indikator->nilaiKPIs->isNotEmpty())
-                                    {{ number_format($indikator->nilaiKPIs->first()->realisasi, 2) }}
+                                @if($indikator->realisasis->isNotEmpty())
+                                    {{ number_format($indikator->realisasis->first()->realisasi, 2) }}
                                 @else
                                     -
                                 @endif
                             </td>
                             <td class="text-right">
-                                @if($indikator->nilaiKPIs->isNotEmpty())
-                                    {{ number_format($indikator->nilaiKPIs->first()->pencapaian, 2) }}%
+                                @if($indikator->realisasis->isNotEmpty())
+                                    {{ number_format($indikator->nrealisasis->first()->pencapaian, 2) }}%
                                 @else
                                     -
                                 @endif
                             </td>
                             <td>
-                                @if($indikator->nilaiKPIs->isNotEmpty())
+                                @if($indikator->realisasis->isNotEmpty())
                                     @php
-                                        $pencapaian = $indikator->nilaiKPIs->first()->pencapaian;
+                                        $pencapaian = $indikator->realisasis->first()->pencapaian;
                                         $statusClass = '';
                                         $statusText = '';
 
