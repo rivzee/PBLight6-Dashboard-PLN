@@ -89,8 +89,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/realisasi/{indikator}/create', [RealisasiController::class, 'create'])->name('realisasi.create');
         Route::post('/realisasi/{indikator}', [RealisasiController::class, 'store'])->name('realisasi.store');
         Route::get('/realisasi/{indikator}/edit', [RealisasiController::class, 'edit'])->name('realisasi.edit');
-    Route::put('/realisasi/{id}', [RealisasiController::class, 'update'])->name('realisasi.update');
-
+        Route::put('/realisasi/{id}', [RealisasiController::class, 'update'])->name('realisasi.update');   
     });
 
     // Routes untuk Target Kinerja

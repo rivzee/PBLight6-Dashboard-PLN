@@ -256,6 +256,9 @@
 </style>
 @endsection
 
+
+@extends('layouts.app')
+
 @section('content')
 <div class="dashboard-content">
     <!-- Modern Page Header -->
@@ -392,7 +395,7 @@
                             <i class="fas fa-save"></i> Simpan Perubahan
                         </button>
 
-                        @if(auth()->user()->isMasterAdmin() && !$realisasi->diverifikasi)
+                        {{-- @if(auth()->user()->isMasterAdmin() && !$realisasi->diverifikasi)
                             <a href="{{ route('realisasi.verify', $realisasi->id) }}" class="btn btn-success btn-action">
                                 <i class="fas fa-check-circle"></i> Verifikasi
                             </a>
@@ -402,7 +405,7 @@
                             <a href="{{ route('realisasi.unverify', $realisasi->id) }}" class="btn btn-warning btn-action">
                                 <i class="fas fa-times-circle"></i> Batal Verifikasi
                             </a>
-                        @endif
+                        @endif --}}
 
                         <a href="{{ route('realisasi.index') }}" class="btn btn-secondary btn-action">
                             <i class="fas fa-times"></i> Batal

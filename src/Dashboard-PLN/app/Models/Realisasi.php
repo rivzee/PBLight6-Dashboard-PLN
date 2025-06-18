@@ -31,6 +31,7 @@ class Realisasi extends Model
         'tahun',      // ditambahkan
         'bulan',      // ditambahkan
         'periode_tipe', // ditambahkan
+        'uploaded_by',
     ];
 
     protected $casts = [
@@ -52,6 +53,12 @@ class Realisasi extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    
+    public function uploader()
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
 
     public function verifikator(): BelongsTo
     {

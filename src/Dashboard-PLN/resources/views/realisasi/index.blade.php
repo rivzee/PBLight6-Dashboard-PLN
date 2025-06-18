@@ -225,111 +225,121 @@
         </form>
     </div>
 
-    <!-- Tabel Data -->
-    <div class="table-card mt-4">
-        <div class="card-header">Data Realisasi KPI</div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
+<!-- Tabel Data -->
+<div class="table-card mt-4">
+    <div class="card-header">Data Realisasi KPI</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Bidang</th>
+                        <th>Indikator</th>
+                        <th>Target</th>
+                        <th>Realisasi</th>
+                        <th>Capaian</th>
+                        <th>Uploaded by</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($indikators as $index => $indikator)
+                        @php
+                            // Ambil realisasi pertama dari relasi hasMany
+                            $realisasi = $indikator->realisasis->first(); 
+                            $nilai = $realisasi->nilai ?? null;
+                            $targetNilai = $indikator->target_nilai ?? null;
+                            $persentase = $targetNilai ? ($nilai / $targetNilai) * 100 : 0;
+                            $progressClass = $persentase >= 90 ? 'bg-success' : ($persentase >= 70 ? 'bg-warning' : 'bg-danger');
+                        @endphp
                         <tr>
-                            <th>No</th>
-                            <th>Bidang</th>
-                            <th>Indikator</th>
-                            <th>Target</th>
-                            <th>Realisasi</th>
-                            <th>Capaian</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($indikators as $index => $indikator)
-                            @php
-                                $realisasi = $indikator->realisasi ?? null;
-                                $nilai = $realisasi->nilai ?? null;
-                                $persentase = $indikator->persentase ?? 0;
-                                $targetNilai = $indikator->target_nilai ?? null;
-                                $progressClass = $persentase >= 90 ? 'bg-success' : ($persentase >= 70 ? 'bg-warning' : 'bg-danger');
-                            @endphp
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $indikator->bidang->nama }}</td>
-                                <td>
-                                    <strong>{{ $indikator->kode }}</strong> - {{ $indikator->nama }}
-                                    @if($indikator->deskripsi)
-                                        <div class="small text-muted">{{ Str::limit($indikator->deskripsi, 60) }}</div>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($targetNilai !== null)
-                                        {{ number_format($targetNilai, 2) }}
-                                    @else
-                                        <span class="text-muted fst-italic">Belum diisi</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    {{ $nilai !== null ? number_format($nilai, 2) : '-' }}
-                                </td>
-                                <td>
-                                    @if ($targetNilai !== null)
-                                        <div class="progress-wrapper">
-                                            <div class="progress">
-                                                <div class="progress-bar {{ $progressClass }}" style="width: {{ $persentase }}%;"></div>
-                                            </div>
-                                            <div class="progress-value">{{ number_format($persentase, 2) }}%</div>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $indikator->bidang->nama ?? '-' }}</td>
+                            <td>
+                                <strong>{{ $indikator->kode }}</strong> - {{ $indikator->nama }}
+                                @if($indikator->deskripsi)
+                                    <div class="small text-muted">{{ Str::limit($indikator->deskripsi, 60) }}</div>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($targetNilai !== null)
+                                    {{ number_format($targetNilai, 2) }}
+                                @else
+                                    <span class="text-muted fst-italic">Belum diisi</span>
+                                @endif
+                            </td>
+                            <td>
+                                {{ $nilai !== null ? number_format($nilai, 2) : '-' }}
+                            </td>
+                            <td>
+                                @if ($targetNilai !== null)
+                                    <div class="progress-wrapper">
+                                        <div class="progress">
+                                            <div class="progress-bar {{ $progressClass }}" style="width: {{ $persentase }}%;"></div>
                                         </div>
-                                    @else
-                                        <span class="text-muted fst-italic">-</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($indikator->diverifikasi)
-                                        <span class="badge bg-success">Terverifikasi</span>
-                                        <small>oleh: {{ optional(App\Models\User::find($indikator->verifikasi_oleh))->name }}</small>
-                                        <br>
-                                        <small>{{ \Carbon\Carbon::parse($indikator->verifikasi_pada)->format('d M Y H:i') }}</small>
-                                    @else
-                                        <span class="badge bg-warning text-dark">Belum Diverifikasi</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <div class="btn-group">
-                                        @php
-                                            $query = [
-                                                'tahun' => request('tahun'),
-                                                'bulan' => request('bulan'),
-                                                'periode_tipe' => request('periode_tipe'),
-                                                'tanggal' => request('tanggal'),
-                                            ];
-                                        @endphp
-
-                                        @if($indikator->nilai_id)
-                                            <a href="{{ route('realisasi.edit', ['indikator' => $indikator->id] + $query) }}" class="btn btn-warning btn-sm">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </a>
-                                        @else
-                                            <a href="{{ route('realisasi.create', ['indikator' => $indikator->id] + $query) }}" class="btn btn-primary btn-sm">
-                                                <i class="fas fa-plus"></i> Input
-                                            </a>
-                                        @endif
+                                        <div class="progress-value">{{ number_format($persentase, 2) }}%</div>
                                     </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center text-muted fst-italic">Tidak ada data indikator.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                                @else
+                                    <span class="text-muted fst-italic">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($realisasi)
+                                    {{ optional($realisasi->uploader)->name ?? '-' }}
+                                @else
+                                    <span class="text-muted fst-italic">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($indikator->diverifikasi)
+                                    <span class="badge bg-success">Terverifikasi</span>
+                                    <small>oleh: {{ optional(App\Models\User::find($indikator->verifikasi_oleh))->name }}</small>
+                                    <br>
+                                    <small>{{ \Carbon\Carbon::parse($indikator->verifikasi_pada)->format('d M Y H:i') }}</small>
+                                @else
+                                    <span class="badge bg-warning text-dark">Belum Diverifikasi</span>
+                                @endif
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    @php
+                                        $query = [
+                                            'tahun' => request('tahun'),
+                                            'bulan' => request('bulan'),
+                                            'periode_tipe' => request('periode_tipe'),
+                                            'tanggal' => request('tanggal'),
+                                        ];
+                                    @endphp
 
-            <div class="d-flex justify-content-center mt-4">
-                {{ $indikators->withQueryString()->links('pagination.custom') }}
-            </div>
+                                    @if($realisasi)
+                                        <a href="{{ route('realisasi.edit', ['indikator' => $indikator->id] + $query) }}" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    @else
+                                        <a href="{{ route('realisasi.create', ['indikator' => $indikator->id] + $query) }}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-plus"></i> Input
+                                        </a>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="text-center text-muted fst-italic">Tidak ada data indikator.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-center mt-4">
+            {{ $indikators->withQueryString()->links('pagination.custom') }}
         </div>
     </div>
+</div>
+
 </div>
 @endsection
 

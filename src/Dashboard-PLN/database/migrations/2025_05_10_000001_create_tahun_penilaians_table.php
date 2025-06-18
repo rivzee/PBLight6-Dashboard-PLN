@@ -15,7 +15,10 @@ return new class extends Migration
         $table->id();
         $table->integer('tahun')->unique();
         $table->string('deskripsi')->nullable();
+        $table->date('tanggal_mulai')->nullable();      // ⬅️ Tambah ini
+        $table->date('tanggal_selesai')->nullable();    // ⬅️ Tambah ini
         $table->boolean('is_aktif')->default(false);
+        $table->boolean('is_locked')->default(false); // ⬅️ Tambahkan ini
         $table->foreignId('dibuat_oleh')->nullable()->constrained('users');
         $table->foreignId('diupdate_oleh')->nullable()->constrained('users');
         $table->timestamps();

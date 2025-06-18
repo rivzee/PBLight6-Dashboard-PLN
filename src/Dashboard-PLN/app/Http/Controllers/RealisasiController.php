@@ -52,29 +52,30 @@ public function index(Request $request)
     $indikators = $indikatorsQuery->orderBy('kode')->paginate(10)->withQueryString();
 
     foreach ($indikators as $indikator) {
-        $realisasi = $indikator->realisasis->first(); // Sudah di-eager load
+    $realisasi = $indikator->realisasis->first();
 
-$targetKPI = $indikator->targetKPI
-    ->where('tahunPenilaian.tahun', $tahun)
-    ->first(); // pastikan ambil yang sesuai tahun
-$target_nilai = $targetKPI ? $targetKPI->target_tahunan : 0;
+    $targetKPI = $indikator->targetKPI
+        ->where('tahunPenilaian.tahun', $tahun)
+        ->first();
+    $target_nilai = $targetKPI ? $targetKPI->target_tahunan : 0;
 
-        $persentase = 0;
-        if ($realisasi && $target_nilai > 0) {
-            $persentase = $targetKPI
-                ? $targetKPI->hitungPersentasePencapaian($realisasi->nilai)
-                : ($realisasi->nilai / $target_nilai) * 100;
-        }
-
-        // Tambahan atribut untuk view
-        $indikator->realisasi = $realisasi;
-        $indikator->persentase = $persentase;
-        $indikator->nilai_id = $realisasi?->id;
-        $indikator->diverifikasi = $realisasi?->diverifikasi ?? false;
-        $indikator->verifikasi_oleh = $realisasi?->verifikasi_oleh;
-        $indikator->verifikasi_pada = $realisasi?->verifikasi_pada;
-        $indikator->target_nilai = $target_nilai;
+    $persentase = 0;
+    if ($realisasi && $target_nilai > 0) {
+        $persentase = $targetKPI
+            ? $targetKPI->hitungPersentasePencapaian($realisasi->nilai)
+            : ($realisasi->nilai / $target_nilai) * 100;
     }
+
+    // Gunakan nama custom agar tidak bentrok
+    $indikator->firstRealisasi = $realisasi;
+    $indikator->persentase = $persentase;
+    $indikator->nilai_id = $realisasi?->id;
+    $indikator->diverifikasi = $realisasi?->diverifikasi ?? false;
+    $indikator->verifikasi_oleh = $realisasi?->verifikasi_oleh;
+    $indikator->verifikasi_pada = $realisasi?->verifikasi_pada;
+    $indikator->target_nilai = $target_nilai;
+}
+
 
     return view('realisasi.index', compact('indikators', 'tanggal', 'tahun'));
 }
@@ -135,6 +136,7 @@ public function store(Request $request, Indikator $indikator)
     $realisasi = new Realisasi([
         'indikator_id' => $indikator->id,
         'user_id' => $user->id,
+        'uploaded_by' => $user->id, // ← ✅ Tambahkan ini
         'tanggal' => $tanggal->toDateString(),
         'tahun' => $tanggal->year,
         'bulan' => $tanggal->month,
