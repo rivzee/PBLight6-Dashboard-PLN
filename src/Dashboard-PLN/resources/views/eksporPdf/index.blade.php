@@ -65,90 +65,8 @@
 
     @include('components.alert')
 
-    <div class="row">
-        <!-- Ekspor Berdasarkan Bidang -->
-        <div class="col-md-4">
-            <div class="form-section">
-                <h4><i class="fas fa-building mr-2"></i> Laporan Per-Bidang</h4>
-                <form action="{{ route('eksporPdf.bidang') }}" method="POST">
-                    @csrf
-                    <div class="form-group">
-                        <label for="bidang_id">Bidang</label>
-                        <select name="bidang_id" id="bidang_id" class="form-control" required>
-                            <option value="">-- Pilih Bidang --</option>
-                            @foreach($bidangs as $bidang)
-                                <option value="{{ $bidang->id }}">{{ $bidang->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="tahun_bidang">Tahun</label>
-                        <select name="tahun" id="tahun_bidang" class="form-control" required>
-                            @for($i = date('Y'); $i >= 2020; $i--)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="bulan_bidang">Bulan</label>
-                        <select name="bulan" id="bulan_bidang" class="form-control" required>
-                            @php
-                                $namaBulan = [
-                                    1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
-                                    5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-                                    9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
-                                ];
-                            @endphp
-                            @foreach($namaBulan as $angka => $nama)
-                                <option value="{{ $angka }}" {{ date('n') == $angka ? 'selected' : '' }}>{{ $nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-submit">
-                        <i class="fas fa-file-pdf mr-2"></i> Ekspor PDF
-                    </button>
-                </form>
-            </div>
-        </div>
-
-        <!-- Ekspor Berdasarkan Pilar -->
-        <div class="col-md-4">
-            <div class="form-section">
-                <h4><i class="fas fa-layer-group mr-2"></i> Laporan Per-Pilar</h4>
-                <form action="{{ route('eksporPdf.pilar') }}" method="POST">
-                    @csrf
-                    <div class="form-group">
-                        <label for="pilar_id">Pilar</label>
-                        <select name="pilar_id" id="pilar_id" class="form-control" required>
-                            <option value="">-- Pilih Pilar --</option>
-                            @foreach($pilars as $pilar)
-                                <option value="{{ $pilar->id }}">{{ $pilar->kode }} - {{ $pilar->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="tahun_pilar">Tahun</label>
-                        <select name="tahun" id="tahun_pilar" class="form-control" required>
-                            @for($i = date('Y'); $i >= 2020; $i--)
-                                <option value="{{ $i }}">{{ $i }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="bulan_pilar">Bulan</label>
-                        <select name="bulan" id="bulan_pilar" class="form-control" required>
-                            @foreach($namaBulan as $angka => $nama)
-                                <option value="{{ $angka }}" {{ date('n') == $angka ? 'selected' : '' }}>{{ $nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-submit">
-                        <i class="fas fa-file-pdf mr-2"></i> Ekspor PDF
-                    </button>
-                </form>
-            </div>
-        </div>
-
+    
+       
         <!-- Ekspor Keseluruhan -->
         <div class="col-md-4">
             <div class="form-section">
@@ -166,6 +84,13 @@
                     <div class="form-group">
                         <label for="bulan_keseluruhan">Bulan</label>
                         <select name="bulan" id="bulan_keseluruhan" class="form-control" required>
+                             @php
+                                $namaBulan = [
+                                    1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                    5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                    9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                                ];
+                            @endphp
                             @foreach($namaBulan as $angka => $nama)
                                 <option value="{{ $angka }}" {{ date('n') == $angka ? 'selected' : '' }}>{{ $nama }}</option>
                             @endforeach
