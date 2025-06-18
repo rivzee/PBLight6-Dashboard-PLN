@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AkunController;
+use App\Http\Controllers\AktivitasLogController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TahunPenilaianController;
 use App\Http\Controllers\DataKinerjaController;
@@ -118,6 +119,16 @@ Route::middleware(['auth'])->group(function () {
      Route::resource('verifikasi', VerifikasiController::class)->except(['create', 'edit', 'store']);
      Route::post('/verifikasi/massal', [VerifikasiController::class, 'verifikasiMassal'])->name('verifikasi.massal');
      Route::put('/verifikasi/{id}', [VerifikasiController::class, 'update'])->name('verifikasi.update');
+
+     // Log Aktivitas
+    Route::prefix('aktivitas-log')->name('aktivitasLog.')->group(function () {
+        Route::get('/', [AktivitasLogController::class, 'index'])->name('index');
+        Route::get('/ekspor-csv', [AktivitasLogController::class, 'eksporCsv'])->name('eksporCsv');
+        Route::post('/hapus-log-lama', [AktivitasLogController::class, 'hapusLogLama'])->name('hapusLogLama');
+        Route::delete('/{id}', [AktivitasLogController::class, 'destroy'])->name('destroy');
+        Route::post('/hapus-multiple', [AktivitasLogController::class, 'hapusMultiple'])->name('hapusMultiple');
+        Route::get('/{id}', [AktivitasLogController::class, 'show'])->name('show')->where('id', '[0-9]+');
+    });
 
 });
 

@@ -1330,7 +1330,7 @@ use Illuminate\Support\Str;
           </a>
         </li>
         <li>
-          <a href="#" class="{{ request()->routeIs('aktivitasLog.*') ? 'active' : '' }}">
+          <a href="{{route('aktivitasLog.index')}}" class="{{ request()->routeIs('aktivitasLog.*') ? 'active' : '' }}">
             <i class="fas fa-history icon"></i>
             <span class="menu-text">Log Aktivitas</span>
           </a>
