@@ -29,6 +29,7 @@ class DashboardController extends Controller
             case 'pic_human_capital':
             case 'pic_k3l':
             case 'pic_perencanaan_korporat':
+            case 'pic_hukum':
                 return $this->admin($request);
             default:
                 return redirect()->route('login')->with('error', 'Role tidak dikenali.');
@@ -143,20 +144,19 @@ class DashboardController extends Controller
         $totalNilai = $indikators->sum('nilai_persentase');
         $rataRata = $indikators->count() > 0 ? round($totalNilai / $indikators->count(), 2) : 0;
 
-        $historiData = $this->getHistoriData($bidang->id, $tahun) ?? [];
+        $historiData = $this->getHistoriData($bidang->id, $tahun);
 
-        $latestActivities = AktivitasLog::with('user')
-            ->where('loggable_type', 'App\Models\Realisasi')
-            ->latest()
-            ->take(10)
-            ->get()
-            ->filter(function ($log) use ($bidang) {
-                return $log->loggable &&
-                    method_exists($log->loggable, 'indikator') &&
-                    $log->loggable->indikator &&
-                    $log->loggable->indikator->bidang_id == $bidang->id;
-            });
-
+$latestActivities = AktivitasLog::with('user')
+    ->where('loggable_type', 'App\Models\Realisasi')
+    ->latest()
+    ->take(10)
+    ->get()
+    ->filter(function ($log) use ($bidang) {
+        return $log->loggable &&
+            method_exists($log->loggable, 'indikator') &&
+            $log->loggable->indikator &&
+            $log->loggable->indikator->bidang_id == $bidang->id;
+    });
 
         $missingInputs = Indikator::where('bidang_id', $bidang->id)
             ->where('aktif', true)
