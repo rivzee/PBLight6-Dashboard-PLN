@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - iterasi4
+       workflow_dispatch:
 
 jobs:
   force-sync:
