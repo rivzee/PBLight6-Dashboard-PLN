@@ -1,5 +1,4 @@
 name: CI Laravel - Iterasi 4
-name: CI Laravel - Iterasi 4
 
 on:
   push:
