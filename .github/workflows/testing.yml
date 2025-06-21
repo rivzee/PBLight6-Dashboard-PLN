@@ -1,4 +1,5 @@
 name: CI Laravel - Iterasi 4
+name: CI Laravel - Iterasi 4
 
 on:
   push:
@@ -9,29 +10,12 @@ on:
       - iterasi4
 
 jobs:
-  laravel-tests:
+  force-sync:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: laravel
-        ports:
-          - 3306:3306
-        options: |
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
-
     steps:
-      - name: Checkout code
+      - name: Checkout iterasi4
         uses: actions/checkout@v3
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           extensions: mbstring, bcmath, mysql
