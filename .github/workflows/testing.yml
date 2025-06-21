@@ -1,0 +1,26 @@
+name: Force Sync iterasi4 to testing
+
+on:
+  push:
+    branches:
+      - iterasi4
+
+jobs:
+  force-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout iterasi4
+        uses: actions/checkout@v3
+        with:
+          ref: iterasi4
+          fetch-depth: 0
+
+      - name: Set up Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Force push iterasi4 to testing
+        run: |
+          git push origin HEAD:refs/heads/testing --force
