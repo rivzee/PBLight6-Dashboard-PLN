@@ -24,7 +24,7 @@ class TahunPenilaian extends Model
     protected $fillable = [
         'tahun',
         'deskripsi',
-        'tipe_periode',
+        'periode_tipe',
         'tanggal_mulai',
         'tanggal_selesai',
         'is_aktif',
