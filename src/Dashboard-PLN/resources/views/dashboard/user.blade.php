@@ -284,26 +284,6 @@
         transition: width 0.5s ease-in-out;
     }
 
-    /* Card with scrollable content */
-    .scrollable-card {
-        max-height: 500px;
-        overflow-y: auto;
-    }
-
-    .scrollable-card::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .scrollable-card::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.05);
-        border-radius: 10px;
-    }
-
-    .scrollable-card::-webkit-scrollbar-thumb {
-        background: var(--pln-light-blue, #00c6ff);
-        border-radius: 10px;
-    }
-
     /* Filter Bar */
     .filter-bar {
         background: var(--pln-accent-bg, #ffffff);
@@ -317,41 +297,106 @@
         justify-content: space-between;
     }
 
-    .filter-form {
-        display: flex;
+    .export-btn {
+        display: inline-flex;
         align-items: center;
-        gap: 10px;
+        justify-content: center;
+        padding: 10px 16px;
+        background: linear-gradient(45deg, var(--pln-blue, #007bff), var(--pln-light-blue, #00c6ff));
+        color: white;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 156, 222, 0.3);
     }
 
-    .filter-form select {
-        min-width: 120px;
+    .export-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0, 156, 222, 0.4);
+    }
+
+    .export-btn i {
+        margin-right: 8px;
     }
 </style>
 @endsection
 
-
 @section('content')
 <div class="dashboard-content">
-    <!-- Header with Filters -->
-    <div class="filter-bar">
-        <h1 class="h3 mb-0 text-gray-800">Dashboard Kinerja</h1>
-        <form action="{{ route('dashboard') }}" method="GET" class="filter-form">
-            <select name="tahun" class="form-control form-control-sm">
-                @foreach(range(date('Y') - 5, date('Y') + 1) as $year)
-                    <option value="{{ $year }}" {{ (isset($tahun) && $tahun == $year) ? 'selected' : '' }}>{{ $year }}</option>
-                @endforeach
-            </select>
-            <select name="bulan" class="form-control form-control-sm">
-                @foreach(range(1, 12) as $month)
-                    <option value="{{ $month }}" {{ (isset($bulan) && $bulan == $month) ? 'selected' : '' }}>
-                        {{ date('F', mktime(0, 0, 0, $month, 1)) }}
-                    </option>
-                @endforeach
-            </select>
-            <button type="submit" class="btn btn-sm btn-primary">
-                <i class="fas fa-filter fa-sm"></i> Filter
-            </button>
-        </form>
+    <!-- Filter -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form action="{{ route('dashboard') }}" method="get" class="form-inline">
+                        <div class="row align-items-center">
+                            <div class="col-md-4 mb-2 mb-md-0">
+                                <label for="tahun" class="mr-2">Tahun:</label>
+                                <select name="tahun" id="tahun" class="form-control">
+                                    @php
+                                        $currentYear = date('Y');
+                                        $startYear = $currentYear - 5;
+                                        $endYear = $currentYear;
+                                    @endphp
+
+                                    @for($year = $endYear; $year >= $startYear; $year--)
+                                        <option value="{{ $year }}" {{ $tahun == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 mb-2 mb-md-0">
+                                <label for="bulan" class="mr-2">Bulan:</label>
+                                <select name="bulan" id="bulan" class="form-control">
+                                    @php
+                                        $namaBulan = [
+                                            1 => 'Januari',
+                                            2 => 'Februari',
+                                            3 => 'Maret',
+                                            4 => 'April',
+                                            5 => 'Mei',
+                                            6 => 'Juni',
+                                            7 => 'Juli',
+                                            8 => 'Agustus',
+                                            9 => 'September',
+                                            10 => 'Oktober',
+                                            11 => 'November',
+                                            12 => 'Desember'
+                                        ];
+                                    @endphp
+
+                                    @foreach($namaBulan as $value => $nama)
+                                        <option value="{{ $value }}" {{ $bulan == $value ? 'selected' : '' }}>{{ $nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-filter mr-1"></i> Filter
+                                </button>
+                                <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary ml-2">
+                                    <i class="fas fa-sync-alt mr-1"></i> Reset
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Data Bulan: <strong>{{ date('F Y', mktime(0, 0, 0, $bulan, 1, $tahun)) }}</strong></h5>
+                        <a href="{{ route('eksporPdf.index') }}" class="export-btn">
+                            <i class="fas fa-file-pdf"></i> Ekspor PDF
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     @include('components.alert')
@@ -366,7 +411,7 @@
                         <i class="fas fa-chart-line"></i>
                     </div>
                 </div>
-                <div class="stat-value">{{ $nilaiNKO ?? '-' }}</div>
+                <div class="stat-value">{{ $nilaiNKO }}</div>
                 <p class="stat-description">Nilai Kinerja Organisasi</p>
             </div>
         </div>
@@ -379,7 +424,7 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                 </div>
-                <div class="stat-value">{{ $totalIndikatorTercapai ?? 0 }}/{{ $totalIndikator ?? 0 }}</div>
+                <div class="stat-value">{{ $totalIndikatorTercapai }}/{{ $totalIndikator }}</div>
                 <p class="stat-description">Total Indikator Tercapai</p>
             </div>
         </div>
@@ -392,9 +437,9 @@
                         <i class="fas fa-clipboard-list"></i>
                     </div>
                 </div>
-                <div class="stat-value">{{ $persenTercapai ?? 0 }}%</div>
+                <div class="stat-value">{{ $persenTercapai }}%</div>
                 <div class="progress">
-                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ $persenTercapai ?? 0 }}%"></div>
+                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ $persenTercapai }}%"></div>
                 </div>
                 <p class="stat-description">Pencapaian KPI</p>
             </div>
@@ -403,7 +448,7 @@
         <div class="grid-span-3">
             <div class="card stat-card">
                 <div class="stat-header">
-                    <h3 class="stat-title">Target {{ $tahun ?? date('Y') }}</h3>
+                    <h3 class="stat-title">Target {{ $tahun }}</h3>
                     <div class="stat-icon">
                         <i class="fas fa-bullseye"></i>
                     </div>
@@ -415,78 +460,15 @@
     </div>
 
     <!-- Chart Tren NKO -->
-    <div class="dashboard-grid">
-        <div class="grid-span-12">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-line"></i> Tren NKO {{ $tahun ?? date('Y') }}</h3>
-                <div id="nkoTrendChart" class="chart-container large">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
+    <div class="grid-span-12">
+        <div class="card chart-card">
+            <h3 class="chart-title"><i class="fas fa-chart-line"></i> Tren NKO {{ $tahun }}</h3>
+            <div id="nkoTrendChart" class="chart-container large">
+                <div class="loading-chart">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Loading...</span>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Section: Analisis Status Indikator -->
-    <div class="section-divider">
-        <h2><i class="fas fa-chart-pie"></i>Status & Komposisi Indikator</h2>
-    </div>
-
-    <!-- Grid untuk chart status -->
-    <div class="dashboard-grid">
-        <div class="grid-span-6">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Komposisi Indikator</h3>
-                <div id="indikatorCompositionChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid-span-6">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-map"></i> Pemetaan Status Indikator</h3>
-                <div id="statusMappingChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Section: Analisis Tren & Prediksi -->
-    <div class="section-divider">
-        <h2><i class="fas fa-chart-line"></i>Tren & Prediksi</h2>
-    </div>
-
-    <div class="dashboard-grid">
-        <div class="grid-span-6">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-history"></i> Tren Historis</h3>
-                <div id="historicalTrendChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid-span-6">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-line"></i> Proyeksi {{ $tahun ?? date('Y') }}</h3>
-                <div id="forecastChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
+                    <p class="mt-2">Memuat data...</p>
                 </div>
             </div>
         </div>
@@ -550,7 +532,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if(!empty($analisisData['tertinggi']) && is_array($analisisData['tertinggi']))
+                            @if(isset($analisisData['tertinggi']) && is_array($analisisData['tertinggi']))
                                 @foreach($analisisData['tertinggi'] as $indikator)
                                 <tr>
                                     <td>{{ $indikator['kode'] ?? '-' }}</td>
@@ -586,7 +568,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if(!empty($analisisData['terendah']) && is_array($analisisData['terendah']))
+                            @if(isset($analisisData['terendah']) && is_array($analisisData['terendah']))
                                 @foreach($analisisData['terendah'] as $indikator)
                                 <tr>
                                     <td>{{ $indikator['kode'] ?? '-' }}</td>
@@ -609,27 +591,13 @@
         </div>
     </div>
 </div>
-
 @endsection
 
 @section('scripts')
 <script>
-// Script untuk inisialisasi seluruh chart
 document.addEventListener('DOMContentLoaded', function() {
     // Inisialisasi Chart Tren NKO
     initNkoTrendChart();
-
-    // Inisialisasi Chart Komposisi Indikator
-    initIndikatorCompositionChart();
-
-    // Inisialisasi Chart Status Mapping
-    initStatusMappingChart();
-
-    // Inisialisasi Chart Tren Historis
-    initHistoricalTrendChart();
-
-    // Inisialisasi Chart Forecast
-    initForecastChart();
 
     // Inisialisasi Chart Per-Pilar
     initPilarChart();
@@ -640,339 +608,111 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initNkoTrendChart() {
     const ctx = document.getElementById('nkoTrendChart');
+    const chartData = @json($analisisData['perkembangan'] ?? []);
+
+    // Validasi data
+    if (!ctx || !chartData || !Array.isArray(chartData) || chartData.length === 0) {
+        if (ctx && ctx.querySelector('.loading-chart')) {
+            ctx.querySelector('.loading-chart').innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <p>Tidak ada data tren NKO yang tersedia.</p>
+                </div>
+            `;
+        }
+        return;
+    }
 
     // Hapus loading indicator
     if (ctx.querySelector('.loading-chart')) {
         ctx.querySelector('.loading-chart').remove();
     }
 
-    const trendData = @json($trendNKO ?? []);
+    // Siapkan data untuk chart
+    const labels = chartData.map(item => item.bulan);
+    const values = chartData.map(item => item.nko);
 
-    // Validasi data
-    if (!trendData || trendData.length === 0) {
-        showNoDataMessage(ctx, 'Tidak ada data tren NKO');
-        return;
-    }
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: trendData.map(item => item.bulan),
-            datasets: [{
-                label: 'Nilai NKO',
-                data: trendData.map(item => item.nilai),
-                backgroundColor: 'rgba(0, 156, 222, 0.2)',
-                borderColor: '#009cde',
-                borderWidth: 3,
-                pointRadius: 5,
-                pointBackgroundColor: '#009cde',
-                tension: 0.3,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    min: Math.max(0, Math.min(...trendData.map(item => item.nilai)) - 10),
-                    max: 100,
-                    grid: {
-                        drawBorder: false
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top'
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                    padding: 10,
-                    cornerRadius: 6,
-                    titleFont: {
-                        size: 14
-                    },
-                    bodyFont: {
-                        size: 14
-                    }
-                }
-            }
-        }
-    });
-}
-
-// Fungsi untuk menampilkan pesan tidak ada data
-function showNoDataMessage(container, message) {
-    const messageElement = document.createElement('div');
-    messageElement.className = 'text-center py-5';
-    messageElement.innerHTML = `
-        <i class="fas fa-chart-bar fa-3x text-secondary mb-3"></i>
-        <p class="text-secondary">${message}</p>
-    `;
-    container.appendChild(messageElement);
-}
-
-// Implementasi fungsi untuk chart lainnya dengan validasi data
-function initIndikatorCompositionChart() {
-    const ctx = document.getElementById('indikatorCompositionChart');
-    if (ctx.querySelector('.loading-chart')) {
-        ctx.querySelector('.loading-chart').remove();
-    }
-
-    const compositionData = @json($indikatorComposition ?? []);
-
-    // Validasi data
-    if (!compositionData || compositionData.length === 0) {
-        showNoDataMessage(ctx, 'Tidak ada data komposisi indikator');
-        return;
-    }
-
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: compositionData.map(item => item.status),
-            datasets: [{
-                data: compositionData.map(item => item.count),
-                backgroundColor: [
-                    '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'
-                ],
-                borderWidth: 2,
-                borderColor: '#ffffff'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '70%',
-            plugins: {
-                legend: {
-                    position: 'right'
-                }
-            }
-        }
-    });
-}
-
-// Fungsi untuk Status Mapping Chart dengan validasi data
-function initStatusMappingChart() {
-    const ctx = document.getElementById('statusMappingChart');
-    if (ctx.querySelector('.loading-chart')) {
-        ctx.querySelector('.loading-chart').remove();
-    }
-
-    const mappingData = @json($statusMapping ?? []);
-
-    // Validasi data
-    if (!mappingData || mappingData.length === 0) {
-        showNoDataMessage(ctx, 'Tidak ada data status mapping');
-        return;
-    }
-
-    new Chart(ctx, {
-        type: 'polarArea',
-        data: {
-            labels: mappingData.map(item => item.status),
-            datasets: [{
-                data: mappingData.map(item => item.count),
-                backgroundColor: [
-                    'rgba(78, 115, 223, 0.8)',
-                    'rgba(28, 200, 138, 0.8)',
-                    'rgba(54, 185, 204, 0.8)',
-                    'rgba(246, 194, 62, 0.8)',
-                    'rgba(231, 74, 59, 0.8)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                r: {
-                    ticks: {
-                        display: false
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    position: 'right'
-                }
-            }
-        }
-    });
-}
-
-// Fungsi untuk Historical Trend Chart dengan validasi data
-function initHistoricalTrendChart() {
-    const ctx = document.getElementById('historicalTrendChart');
-    if (ctx.querySelector('.loading-chart')) {
-        ctx.querySelector('.loading-chart').remove();
-    }
-
-    const historicalData = @json($historicalTrend ?? []);
-
-    // Validasi data
-    if (!historicalData || historicalData.length === 0) {
-        showNoDataMessage(ctx, 'Tidak ada data tren historis');
-        return;
-    }
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: historicalData.map(item => item.tahun || item.label),
-            datasets: [{
-                label: 'Tren Historis',
-                data: historicalData.map(item => item.nilai || item.value),
-                backgroundColor: 'rgba(78, 115, 223, 0.2)',
-                borderColor: 'rgba(78, 115, 223, 1)',
-                borderWidth: 3,
-                pointRadius: 5,
-                pointBackgroundColor: 'rgba(78, 115, 223, 1)',
-                tension: 0.3,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    min: 0,
-                    max: 100,
-                    grid: {
-                        drawBorder: false
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top'
-                }
-            }
-        }
-    });
-}
-
-// Fungsi untuk Forecast Chart dengan validasi data
-function initForecastChart() {
-    const ctx = document.getElementById('forecastChart');
-    if (ctx.querySelector('.loading-chart')) {
-        ctx.querySelector('.loading-chart').remove();
-    }
-
-    const forecastData = @json($forecastData ?? []);
-
-    // Validasi data
-    if (!forecastData || forecastData.length === 0) {
-        showNoDataMessage(ctx, 'Tidak ada data proyeksi');
-        return;
-    }
-
-    // Pisahkan data aktual dan proyeksi
-    const labels = forecastData.map(item => item.bulan || item.label);
-    const actualData = forecastData.map(item => {
-        if (item.tipe === 'Aktual' || item.type === 'actual') {
-            return item.nilai || item.value;
-        }
-        return null;
-    });
-    const projectionData = forecastData.map(item => {
-        if (item.tipe === 'Forecast' || item.type === 'forecast') {
-            return item.nilai || item.value;
-        }
-        return null;
-    });
-
+    // Buat chart baru
     new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
-            datasets: [
-                {
-                    label: 'Aktual',
-                    data: actualData,
-                    backgroundColor: 'rgba(78, 115, 223, 0.2)',
-                    borderColor: 'rgba(78, 115, 223, 1)',
-                    borderWidth: 3,
-                    pointRadius: 5,
-                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
-                    tension: 0.3,
-                    fill: false
-                },
-                {
-                    label: 'Proyeksi',
-                    data: projectionData,
-                    backgroundColor: 'rgba(246, 194, 62, 0.2)',
-                    borderColor: 'rgba(246, 194, 62, 1)',
-                    borderWidth: 3,
-                    borderDash: [5, 5],
-                    pointRadius: 5,
-                    pointBackgroundColor: 'rgba(246, 194, 62, 1)',
-                    tension: 0.3,
-                    fill: false
-                }
-            ]
+            datasets: [{
+                label: 'Nilai NKO',
+                data: values,
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                borderWidth: 3,
+                pointBackgroundColor: '#4e73df',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                tension: 0.3,
+                fill: true
+            }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: false,
-                    min: 0,
-                    max: 100,
-                    grid: {
-                        drawBorder: false
-                    }
+            plugins: {
+                legend: {
+                    display: false
                 },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    padding: 12,
+                    displayColors: false
+                }
+            },
+            scales: {
                 x: {
                     grid: {
                         display: false
                     }
-                }
-            },
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top'
+                },
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
                 }
             }
         }
     });
 }
 
-// Fungsi untuk Pilar Chart dengan validasi data
 function initPilarChart() {
     const ctx = document.getElementById('pilarChart');
+    const pilarData = @json($pilarData ?? []);
+
+    // Validasi data
+    if (!ctx || !pilarData || !Array.isArray(pilarData) || pilarData.length === 0) {
+        if (ctx && ctx.querySelector('.loading-chart')) {
+            ctx.querySelector('.loading-chart').innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <p>Tidak ada data pilar yang tersedia.</p>
+                </div>
+            `;
+        }
+        return;
+    }
+
+    // Hapus loading indicator
     if (ctx.querySelector('.loading-chart')) {
         ctx.querySelector('.loading-chart').remove();
     }
 
-    const pilarData = @json($pilarData ?? []);
-
-    // Validasi data
-    if (!pilarData || pilarData.length === 0) {
-        showNoDataMessage(ctx, 'Tidak ada data pilar');
-        return;
-    }
-
+    // Buat chart baru
     new Chart(ctx, {
         type: 'bar',
         data: {
@@ -998,13 +738,10 @@ function initPilarChart() {
                 y: {
                     beginAtZero: true,
                     max: 100,
-                    grid: {
-                        drawBorder: false
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
                     }
                 }
             },
@@ -1017,21 +754,29 @@ function initPilarChart() {
     });
 }
 
-// Fungsi untuk Bidang Chart dengan validasi data
 function initBidangChart() {
     const ctx = document.getElementById('bidangChart');
+    const bidangData = @json($bidangData ?? []);
+
+    // Validasi data
+    if (!ctx || !bidangData || !Array.isArray(bidangData) || bidangData.length === 0) {
+        if (ctx && ctx.querySelector('.loading-chart')) {
+            ctx.querySelector('.loading-chart').innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <p>Tidak ada data bidang yang tersedia.</p>
+                </div>
+            `;
+        }
+        return;
+    }
+
+    // Hapus loading indicator
     if (ctx.querySelector('.loading-chart')) {
         ctx.querySelector('.loading-chart').remove();
     }
 
-    const bidangData = @json($bidangData ?? []);
-
-    // Validasi data
-    if (!bidangData || bidangData.length === 0) {
-        showNoDataMessage(ctx, 'Tidak ada data bidang');
-        return;
-    }
-
+    // Buat chart baru
     new Chart(ctx, {
         type: 'horizontalBar',
         data: {
@@ -1051,13 +796,10 @@ function initBidangChart() {
                 x: {
                     beginAtZero: true,
                     max: 100,
-                    grid: {
-                        drawBorder: false
-                    }
-                },
-                y: {
-                    grid: {
-                        display: false
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
                     }
                 }
             },
