@@ -11,6 +11,7 @@ use App\Http\Controllers\EksporPdfController;
 use App\Http\Controllers\RealisasiController;
 use App\Http\Controllers\VerifikasiController;
 use App\Http\Controllers\TargetKinerjaController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Bidang;
 use App\Models\Indikator;
@@ -130,6 +131,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/hapus-multiple', [AktivitasLogController::class, 'hapusMultiple'])->name('hapusMultiple');
         Route::get('/{id}', [AktivitasLogController::class, 'show'])->name('show')->where('id', '[0-9]+');
     });
+    // Profile routes langsung (tidak pakai prefix) - tidak perlu ada duplikasi
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.update-photo');
 
 });
 

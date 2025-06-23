@@ -1312,7 +1312,7 @@ use Illuminate\Support\Str;
           </a>
         </li>
         <li>
-          <a href="#" class="{{ request()->routeIs('dataKinerja.*') ? 'active' : '' }}">
+          <a href="{{route('dataKinerja.index')}}" class="{{ request()->routeIs('dataKinerja.*') ? 'active' : '' }}">
             <i class="fas fa-chart-bar icon"></i>
             <span class="menu-text">Data Kinerja</span>
           </a>
@@ -1340,7 +1340,7 @@ use Illuminate\Support\Str;
      {{-- Menu untuk Admin (PIC Bidang) --}}
         @if(Str::startsWith(Auth::user()->role, 'pic_'))
         <li>
-          <a href="#" class="{{ request()->routeIs('dataKinerja.*') ? 'active' : '' }}">
+          <a href="{{route('dataKinerja.index')}}" class="{{ request()->routeIs('dataKinerja.*') ? 'active' : '' }}">
             <i class="fas fa-chart-bar icon"></i>
             <span class="menu-text">Data Kinerja</span>
           </a>
@@ -1351,7 +1351,12 @@ use Illuminate\Support\Str;
             <span class="menu-text">Data Realisasi</span>
           </a>
         </li>
-
+        <li>
+          <a href="#" class="{{ request()->routeIs('kpi.index') ? 'active' : '' }}">
+            <i class="fas fa-chart-line icon"></i>
+            <span class="menu-text">Laporan KPI</span>
+          </a>
+        </li>
 
         @endif
 
@@ -1367,17 +1372,10 @@ use Illuminate\Support\Str;
 
     <!-- Header yang lebih modern -->
     <div class="dashboard-header">
-      <div class="header-left">
-        <!-- Tambahan di sini -->
-        <button id="sidebarToggle" class="sidebar-toggle d-md-none">
-          <i class="fas fa-bars"></i>
-        </button>
-        <div class="header-text">
-          <h1 class="header-title">@yield('page_title', 'Dashboard PLN')</h1>
-          <p class="header-subtitle">PT PLN MANDAU CIPTA TENAGA NUSANTARA</p>
-        </div>
+      <div class="header-text">
+        <h1 class="header-title">@yield('page_title', 'Dashboard PLN')</h1>
+        <p class="header-subtitle">PT PLN MANDAU CIPTA TENAGA NUSANTARA</p>
       </div>
-
 
       <div class="header-right">
         <!-- Toggle tema -->
@@ -2050,18 +2048,5 @@ use Illuminate\Support\Str;
       }
     });
   </script>
-  <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.querySelector('.sidebar');
-
-    if (sidebarToggle && sidebar) {
-      sidebarToggle.addEventListener('click', function () {
-        sidebar.classList.toggle('expanded');
-      });
-    }
-  });
-</script>
-
 </body>
 </html>

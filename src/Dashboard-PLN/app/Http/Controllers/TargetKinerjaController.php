@@ -359,4 +359,15 @@ class TargetKinerjaController extends Controller
         return redirect()->route('targetKinerja.index', ['tahun_penilaian_id' => $target->tahun_penilaian_id])
             ->with('success', 'Persetujuan target berhasil dibatalkan.');
     }
+    public function verifikasi($id)
+{
+    $target = TargetKPI::findOrFail($id);
+    $target->disetujui = true;
+    $target->verifikasi_oleh = Auth::id();
+    $target->verifikasi_pada = now();
+    $target->save();
+
+    return redirect()->back()->with('success', 'Target berhasil diverifikasi.');
+}
+
 }

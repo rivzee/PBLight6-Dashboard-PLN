@@ -23,6 +23,8 @@ class Indikator extends Model
         'target',
         'urutan',
         'aktif',
+        'is_utama',
+        'prioritas',
     ];
 
     // Casting tipe data otomatis
@@ -30,6 +32,8 @@ class Indikator extends Model
         'bobot' => 'float',
         'target' => 'float',
         'aktif' => 'boolean',
+        'is_utama' => 'boolean',
+        'prioritas' => 'integer',
     ];
 
     /**
@@ -152,4 +156,22 @@ public function targetKPIs()
             ->whereDate('tanggal', $tanggal)
             ->first();
     }
+    // app/Models/Indikator.php
+
+public function getPersentase($tahun, $bulan)
+{
+    $realisasi = $this->realisasis()
+        ->where('tahun', $tahun)
+        ->where('bulan', $bulan)
+        ->first();
+
+    if (!$realisasi || $realisasi->nilai == 0 || $this->target == 0) {
+        return 0;
+    }
+
+    return round(($realisasi->nilai / $this->target) * 100, 2);
+}
+
+
+
 }

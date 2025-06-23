@@ -1,54 +1,114 @@
 {{-- resources/views/dashboard/master.blade.php --}}
 @extends('layouts.app')
 
-@section('title', 'Dashboard Kinerja - Master Admin')
-@section('page_title', 'DASHBOARD MASTER ADMIN')
+@section('title', 'Master Admin Dashboard')
 
 @section('styles')
 <style>
-  .dashboard-content {
-    max-width: 1800px;
-    margin: 0 auto;
-  }
-
-  /* Stat Cards */
-  .dashboard-row {
-    display: flex;
-    flex-wrap: wrap;
-    margin: 0 -12px;
-  }
-
-  .dashboard-col {
-    flex: 1;
-    padding: 0 12px;
-    min-width: 250px;
-  }
-
-  .stat-card {
-    background: var(--pln-accent-bg);
-    border-radius: 16px;
-    padding: 20px;
+  /* Dashboard Layout System */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 20px;
     margin-bottom: 25px;
-    position: relative;
-    overflow: hidden;
-    border: 1px solid var(--pln-border);
-    box-shadow: 0 8px 20px var(--pln-shadow);
-    transition: all 0.3s ease;
-  }
-
-  .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px var(--pln-shadow);
-  }
-
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
+  }
+
+  .grid-span-3 {
+    grid-column: span 3;
+  }
+
+  .grid-span-4 {
+    grid-column: span 4;
+  }
+
+  .grid-span-6 {
+    grid-column: span 6;
+  }
+
+  .grid-span-8 {
+    grid-column: span 8;
+  }
+
+  .grid-span-12 {
+    grid-column: span 12;
+  }
+
+  /* Card Styling yang Konsisten untuk tema terang dan gelap */
+  .card {
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.5s ease;
+    box-shadow: 0 4px 15px var(--pln-shadow);
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px var(--pln-shadow);
+  }
+
+  [data-theme="light"] .card {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+  }
+
+  [data-theme="dark"] .card {
+    background: var(--pln-surface);
+    border: 1px solid var(--pln-border);
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  [data-theme="light"] .card-header {
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  [data-theme="dark"] .card-header {
+    border-bottom: 1px solid var(--pln-border);
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  .card-header.bg-success {
+    background: linear-gradient(45deg, #28a745, #20c997);
+  }
+
+  .card-header.bg-warning {
+    background: linear-gradient(45deg, #ffc107, #fd7e14);
+    color: #212529 !important; /* Warna teks yang lebih gelap untuk kontras dengan background kuning */
+  }
+
+  .card-header.bg-primary {
+    background: linear-gradient(45deg, var(--pln-blue), var(--pln-light-blue));
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .card-title i {
+    margin-right: 8px;
+    font-size: 0.9em;
+  }
+
+  /* Stat Card Styling */
+  .stat-card {
+    padding: 20px;
+    border-radius: 12px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
   .stat-header {
@@ -59,484 +119,1141 @@
   }
 
   .stat-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--pln-text);
-    margin: 0;
-  }
-
-  .stat-icon {
-    width: 45px;
-    height: 45px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
-    color: white;
-    font-size: 20px;
-    box-shadow: 0 5px 15px rgba(0, 156, 222, 0.3);
-  }
-
-  .stat-value {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--pln-text);
-    margin: 15px 0 5px;
-  }
-
-  .stat-description {
-    font-size: 13px;
+    font-size: 1rem;
+    font-weight: 500;
     color: var(--pln-text-secondary);
     margin: 0;
   }
 
-  /* NKO Gauge Meter */
-  .meter-container {
-    position: relative;
-    width: 300px;
-    height: 200px;
-    margin: 0 auto 20px;
-    transition: all 0.3s ease;
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    transition: all 0.5s ease;
   }
 
-  .meter-container:hover {
-    transform: translateY(-5px);
+  [data-theme="light"] .stat-icon {
+    background: rgba(0, 120, 176, 0.1);
+    color: #0078b0;
   }
 
-  .nko-value {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-size: 28px;
+  [data-theme="dark"] .stat-icon {
+    background: rgba(0, 156, 222, 0.15);
+    color: #4db5ff;
+  }
+
+  .stat-value {
+    font-size: 2rem;
     font-weight: 700;
+    margin: 5px 0;
     color: var(--pln-text);
-    text-shadow: 0 2px 5px var(--pln-shadow);
-    transition: all 0.3s ease;
+    transition: color 0.5s ease;
   }
 
-  .nko-label {
-    position: absolute;
-    top: 40%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 22px;
+  .stat-description {
+    font-size: 0.85rem;
+    color: var(--pln-text-secondary);
+    margin: 0;
+    transition: color 0.5s ease;
+  }
+
+  /* Chart Card Styling */
+  .chart-card {
+    padding: 20px;
+    height: 100%;
+  }
+
+  .chart-title {
+    font-size: 1.1rem;
     font-weight: 600;
-    color: var(--pln-light-blue);
-    text-shadow: 0 2px 5px var(--pln-shadow);
-    letter-spacing: 1px;
+    margin: 0 0 15px 0;
+    color: var(--pln-text);
+    display: flex;
+    align-items: center;
+    transition: color 0.5s ease;
   }
 
-  /* Dashboard Grid Layout */
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
-    margin-top: 20px;
-    max-height: 1200px;
-    overflow-y: auto;
+  .chart-title i {
+    margin-right: 8px;
+    transition: color 0.5s ease;
   }
 
-  .dashboard-grid::-webkit-scrollbar {
-    width: 8px;
+  [data-theme="light"] .chart-title i {
+    color: #0078b0;
   }
 
-  .dashboard-grid::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+  [data-theme="dark"] .chart-title i {
+    color: #4db5ff;
   }
 
-  .dashboard-grid::-webkit-scrollbar-thumb {
-    background: var(--pln-light-blue);
-    border-radius: 10px;
-  }
-
-  .dashboard-card {
-    background: var(--pln-accent-bg);
-    border-radius: 16px;
-    padding: 25px;
-    transition: all 0.3s ease;
-    border: 1px solid var(--pln-border);
-    box-shadow: 0 8px 20px var(--pln-shadow);
+  .chart-container {
     position: relative;
-    overflow: hidden;
-    max-height: 500px;
-    overflow-y: auto;
+    height: 300px;
+    margin: 0 auto;
+    transition: all 0.5s ease;
   }
 
-  .dashboard-card::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  .dashboard-card::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-  }
-
-  .dashboard-card::-webkit-scrollbar-thumb {
-    background: var(--pln-light-blue);
-    border-radius: 10px;
-  }
-
-  .dashboard-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
-  }
-
-  .card-title {
-    font-size: 18px;
-    color: var(--pln-light-blue);
-    margin-bottom: 20px;
-    font-weight: 600;
-  }
-
-  .gauge-card {
-    grid-column: span 1;
-  }
-
-  .pilar-card {
-    grid-column: span 2;
-  }
-
-  .full-width {
-    grid-column: 1 / -1;
+  .chart-container.medium {
     height: 300px;
   }
 
-  /* Pilar Container */
-  .pillar-container {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: nowrap;
-    margin: 15px 0;
-    gap: 15px;
-    overflow-x: auto;
-    padding-bottom: 5px;
+  .chart-container.large {
+    height: 400px;
   }
 
-  .pillar-container::-webkit-scrollbar {
-    height: 5px;
+  /* Gauge Center Text */
+  #gauge-center-text h3 {
+    transition: color 0.5s ease;
   }
 
-  .pillar-container::-webkit-scrollbar-track {
-    background: rgba(0,0,0,0.05);
-    border-radius: 10px;
+  #gauge-center-text p {
+    transition: color 0.5s ease;
   }
 
-  .pillar-container::-webkit-scrollbar-thumb {
-    background: var(--pln-light-blue);
-    border-radius: 10px;
+  /* Section Divider */
+  .section-divider {
+    margin: 30px 0 20px;
+    border-bottom: 1px solid var(--pln-border);
+    padding-bottom: 10px;
+    transition: border-color 0.5s ease;
   }
 
-  .pillar-item {
-    flex: 0 0 auto;
-    width: 150px;
-    text-align: center;
-    background: var(--pln-accent-bg);
-    border-radius: 16px;
-    padding: 15px 10px;
-    transition: all 0.3s ease;
-    border: 1px solid var(--pln-border);
-    box-shadow: 0 4px 10px var(--pln-shadow);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .pillar-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 5px;
-    background: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .pillar-item:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 30px var(--pln-shadow);
-  }
-
-  .pillar-item:hover::before {
-    opacity: 1;
-  }
-
-  .pillar-title {
-    font-size: 15px;
-    margin-bottom: 8px;
-    color: var(--pln-text);
-    text-align: center;
+  .section-divider h2 {
+    font-size: 1.3rem;
     font-weight: 600;
-    letter-spacing: 0.5px;
-  }
-
-  .pillar-value {
-    display: block;
-    margin-top: 8px;
-    font-size: 14px;
-    color: var(--pln-light-blue);
-    text-align: center;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-  }
-
-  .circle-progress {
-    width: 110px;
-    height: 110px;
-    margin: 0 auto;
-    position: relative;
-    transition: all 0.3s ease;
-  }
-
-  .pillar-item:hover .circle-progress {
-    transform: scale(1.05);
-  }
-
-  .circle-progress-value {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 24px;
-    font-weight: 700;
     color: var(--pln-text);
-    transition: all 0.3s ease;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    transition: color 0.5s ease;
   }
 
-  /* Tasks */
-  .tasks {
+  .section-divider h2 i {
+    margin-right: 10px;
+    transition: color 0.5s ease;
+  }
+
+  [data-theme="light"] .section-divider h2 i {
+    color: #0078b0;
+  }
+
+  [data-theme="dark"] .section-divider h2 i {
+    color: #4db5ff;
+  }
+
+  /* Table Styling */
+  .table-responsive {
+    overflow-x: auto;
+    border-radius: 8px;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .data-table thead th {
+    text-align: left;
+    padding: 12px 15px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-bottom: 2px solid var(--pln-border);
+    transition: all 0.5s ease;
+  }
+
+  [data-theme="light"] .data-table thead th {
+    background: #f8f9fa;
+    color: #333333;
+  }
+
+  [data-theme="dark"] .data-table thead th {
+    background: var(--pln-surface-2);
+    color: var(--pln-text);
+  }
+
+  .data-table tbody td {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--pln-border);
+    font-size: 0.9rem;
+    color: var(--pln-text);
+    vertical-align: middle;
+    transition: all 0.5s ease;
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--pln-accent-bg);
+  }
+
+  /* Pengaturan untuk tabel di Bootstrap */
+  .table-hover tbody tr:hover {
+    background-color: var(--pln-accent-bg);
+  }
+
+  .table thead th {
+    color: var(--pln-text);
+    border-bottom-color: var(--pln-border);
+    transition: all 0.5s ease;
+  }
+
+  .table tbody td {
+    color: var(--pln-text);
+    border-color: var(--pln-border);
+    transition: all 0.5s ease;
+  }
+
+  .table-responsive {
+    margin-bottom: 1rem;
+  }
+
+  .thead-light th {
+    background-color: var(--pln-surface-2);
+    color: var(--pln-text);
+    border-color: var(--pln-border);
+    transition: all 0.5s ease;
+  }
+
+  /* Empty State */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    color: var(--pln-text-secondary);
+    transition: color 0.5s ease;
+  }
+
+  /* Text colors yang kontras dan terlihat untuk light dan dark */
+  [data-theme="light"] .text-success {
+    color: #1e7e34 !important;
+    font-weight: 600;
+  }
+
+  [data-theme="light"] .text-warning {
+    color: #d39e00 !important;
+    font-weight: 600;
+  }
+
+  [data-theme="light"] .text-primary {
+    color: #0078b0 !important;
+    font-weight: 600;
+  }
+
+  [data-theme="light"] .text-muted {
+    color: #6c757d !important;
+  }
+
+  [data-theme="dark"] .text-success {
+    color: #34eb52 !important;
+    font-weight: 600;
+  }
+
+  [data-theme="dark"] .text-warning {
+    color: #ffdf4f !important;
+    font-weight: 600;
+  }
+
+  [data-theme="dark"] .text-primary {
+    color: #4db5ff !important;
+    font-weight: 600;
+  }
+
+  [data-theme="dark"] .text-muted {
+    color: rgba(248, 250, 252, 0.7) !important;
+  }
+
+  /* Indikator performa untuk tema light dan dark */
+  .performance-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-left: 8px;
+    transition: all 0.5s ease;
+  }
+
+  .performance-indicator i {
+    margin-right: 5px;
+  }
+
+  [data-theme="light"] .performance-indicator.high {
+    color: #1e7e34;
+    background-color: rgba(40, 167, 69, 0.15);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+  }
+
+  [data-theme="light"] .performance-indicator.medium {
+    color: #d39e00;
+    background-color: rgba(255, 193, 7, 0.15);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+  }
+
+  [data-theme="light"] .performance-indicator.low {
+    color: #bd2130;
+    background-color: rgba(220, 53, 69, 0.15);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+  }
+
+  [data-theme="dark"] .performance-indicator.high {
+    color: #34eb52;
+    background-color: rgba(40, 167, 69, 0.15);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+  }
+
+  [data-theme="dark"] .performance-indicator.medium {
+    color: #ffdf4f;
+    background-color: rgba(255, 193, 7, 0.15);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+  }
+
+  [data-theme="dark"] .performance-indicator.low {
+    color: #ff5a6a;
+    background-color: rgba(220, 53, 69, 0.15);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+  }
+
+  /* Form styling yang terintegrasi untuk light dan dark mode */
+  .form-select,
+  .form-control {
+    transition: all 0.5s ease;
+  }
+
+  [data-theme="light"] .form-select,
+  [data-theme="light"] .form-control {
+    background-color: #ffffff;
+    border-color: #dee2e6;
+    color: #333333;
+  }
+
+  [data-theme="light"] .form-select:focus,
+  [data-theme="light"] .form-control:focus {
+    background-color: #ffffff;
+    border-color: #0078b0;
+    color: #333333;
+    box-shadow: 0 0 0 0.25rem rgba(0, 120, 176, 0.25);
+  }
+
+  [data-theme="light"] .form-label {
+    color: #333333;
+    font-weight: 500;
+    transition: color 0.5s ease;
+  }
+
+  [data-theme="dark"] .form-select,
+  [data-theme="dark"] .form-control {
+    background-color: #1e293b;
+    border-color: rgba(248, 250, 252, 0.1);
+    color: #f8fafc;
+  }
+
+  [data-theme="dark"] .form-select:focus,
+  [data-theme="dark"] .form-control:focus {
+    background-color: #1e293b;
+    border-color: #0091d1;
+    color: #f8fafc;
+    box-shadow: 0 0 0 0.25rem rgba(0, 156, 222, 0.25);
+  }
+
+  [data-theme="dark"] .form-label {
+    color: #f8fafc;
+    font-weight: 500;
+    transition: color 0.5s ease;
+  }
+
+  /* Variabel untuk dark/light mode chart */
+  :root {
+    --chart-grid-color: rgba(0, 0, 0, 0.1);
+    --chart-text-color: #333333;
+    --chart-success-color: rgba(40, 167, 69, 0.7);
+    --chart-success-border: #28a745;
+    --chart-warning-color: rgba(255, 193, 7, 0.7);
+    --chart-warning-border: #ffc107;
+    --chart-primary-color: rgba(0, 120, 176, 0.3);
+    --chart-primary-border: #0078b0;
+    --chart-background: rgba(255, 255, 255, 0.9);
+    --chart-tooltip-bg: rgba(255, 255, 255, 0.95);
+    --chart-tooltip-text: #333333;
+    --chart-tooltip-border: #dee2e6;
+    --chart-legend-text: #333333;
+    --transition-speed: 0.5s;
+  }
+
+  [data-theme="dark"] {
+    --chart-grid-color: rgba(255, 255, 255, 0.1);
+    --chart-text-color: #f8fafc;
+    --chart-success-color: rgba(40, 167, 69, 0.7);
+    --chart-success-border: #34eb52;
+    --chart-warning-color: rgba(255, 193, 7, 0.7);
+    --chart-warning-border: #ffdf4f;
+    --chart-primary-color: rgba(0, 156, 222, 0.3);
+    --chart-primary-border: #4db5ff;
+    --chart-background: rgba(0, 0, 0, 0.05);
+    --chart-tooltip-bg: rgba(30, 41, 59, 0.95);
+    --chart-tooltip-text: #f8fafc;
+    --chart-tooltip-border: #334155;
+    --chart-legend-text: #f8fafc;
+    --transition-speed: 0.5s;
+  }
+
+  /* Transisi global untuk perubahan tema */
+  * {
+    transition-property: color, background-color, border-color, box-shadow;
+    transition-duration: var(--transition-speed);
+    transition-timing-function: ease;
+  }
+
+  /* Button dan form styling dipindahkan ke variabel tema */
+  .btn-primary {
+    color: #fff;
+    transition: all 0.5s ease;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+  }
+
+  [data-theme="light"] .btn-primary {
+    background-color: #0078b0;
+    border-color: #0078b0;
+  }
+
+  [data-theme="light"] .btn-primary:hover {
+    background-color: #005d8a;
+    border-color: #005d8a;
+  }
+
+  [data-theme="dark"] .btn-primary {
+    background-color: #0091d1;
+    border-color: #0091d1;
+  }
+
+  [data-theme="dark"] .btn-primary:hover {
+    background-color: #00a7f5;
+    border-color: #00a7f5;
+  }
+
+  /* Tab styling yang lebih konsisten */
+  .nav-tabs {
+    border-bottom: 2px solid rgba(0, 156, 222, 0.1);
+    margin-bottom: 25px;
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 5px;
+    transition: border-color 0.5s ease;
   }
 
-  .task {
+  .nav-tabs .nav-item {
+    margin-bottom: -2px;
+  }
+
+  .nav-tabs .nav-link {
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: var(--pln-text-secondary);
+    font-weight: 500;
+    padding: 12px 20px;
+    border-radius: 8px 8px 0 0;
+    transition: all 0.5s ease;
+    font-size: 15px;
+    position: relative;
+    cursor: pointer;
+  }
+
+  .nav-tabs .nav-link:hover {
+    color: var(--pln-light-blue);
+    border-color: rgba(0, 156, 222, 0.5);
     background: var(--pln-accent-bg);
-    padding: 15px;
-    border-radius: 12px;
-    flex: 1 1 280px;
-    border: 1px solid var(--pln-border);
-    box-shadow: 0 5px 15px var(--pln-shadow);
-    transition: all 0.3s ease;
-    color: var(--pln-text);
   }
 
-  .task:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px var(--pln-shadow);
+  .nav-tabs .nav-link.active {
+    color: var(--pln-light-blue);
+    border-color: var(--pln-light-blue);
+    background: var(--pln-accent-bg);
+    font-weight: 600;
   }
 
-  .task.highlight {
-    border-left: 4px solid var(--pln-light-blue);
+  .nav-tabs .nav-link .badge {
+    padding: 5px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 11px;
+    transition: all 0.5s ease;
+    margin-left: 8px;
+    box-shadow: 0 2px 5px var(--pln-shadow);
   }
 
-  /* Media Queries for Responsiveness */
-  @media (max-width: 1200px) {
-    .dashboard-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    .gauge-card, .pilar-card {
-      grid-column: span 1;
-    }
-    .pillar-container {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      justify-content: flex-start;
-      padding-bottom: 10px;
-    }
-    .pillar-item {
-      flex: 0 0 130px;
-    }
+  .tab-content > .tab-pane {
+    display: none;
   }
 
-  @media (max-width: 992px) {
-    .dashboard-col {
-      min-width: 200px;
-    }
+  .tab-content > .active {
+    display: block;
+    animation: fadeIn 0.5s ease;
   }
 
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Badge styling untuk light dan dark mode */
+  .badge {
+    padding: 5px 10px;
+    border-radius: 30px;
+    font-weight: 500;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s ease;
+  }
+
+  .badge i {
+    margin-right: 3px;
+  }
+
+  /* Light mode badges */
+  [data-theme="light"] .badge-secondary {
+    background-color: #6c757d;
+    color: #fff;
+  }
+
+  [data-theme="light"] .badge-success {
+    background-color: #28a745;
+    color: #fff;
+  }
+
+  [data-theme="light"] .badge-primary {
+    background-color: #0078b0;
+    color: #fff;
+  }
+
+  [data-theme="light"] .badge-warning {
+    background-color: #ffc107;
+    color: #212529; /* Warna teks gelap untuk kontras dengan background kuning */
+  }
+
+  /* Dark mode badges */
+  [data-theme="dark"] .badge-warning {
+    background-color: #ffc107;
+    color: #212529; /* Tetap gelap agar terlihat kontras */
+  }
+
+  [data-theme="dark"] .badge-success {
+    background-color: #28a745;
+    color: #fff;
+  }
+
+  [data-theme="dark"] .badge-secondary {
+    background-color: #6c757d;
+    color: #fff;
+  }
+
+  [data-theme="dark"] .badge-primary {
+    background-color: #0078b0;
+    color: #fff;
+  }
+
+  /* Responsive design untuk mobile */
   @media (max-width: 768px) {
-    .dashboard-col {
-      flex: 0 0 100%;
-    }
     .dashboard-grid {
       grid-template-columns: 1fr;
     }
-    .meter-container {
-      width: 250px;
-      height: 180px;
+
+    .grid-span-3,
+    .grid-span-4,
+    .grid-span-6,
+    .grid-span-8,
+    .grid-span-12 {
+      grid-column: span 1;
     }
+
+    .chart-container {
+      height: 250px;
+    }
+
+    .stat-card {
+      margin-bottom: 15px;
+    }
+  }
+
+  /* Kinerja Tertinggi Card */
+  .top-performer-card {
+    border-left: 4px solid #28a745;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: rgba(40, 167, 69, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .top-performer-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .top-performer-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .top-performer-title {
+    font-weight: 600;
+    color: var(--pln-text);
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .top-performer-value {
+    font-weight: 700;
+    color: #28a745;
+    font-size: 1.1rem;
+  }
+
+  .top-performer-info {
+    font-size: 0.85rem;
+    color: var(--pln-text-secondary);
+  }
+
+  /* Task Overview Styling */
+  .task-overview {
+    margin-top: 20px;
+  }
+
+  .task-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--pln-border);
+  }
+
+  .task-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    flex-shrink: 0;
+  }
+
+  .task-icon.pending {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+  }
+
+  .task-icon.completed {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+  }
+
+  .task-icon.urgent {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+  }
+
+  .task-content {
+    flex: 1;
+  }
+
+  .task-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--pln-text);
+    margin: 0 0 5px 0;
+  }
+
+  .task-meta {
+    display: flex;
+    font-size: 0.8rem;
+    color: var(--pln-text-secondary);
+  }
+
+  .task-meta span {
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+  }
+
+  .task-meta i {
+    margin-right: 5px;
+    font-size: 0.75rem;
+  }
+
+  .task-status {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .task-status.pending {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+  }
+
+  .task-status.completed {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+  }
+
+  .task-status.urgent {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
   }
 </style>
 @endsection
 
 @section('content')
-<div class="dashboard-content">
-  <!-- Stat Cards -->
-  <div class="dashboard-row">
-    <div class="dashboard-col">
-      <div class="stat-card">
+<div class="container-xl px-4 py-4">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="section-divider">
+        <h2><i class="fas fa-tachometer-alt"></i> Dashboard Master Admin</h2>
+      </div>
+      <p class="text-muted">Selamat datang di dashboard master admin. Silahkan pilih tab untuk melihat data.</p>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-filter mr-2"></i> Filter Data
+          </h5>
+        </div>
+        <div class="card-body">
+          <form action="{{ route('dashboard.master') }}" method="GET" class="d-flex flex-wrap gap-2 align-items-center">
+            <div class="form-group mb-0 mr-2">
+              <label for="tahun" class="form-label small mb-1">Tahun:</label>
+              <select name="tahun" id="tahun" class="form-select form-select-sm">
+                @foreach(range(date('Y') - 5, date('Y') + 1) as $year)
+                  <option value="{{ $year }}" {{ $tahun == $year ? 'selected' : '' }}>{{ $year }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div class="form-group mb-0 mr-2">
+              <label for="bulan" class="form-label small mb-1">Bulan:</label>
+              <select name="bulan" id="bulan" class="form-select form-select-sm">
+                @foreach(range(1, 12) as $month)
+                  <option value="{{ $month }}" {{ $bulan == $month ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $month, 1)) }}</option>
+                @endforeach
+              </select>
+            </div>
+            <div>
+              <label class="form-label opacity-0 d-block small mb-1">Action:</label>
+              <button type="submit" class="btn btn-primary btn-sm">
+                <i class="fas fa-filter fa-sm mr-1"></i> Filter
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistik Ringkasan -->
+  <div class="dashboard-grid">
+    <div class="grid-span-3">
+      <div class="card stat-card">
         <div class="stat-header">
           <h3 class="stat-title">NKO Score</h3>
           <div class="stat-icon">
             <i class="fas fa-chart-line"></i>
           </div>
         </div>
-        <div class="stat-value">{{ $data['nko'] }}</div>
+        <div class="stat-value">{{ $data['nko'] ?? 0 }}%</div>
         <p class="stat-description">Nilai Kinerja Organisasi</p>
       </div>
     </div>
-    <div class="dashboard-col">
-      <div class="stat-card">
+
+    <div class="grid-span-3">
+      <div class="card stat-card">
         <div class="stat-header">
-          <h3 class="stat-title">Indikator</h3>
+          <h3 class="stat-title">Pilar</h3>
           <div class="stat-icon">
-            <i class="fas fa-tasks"></i>
+            <i class="fas fa-layer-group"></i>
           </div>
         </div>
-        <div class="stat-value">{{ count($data['pilar']) * 4 }}</div>
-        <p class="stat-description">Total Indikator</p>
+        <div class="stat-value">{{ count($data['pilar'] ?? []) }}</div>
+        <p class="stat-description">Total Pilar Kinerja</p>
       </div>
     </div>
-    <div class="dashboard-col">
-      <div class="stat-card">
+
+    <div class="grid-span-3">
+      <div class="card stat-card">
         <div class="stat-header">
-          <h3 class="stat-title">Bidang</h3>
+          <h3 class="stat-title">Kinerja Tinggi</h3>
           <div class="stat-icon">
-            <i class="fas fa-building"></i>
+            <i class="fas fa-arrow-up"></i>
           </div>
         </div>
-        <div class="stat-value">{{ count($data['pilar']) }}</div>
-        <p class="stat-description">Total Bidang</p>
+        <div class="stat-value">{{ collect($data['pilar'] ?? [])->where('nilai', '>=', 80)->count() }}</div>
+        <p class="stat-description">Pilar dengan Kinerja ≥ 80%</p>
       </div>
     </div>
-    <div class="dashboard-col">
-      <div class="stat-card">
+
+    <div class="grid-span-3">
+      <div class="card stat-card">
         <div class="stat-header">
-          <h3 class="stat-title">Terverifikasi</h3>
+          <h3 class="stat-title">Perlu Perhatian</h3>
           <div class="stat-icon">
-            <i class="fas fa-check-circle"></i>
+            <i class="fas fa-exclamation-triangle"></i>
           </div>
         </div>
-        <div class="stat-value">{{ round($data['nko']) }}%</div>
-        <p class="stat-description">Data Terverifikasi</p>
+        <div class="stat-value">{{ collect($data['pilar'] ?? [])->where('nilai', '<', 70)->count() }}</div>
+        <p class="stat-description">Pilar dengan Kinerja < 70%</p>
       </div>
     </div>
   </div>
 
-  <!-- Tabs untuk filter status -->
-  <ul class="nav nav-tabs" id="indikatorTabs" role="tablist">
-    <li class="nav-item">
-      <a class="nav-link active" id="semua-tab" data-toggle="tab" href="#semua" role="tab">
-        Semua <span class="badge badge-pill badge-secondary ml-1">{{ count($data['pilar']) }}</span>
-      </a>
+  <!-- Dashboard Overview -->
+  <div class="dashboard-grid">
+    <div class="grid-span-6">
+      <div class="card chart-card">
+        <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Gauge NKO</h3>
+        <div class="d-flex flex-column align-items-center justify-content-center">
+          <div style="position: relative; height: 200px; width: 300px;">
+            <canvas id="gaugeChart"></canvas>
+            <div id="gauge-center-text" style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+              <h3 class="mb-0 fw-bold">{{ $data['nko'] }}%</h3>
+              <p class="mb-0 small text-muted">NKO Score</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-span-6">
+      <div class="card chart-card">
+        <h3 class="chart-title"><i class="fas fa-chart-line"></i> Trend Kinerja {{ $tahun }}</h3>
+        <div class="chart-container medium">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="semua-tab" data-bs-toggle="tab" data-bs-target="#semua" type="button" role="tab" aria-controls="semua" aria-selected="true">
+        <i class="fas fa-table me-2"></i>Semua Pilar
+        <span class="badge badge-secondary">{{ count($data['pilar'] ?? []) }}</span>
+      </button>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" id="tinggi-tab" data-toggle="tab" href="#kinerja-tinggi" role="tab">
-        Kinerja Tinggi <span class="badge badge-pill badge-success ml-1">
-          {{ collect($data['pilar'])->where('nilai', '>=', 80)->count() }}
-        </span>
-      </a>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="tinggi-tab" data-bs-toggle="tab" data-bs-target="#kinerja-tinggi" type="button" role="tab" aria-controls="kinerja-tinggi" aria-selected="false">
+        <i class="fas fa-arrow-up me-2"></i>Kinerja Tinggi
+        <span class="badge badge-success">{{ collect($data['pilar'] ?? [])->where('nilai', '>=', 80)->count() }}</span>
+      </button>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" id="rendah-tab" data-toggle="tab" href="#kinerja-rendah" role="tab">
-        Perlu Perhatian <span class="badge badge-pill badge-warning ml-1">
-          {{ collect($data['pilar'])->where('nilai', '<', 70)->count() }}
-        </span>
-      </a>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="rendah-tab" data-bs-toggle="tab" data-bs-target="#kinerja-rendah" type="button" role="tab" aria-controls="kinerja-rendah" aria-selected="false">
+        <i class="fas fa-arrow-down me-2"></i>Perlu Perhatian
+        <span class="badge badge-warning">{{ collect($data['pilar'] ?? [])->where('nilai', '<', 70)->count() }}</span>
+      </button>
     </li>
   </ul>
 
-  <!-- Dashboard Grid Layout -->
+  <!-- Tab Content -->
+  <div class="tab-content" id="myTabContent">
+    <!-- Tab Semua Pilar -->
+    <div class="tab-pane fade show active" id="semua" role="tabpanel" aria-labelledby="semua-tab">
+      <div class="dashboard-grid">
+        <div class="grid-span-6">
+          <div class="card chart-card">
+            <h3 class="chart-title"><i class="fas fa-chart-radar"></i> Perbandingan Antar Pilar</h3>
+            <div class="chart-container medium">
+              <canvas id="radarChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-span-6">
+          <div class="card chart-card">
+            <h3 class="chart-title"><i class="fas fa-table"></i> Daftar Semua Pilar</h3>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Nama Pilar</th>
+                    <th>Nilai (%)</th>
+                    <th>Status</th>
+                    <th>Tindakan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @forelse($data['pilar'] ?? [] as $index => $pilar)
+                    <tr class="data-row">
+                      <td>{{ $pilar['nama'] }}</td>
+                      <td>
+                        @if($pilar['nilai'] >= 80)
+                          <strong class="text-success">{{ $pilar['nilai'] }}%</strong>
+                          <span class="performance-indicator high">
+                            <i class="fas fa-arrow-up"></i> {{ $pilar['nilai'] }}
+                          </span>
+                        @elseif($pilar['nilai'] >= 70)
+                          <strong class="text-primary">{{ $pilar['nilai'] }}%</strong>
+                          <span class="performance-indicator medium">
+                            <i class="fas fa-minus"></i> {{ $pilar['nilai'] }}
+                          </span>
+                        @else
+                          <strong class="text-warning">{{ $pilar['nilai'] }}%</strong>
+                          <span class="performance-indicator low">
+                            <i class="fas fa-arrow-down"></i> {{ $pilar['nilai'] }}
+                          </span>
+                        @endif
+                      </td>
+                      <td>
+                        @if($pilar['nilai'] >= 80)
+                          <span class="badge badge-success">
+                            <i class="fas fa-check-circle mr-1"></i> Kinerja Tinggi
+                          </span>
+                        @elseif($pilar['nilai'] >= 70)
+                          <span class="badge badge-primary">
+                            <i class="fas fa-info-circle mr-1"></i> Kinerja Baik
+                          </span>
+                        @else
+                          <span class="badge badge-warning">
+                            <i class="fas fa-exclamation-circle mr-1"></i> Perlu Perhatian
+                          </span>
+                        @endif
+                      </td>
+                      <td>
+                        <a href="{{ route('dataKinerja.pilar', $index + 1) }}" class="btn btn-sm btn-primary">
+                          <i class="fas fa-eye mr-1"></i> Detail
+                        </a>
+                      </td>
+                    </tr>
+                  @empty
+                    <tr>
+                      <td colspan="4" class="text-center py-4">
+                        <div class="empty-state">
+                          <i class="fas fa-database text-muted mb-3" style="font-size: 2.5rem;"></i>
+                          <p class="text-muted">Tidak ada data pilar untuk ditampilkan.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  @endforelse
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Kinerja Tinggi -->
+    <div class="tab-pane fade" id="kinerja-tinggi" role="tabpanel" aria-labelledby="tinggi-tab">
+      <div class="dashboard-grid">
+        <div class="grid-span-12">
+          <div class="card chart-card">
+            <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Pilar dengan Kinerja Tinggi</h3>
+            <div class="chart-container medium">
+              <canvas id="highPerformanceChart"></canvas>
+            </div>
+            <div class="table-responsive mt-4">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Nama Pilar</th>
+                    <th>Nilai (%)</th>
+                    <th>Status</th>
+                    <th>Tindakan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @forelse(collect($data['pilar'] ?? [])->where('nilai', '>=', 80) as $index => $pilar)
+                  <tr class="data-row">
+                    <td>{{ $pilar['nama'] }}</td>
+                    <td>
+                      <strong class="text-success">{{ $pilar['nilai'] }}%</strong>
+                      <span class="performance-indicator high">
+                        <i class="fas fa-arrow-up"></i> {{ $pilar['nilai'] }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge badge-success">
+                        <i class="fas fa-check-circle mr-1"></i> Kinerja Tinggi
+                      </span>
+                    </td>
+                    <td>
+                      @php
+                        $pilarId = collect($data['pilar'] ?? [])->search(function($p) use ($pilar) {
+                          return $p['nama'] == $pilar['nama'];
+                        });
+                        $pilarId = $pilarId !== false ? $pilarId + 1 : 1;
+                      @endphp
+                      <a href="{{ route('dataKinerja.pilar', $pilarId) }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-eye mr-1"></i> Detail
+                      </a>
+                    </td>
+                  </tr>
+                  @empty
+                  <tr>
+                    <td colspan="4" class="text-center py-4">
+                      <div class="empty-state">
+                        <i class="fas fa-chart-line text-muted mb-3" style="font-size: 2.5rem;"></i>
+                        <p class="text-muted">Tidak ada pilar dengan kinerja tinggi saat ini.</p>
+                      </div>
+                    </td>
+                  </tr>
+                  @endforelse
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Perlu Perhatian -->
+    <div class="tab-pane fade" id="kinerja-rendah" role="tabpanel" aria-labelledby="rendah-tab">
+      <div class="dashboard-grid">
+        <div class="grid-span-12">
+          <div class="card chart-card">
+            <h3 class="chart-title"><i class="fas fa-exclamation-triangle"></i> Pilar yang Perlu Perhatian</h3>
+            <div class="chart-container medium">
+              <canvas id="lowPerformanceChart"></canvas>
+            </div>
+            <div class="table-responsive mt-4">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Nama Pilar</th>
+                    <th>Nilai (%)</th>
+                    <th>Status</th>
+                    <th>Tindakan</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @forelse(collect($data['pilar'] ?? [])->where('nilai', '<', 70) as $index => $pilar)
+                  <tr class="data-row">
+                    <td>{{ $pilar['nama'] }}</td>
+                    <td>
+                      <strong class="text-warning">{{ $pilar['nilai'] }}%</strong>
+                      <span class="performance-indicator low">
+                        <i class="fas fa-arrow-down"></i> {{ $pilar['nilai'] }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge badge-warning">
+                        <i class="fas fa-exclamation-circle mr-1"></i> Perlu Perhatian
+                      </span>
+                    </td>
+                    <td>
+                      @php
+                        $pilarId = collect($data['pilar'] ?? [])->search(function($p) use ($pilar) {
+                          return $p['nama'] == $pilar['nama'];
+                        });
+                        $pilarId = $pilarId !== false ? $pilarId + 1 : 1;
+                      @endphp
+                      <a href="{{ route('dataKinerja.pilar', $pilarId) }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-eye mr-1"></i> Detail
+                      </a>
+                    </td>
+                  </tr>
+                  @empty
+                  <tr>
+                    <td colspan="4" class="text-center py-4">
+                      <div class="empty-state">
+                        <i class="fas fa-check-circle text-muted mb-3" style="font-size: 2.5rem;"></i>
+                        <p class="text-muted">Tidak ada pilar yang perlu perhatian saat ini.</p>
+                      </div>
+                    </td>
+                  </tr>
+                  @endforelse
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Kinerja Tertinggi dan Overview Tugas -->
   <div class="dashboard-grid">
-    <!-- NKO Gauge Meter Card -->
-    <div class="dashboard-card gauge-card">
-      <h3 class="card-title">
-        <i class="fas fa-tachometer-alt mr-2"></i>
-        Nilai Kinerja Organisasi
-      </h3>
-      <div class="meter-container">
-        <canvas id="gaugeChart"></canvas>
-        <div class="nko-label">NKO</div>
-        <div class="nko-value">{{ $data['nko'] }}</div>
-      </div>
-    </div>
-
-    <!-- Pilar Performance Card -->
-    <div class="dashboard-card pilar-card">
-      <h3 class="card-title">
-        <i class="fas fa-chart-pie mr-2"></i>
-        Nilai Kinerja Per Pilar
-      </h3>
-      <div class="pillar-container">
-        @foreach($data['pilar'] as $index => $pilar)
-        @if($index < 3)
-        <div class="pillar-item">
-          <div class="pillar-title">{{ strtoupper($pilar['nama']) }}</div>
-          <div class="pillar-value">{{ $pilar['nilai'] }}%</div>
-          <div class="circle-progress">
-            <canvas id="pilar{{ $index+1 }}Chart"></canvas>
-            <div class="circle-progress-value">{{ $pilar['nilai'] }}%</div>
+    <div class="grid-span-8">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title"><i class="fas fa-trophy"></i> Kinerja Tertinggi</h5>
+          <div>
+            <button class="btn btn-sm btn-light" id="refreshTopPerformers">
+              <i class="fas fa-sync-alt"></i>
+            </button>
           </div>
         </div>
-        @endif
-        @endforeach
-      </div>
-      <div class="pillar-container">
-        @foreach($data['pilar'] as $index => $pilar)
-        @if($index >= 3 && $index < 6)
-        <div class="pillar-item">
-          <div class="pillar-title">{{ strtoupper($pilar['nama']) }}</div>
-          <div class="pillar-value">{{ $pilar['nilai'] }}%</div>
-          <div class="circle-progress">
-            <canvas id="pilar{{ $index+1 }}Chart"></canvas>
-            <div class="circle-progress-value">{{ $pilar['nilai'] }}%</div>
+        <div class="card-body">
+          <div class="row">
+            @if(isset($poorPerformers) && count($poorPerformers) > 0)
+              @foreach($poorPerformers as $performer)
+                <div class="col-md-6">
+                  <div class="top-performer-card">
+                    <div class="top-performer-header">
+                      <h6 class="top-performer-title">{{ $performer->indikator->nama }}</h6>
+                      <span class="top-performer-value">{{ $performer->persentase }}%</span>
+                    </div>
+                    <div class="top-performer-info">
+                      <span class="badge bg-info">{{ $performer->indikator->bidang->nama }}</span>
+                      <span class="text-muted ml-2">Kode: {{ $performer->indikator->kode }}</span>
+                    </div>
+                  </div>
+                </div>
+              @endforeach
+            @else
+              <div class="col-12">
+                <div class="alert alert-info">
+                  Tidak ada data kinerja tertinggi yang tersedia.
+                </div>
+              </div>
+            @endif
           </div>
         </div>
-        @endif
-        @endforeach
       </div>
     </div>
 
-    <!-- Tren Chart -->
-    <div class="dashboard-card full-width">
-      <h3 class="card-title">
-        <i class="fas fa-chart-line mr-2"></i>
-        Tren Nilai Kinerja Bulanan {{ $tahun }}
-      </h3>
-      <canvas id="trendChart"></canvas>
-    </div>
-
-    <!-- Tasks Overview -->
-    <div class="dashboard-card">
-      <h3 class="card-title">
-        <i class="fas fa-clipboard-list mr-2"></i>
-        Overview Tugas Penting
-      </h3>
-      <div class="tasks">
-        <div class="task highlight">
-          <h4>Verifikasi Data KPI</h4>
-          <p>5 data menunggu verifikasi dari bidang Keuangan</p>
-          <a href="#" class="btn btn-sm btn-primary">Verifikasi Sekarang</a>
+    <div class="grid-span-4">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title"><i class="fas fa-tasks"></i> Overview Tugas</h5>
         </div>
-        <div class="task">
-          <h4>Manajemen Akun</h4>
-          <p>2 permintaan akun baru menunggu persetujuan</p>
-          <a href="#" class="btn btn-sm btn-outline-primary">Kelola Akun</a>
-        </div>
-        <div class="task">
-          <h4>Laporan Bulanan</h4>
-          <p>Ekspor laporan KPI bulan {{ date('F', mktime(0, 0, 0, $bulan, 10)) }} {{ $tahun }}</p>
-          <a href="#" class="btn btn-sm btn-outline-primary">Ekspor PDF</a>
+        <div class="card-body">
+          <div class="task-overview">
+            @if(isset($needVerification) && count($needVerification) > 0)
+              @foreach($needVerification as $task)
+                <div class="task-item">
+                  <div class="task-icon pending">
+                    <i class="fas fa-clock"></i>
+                  </div>
+                  <div class="task-content">
+                    <h6 class="task-title">{{ $task->indikator->nama }}</h6>
+                    <div class="task-meta">
+                      <span><i class="fas fa-user"></i> {{ $task->user->name }}</span>
+                      <span><i class="fas fa-calendar"></i> {{ $task->created_at->format('d M Y') }}</span>
+                    </div>
+                  </div>
+                  <span class="task-status pending">Menunggu</span>
+                </div>
+              @endforeach
+            @else
+              <div class="alert alert-success">
+                <i class="fas fa-check-circle mr-2"></i> Tidak ada tugas yang perlu ditindaklanjuti.
+              </div>
+            @endif
+          </div>
         </div>
       </div>
     </div>
@@ -545,23 +1262,213 @@
 @endsection
 
 @section('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+  // Helper function untuk mengambil variabel CSS
+  function getCSSVariable(variable, fallback) {
+    const computedStyle = getComputedStyle(document.documentElement);
+    return computedStyle.getPropertyValue(variable).trim() || fallback;
+  }
+
+  // Chart configuration yang support dark/light mode
+  function getChartConfig() {
+    return {
+      gridColor: getCSSVariable('--chart-grid-color', 'rgba(255, 255, 255, 0.1)'),
+      textColor: getCSSVariable('--chart-text-color', '#f8fafc'),
+      successColor: getCSSVariable('--chart-success-color', 'rgba(40, 167, 69, 0.7)'),
+      successBorder: getCSSVariable('--chart-success-border', '#28a745'),
+      warningColor: getCSSVariable('--chart-warning-color', 'rgba(255, 193, 7, 0.7)'),
+      warningBorder: getCSSVariable('--chart-warning-border', '#ffc107'),
+      primaryColor: getCSSVariable('--chart-primary-color', 'rgba(0, 156, 222, 0.3)'),
+      primaryBorder: getCSSVariable('--chart-primary-border', '#0078b0'),
+      background: getCSSVariable('--chart-background', 'rgba(255, 255, 255, 0.9)'),
+      tooltipBg: getCSSVariable('--chart-tooltip-bg', 'rgba(255, 255, 255, 0.95)'),
+      tooltipText: getCSSVariable('--chart-tooltip-text', '#333333'),
+      tooltipBorder: getCSSVariable('--chart-tooltip-border', '#dee2e6'),
+      legendText: getCSSVariable('--chart-legend-text', '#333333')
+    };
+  }
+
+  // Objek untuk menyimpan instance chart
+  const chartInstances = {
+    gaugeChart: null,
+    trendChart: null,
+    radarChart: null,
+    highPerformanceChart: null,
+    lowPerformanceChart: null
+  };
+
+  // Fungsi untuk update semua chart ketika tema berubah
+  function updateChartsForTheme() {
+    console.log('Updating charts for theme change');
+
+    // Dapatkan konfigurasi baru berdasarkan tema saat ini
+    const chartConfig = getChartConfig();
+
+    // Reinisialisasi semua chart dengan konfigurasi baru
+    initGaugeChart(chartConfig);
+    initTrendChart(chartConfig);
+
+    // Reinisialisasi chart pada tab yang aktif
+    const activeTab = document.querySelector('.tab-pane.active');
+    if (activeTab) {
+      const tabId = activeTab.id;
+
+      if (tabId === 'semua') {
+        initRadarChart(chartConfig);
+      } else if (tabId === 'kinerja-tinggi') {
+        initHighPerformanceChart(chartConfig);
+      } else if (tabId === 'kinerja-rendah') {
+        initLowPerformanceChart(chartConfig);
+      }
+    }
+
+    // Update warna teks di gauge chart
+    const gaugeText = document.getElementById('gauge-center-text');
+    if (gaugeText) {
+      const scoreElement = gaugeText.querySelector('h3');
+      const labelElement = gaugeText.querySelector('p');
+
+      if (scoreElement) {
+        scoreElement.style.color = chartConfig.textColor;
+      }
+
+      if (labelElement) {
+        labelElement.style.color = chartConfig.textColor;
+        labelElement.style.opacity = '0.7';
+      }
+    }
+
+    // Update warna teks pada tabel
+    document.querySelectorAll('.data-table').forEach(table => {
+      // Force reflow untuk memastikan transisi warna yang halus
+      table.style.display = 'none';
+      table.offsetHeight; // Trigger reflow
+      table.style.display = '';
+    });
+
+    // Update badge colors
+    document.querySelectorAll('.badge').forEach(badge => {
+      // Force reflow untuk memastikan transisi warna yang halus
+      badge.style.display = 'inline-flex';
+      badge.offsetHeight; // Trigger reflow
+      badge.style.display = 'inline-flex';
+    });
+  }
+
+  // Inisialisasi chart
   document.addEventListener('DOMContentLoaded', function() {
+
+    // Setup default Chart.js global options
+    setupChartDefaults();
+
+    // Tab handlers untuk Bootstrap 5
+    const tabs = document.querySelectorAll('[data-bs-toggle="tab"]');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('shown.bs.tab', function(event) {
+        console.log('Tab activated:', event.target.getAttribute('data-bs-target'));
+        const tabId = event.target.getAttribute('data-bs-target').replace('#', '');
+        const chartConfig = getChartConfig();
+
+        // Render chart berdasarkan tab yang aktif
+        if (tabId === 'kinerja-tinggi') {
+          initHighPerformanceChart(chartConfig);
+        }
+        else if (tabId === 'kinerja-rendah') {
+          initLowPerformanceChart(chartConfig);
+        }
+        else if (tabId === 'semua') {
+          initRadarChart(chartConfig);
+        }
+
+        // Trigger resize event untuk memastikan chart ditampilkan dengan benar
+        setTimeout(() => {
+          window.dispatchEvent(new Event('resize'));
+        }, 50);
+      });
+    });
+
+    // Inisialisasi chart untuk tab yang aktif saat halaman dimuat
+    initAllCharts();
+
+    // Pre-render charts untuk tab lain agar siap ketika tab diaktifkan
+    setTimeout(() => {
+      const chartConfig = getChartConfig();
+      initHighPerformanceChart(chartConfig);
+      initLowPerformanceChart(chartConfig);
+    }, 100);
+  });
+
+  // Setup default Chart.js global options
+  function setupChartDefaults() {
+    const chartConfig = getChartConfig();
+
+    Chart.defaults.color = chartConfig.textColor;
+    Chart.defaults.borderColor = chartConfig.gridColor;
+    Chart.defaults.font.family = "'Poppins', 'Helvetica', 'Arial', sans-serif";
+
+    // Default tooltip style
+    Chart.defaults.plugins.tooltip.backgroundColor = chartConfig.tooltipBg;
+    Chart.defaults.plugins.tooltip.titleColor = chartConfig.tooltipText;
+    Chart.defaults.plugins.tooltip.bodyColor = chartConfig.tooltipText;
+    Chart.defaults.plugins.tooltip.borderColor = chartConfig.tooltipBorder;
+    Chart.defaults.plugins.tooltip.borderWidth = 1;
+    Chart.defaults.plugins.tooltip.padding = 12;
+    Chart.defaults.plugins.tooltip.cornerRadius = 8;
+    Chart.defaults.plugins.tooltip.displayColors = true;
+    Chart.defaults.plugins.tooltip.boxPadding = 4;
+
+    // Default legend style
+    Chart.defaults.plugins.legend.labels.color = chartConfig.legendText;
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+    Chart.defaults.plugins.legend.labels.pointStyleWidth = 10;
+
+    // Animation defaults
+    Chart.defaults.animation.duration = 1000;
+    Chart.defaults.animation.easing = 'easeOutQuart';
+  }
+
+  // Fungsi untuk menginisialisasi semua chart
+  function initAllCharts() {
+    const chartConfig = getChartConfig();
+
     // Gauge Chart
-    const gaugeCtx = document.getElementById('gaugeChart').getContext('2d');
+    initGaugeChart(chartConfig);
+
+    // Trend Chart
+    initTrendChart(chartConfig);
+
+    // Radar Chart untuk perbandingan antar pilar
+    initRadarChart(chartConfig);
+  }
+
+  // Gauge Chart
+  function initGaugeChart(chartConfig = getChartConfig()) {
+    const gaugeCtx = document.getElementById('gaugeChart');
+    if (!gaugeCtx) return;
+
+    const ctx = gaugeCtx.getContext('2d');
     const nkoValue = {{ $data['nko'] }};
 
     // Determine color based on value
     let gaugeColor = '#F44336'; // Red for low values
     if (nkoValue >= 70) {
-      gaugeColor = '#4CAF50'; // Green for high values
+      gaugeColor = chartConfig.successBorder; // Green for high values
     } else if (nkoValue >= 50) {
-      gaugeColor = '#FFC107'; // Yellow for medium values
+      gaugeColor = chartConfig.warningBorder; // Yellow for medium values
     }
 
-    new Chart(gaugeCtx, {
+    // Destroy existing chart if exists
+    if (chartInstances.gaugeChart) {
+      chartInstances.gaugeChart.destroy();
+    }
+
+    chartInstances.gaugeChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
         datasets: [{
@@ -590,55 +1497,32 @@
       }
     });
 
-    // Pilar Charts
-    const pilarValues = @json(array_column($data['pilar'], 'nilai'));
-    const pilarColors = pilarValues.map(value => {
-      if (value >= 70) return '#4CAF50';  // Green for high values
-      else if (value >= 50) return '#FFC107';  // Yellow for medium values
-      else return '#F44336';  // Red for low values
-    });
+    // Update center text with current theme colors
+    const gaugeText = document.getElementById('gauge-center-text');
+    if (gaugeText) {
+      const scoreElement = gaugeText.querySelector('h3');
+      const labelElement = gaugeText.querySelector('p');
 
-    for (let i = 1; i <= pilarValues.length; i++) {
-      const pilarCtx = document.getElementById(`pilar${i}Chart`);
-      if (!pilarCtx) continue;
+      if (scoreElement) {
+        scoreElement.style.color = chartConfig.textColor;
+        scoreElement.style.fontSize = '2rem';
+        scoreElement.style.fontWeight = '700';
+      }
 
-      const pilarValue = pilarValues[i-1];
-      const pilarColor = pilarColors[i-1];
-
-      new Chart(pilarCtx.getContext('2d'), {
-        type: 'doughnut',
-        data: {
-          datasets: [{
-            data: [pilarValue, 100 - pilarValue],
-            backgroundColor: [
-              pilarColor,
-              'rgba(200, 200, 200, 0.1)'
-            ],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '75%',
-          plugins: {
-            legend: {
-              display: false
-            },
-            tooltip: {
-              enabled: false
-            }
-          },
-          animation: {
-            animateRotate: true,
-            animateScale: true
-          }
-        }
-      });
+      if (labelElement) {
+        labelElement.style.color = chartConfig.textColor;
+        labelElement.style.opacity = '0.7';
+        labelElement.style.fontSize = '0.85rem';
+      }
     }
+  }
 
-    // Trend Chart
-    const trendCtx = document.getElementById('trendChart').getContext('2d');
+  // Trend Chart
+  function initTrendChart(chartConfig = getChartConfig()) {
+    const trendCtx = document.getElementById('trendChart');
+    if (!trendCtx) return;
+
+    const ctx = trendCtx.getContext('2d');
     // Simulasikan data tren (ini dapat diganti dengan data aktual)
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
     const currentMonth = {{ $bulan }};
@@ -659,17 +1543,22 @@
       }
     }
 
-    new Chart(trendCtx, {
+    // Destroy existing chart if exists
+    if (chartInstances.trendChart) {
+      chartInstances.trendChart.destroy();
+    }
+
+    chartInstances.trendChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: months,
         datasets: [{
           label: 'Nilai Kinerja',
           data: trendData,
-          backgroundColor: 'rgba(0, 156, 222, 0.2)',
-          borderColor: '#009cde',
+          backgroundColor: chartConfig.primaryColor,
+          borderColor: chartConfig.primaryBorder,
           borderWidth: 2,
-          pointBackgroundColor: '#0a4d85',
+          pointBackgroundColor: chartConfig.primaryBorder,
           pointBorderColor: '#fff',
           pointBorderWidth: 2,
           pointRadius: 5,
@@ -685,9 +1574,9 @@
             display: false
           },
           tooltip: {
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            titleColor: '#fff',
-            bodyColor: '#fff',
+            backgroundColor: chartConfig.tooltipBg,
+            titleColor: chartConfig.tooltipText,
+            bodyColor: chartConfig.tooltipText,
             titleFont: {
               size: 14,
               weight: 'bold'
@@ -696,26 +1585,28 @@
               size: 13
             },
             padding: 12,
-            displayColors: false
+            displayColors: false,
+            borderColor: chartConfig.tooltipBorder,
+            borderWidth: 1
           }
         },
         scales: {
           x: {
             grid: {
-              color: 'rgba(255, 255, 255, 0.1)'
+              color: chartConfig.gridColor
             },
             ticks: {
-              color: 'var(--pln-text-secondary)'
+              color: chartConfig.textColor
             }
           },
           y: {
             beginAtZero: true,
             max: 100,
             grid: {
-              color: 'rgba(255, 255, 255, 0.1)'
+              color: chartConfig.gridColor
             },
             ticks: {
-              color: 'var(--pln-text-secondary)',
+              color: chartConfig.textColor,
               callback: function(value) {
                 return value + '%';
               }
@@ -724,6 +1615,329 @@
         }
       }
     });
-  });
+  }
+
+  // Radar Chart untuk perbandingan antar pilar
+  function initRadarChart(chartConfig = getChartConfig()) {
+    const radarCtx = document.getElementById('radarChart');
+    if (!radarCtx) return;
+
+    const pilars = @json($data['pilar']);
+
+    if (pilars.length > 0) {
+      const labels = pilars.map(pilar => pilar.nama);
+      const values = pilars.map(pilar => pilar.nilai);
+
+      // Destroy existing chart if exists
+      if (chartInstances.radarChart) {
+        chartInstances.radarChart.destroy();
+      }
+
+      // Data untuk radar chart
+      chartInstances.radarChart = new Chart(radarCtx.getContext('2d'), {
+        type: 'radar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Nilai Kinerja (%)',
+            data: values,
+            backgroundColor: chartConfig.primaryColor,
+            borderColor: chartConfig.primaryBorder,
+            borderWidth: 2,
+            pointBackgroundColor: chartConfig.primaryBorder,
+            pointBorderColor: '#fff',
+            pointRadius: 5,
+            pointHoverRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              beginAtZero: true,
+              max: 100,
+              ticks: {
+                stepSize: 20,
+                backdropColor: 'transparent',
+                color: chartConfig.textColor
+              },
+              grid: {
+                color: chartConfig.gridColor
+              },
+              angleLines: {
+                color: chartConfig.gridColor
+              },
+              pointLabels: {
+                color: chartConfig.textColor,
+                font: {
+                  size: 12
+                }
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: chartConfig.tooltipBg,
+              titleColor: chartConfig.tooltipText,
+              bodyColor: chartConfig.tooltipText,
+              titleFont: {
+                size: 14,
+                weight: 'bold'
+              },
+              bodyFont: {
+                size: 13
+              },
+              padding: 12,
+              borderColor: chartConfig.tooltipBorder,
+              borderWidth: 1
+            }
+          },
+          elements: {
+            line: {
+              tension: 0.1
+            }
+          }
+        }
+      });
+    } else {
+      // Jika tidak ada data, tampilkan pesan kosong
+      const noDataDiv = document.createElement('div');
+      noDataDiv.className = 'empty-state';
+      noDataDiv.innerHTML = `
+        <i class="fas fa-chart-pie text-muted mb-3" style="font-size: 2.5rem;"></i>
+        <p class="text-muted">Tidak ada data pilar untuk ditampilkan.</p>
+      `;
+      radarCtx.parentNode.replaceChild(noDataDiv, radarCtx);
+    }
+  }
+
+  // Kinerja Tinggi Chart - Bar Chart
+  function initHighPerformanceChart(chartConfig = getChartConfig()) {
+    const highPerformanceCtx = document.getElementById('highPerformanceChart');
+    if (!highPerformanceCtx) return;
+
+    const highPilar = @json(collect($data['pilar'] ?? [])->where('nilai', '>=', 80)->values()->all());
+
+    if (highPilar.length > 0) {
+      const labels = highPilar.map(pilar => pilar.nama);
+      const values = highPilar.map(pilar => pilar.nilai);
+      const targetValues = highPilar.map(() => 80); // Target 80%
+
+      // Destroy existing chart if exists
+      if (chartInstances.highPerformanceChart) {
+        chartInstances.highPerformanceChart.destroy();
+      }
+
+      chartInstances.highPerformanceChart = new Chart(highPerformanceCtx.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Nilai Kinerja (%)',
+              data: values,
+              backgroundColor: chartConfig.successColor,
+              borderColor: chartConfig.successBorder,
+              borderWidth: 1,
+              borderRadius: 5,
+              barPercentage: 0.6,
+              categoryPercentage: 0.7
+            },
+            {
+              label: 'Target Minimum Kinerja Tinggi',
+              data: targetValues,
+              type: 'line',
+              backgroundColor: 'transparent',
+              borderColor: 'rgba(0, 0, 0, 0.2)',
+              borderWidth: 2,
+              borderDash: [5, 5],
+              pointStyle: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              grid: {
+                color: chartConfig.gridColor
+              },
+              ticks: {
+                color: chartConfig.textColor,
+                callback: function(value) {
+                  return value + '%';
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: chartConfig.textColor
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: chartConfig.legendText,
+                usePointStyle: true,
+                padding: 20,
+                font: {
+                  size: 12
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: chartConfig.tooltipBg,
+              titleColor: chartConfig.tooltipText,
+              bodyColor: chartConfig.tooltipText,
+              padding: 12,
+              mode: 'index',
+              intersect: false,
+              borderColor: chartConfig.tooltipBorder,
+              borderWidth: 1
+            }
+          }
+        }
+      });
+    } else {
+      // Jika tidak ada data, tampilkan pesan kosong
+      const chartContainer = highPerformanceCtx.parentNode;
+      const existingEmptyState = chartContainer.querySelector('.empty-state');
+
+      if (!existingEmptyState) {
+        const noDataDiv = document.createElement('div');
+        noDataDiv.className = 'empty-state';
+        noDataDiv.innerHTML = `
+          <i class="fas fa-chart-bar text-muted mb-3" style="font-size: 2.5rem;"></i>
+          <p class="text-muted">Tidak ada data kinerja tinggi untuk ditampilkan.</p>
+        `;
+        chartContainer.replaceChild(noDataDiv, highPerformanceCtx);
+      }
+    }
+  }
+
+  // Perlu Perhatian Chart - Horizontal Bar Chart
+  function initLowPerformanceChart(chartConfig = getChartConfig()) {
+    const lowPerformanceCtx = document.getElementById('lowPerformanceChart');
+    if (!lowPerformanceCtx) return;
+
+    const lowPilar = @json(collect($data['pilar'] ?? [])->where('nilai', '<', 70)->values()->all());
+
+    if (lowPilar.length > 0) {
+      const labels = lowPilar.map(pilar => pilar.nama);
+      const values = lowPilar.map(pilar => pilar.nilai);
+      const targetValues = lowPilar.map(() => 70); // Target 70%
+
+      // Destroy existing chart if exists
+      if (chartInstances.lowPerformanceChart) {
+        chartInstances.lowPerformanceChart.destroy();
+      }
+
+      chartInstances.lowPerformanceChart = new Chart(lowPerformanceCtx.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Nilai Kinerja (%)',
+              data: values,
+              backgroundColor: chartConfig.warningColor,
+              borderColor: chartConfig.warningBorder,
+              borderWidth: 1,
+              borderRadius: 5,
+              barPercentage: 0.6,
+              categoryPercentage: 0.7
+            },
+            {
+              label: 'Target Minimum',
+              data: targetValues,
+              type: 'line',
+              backgroundColor: 'transparent',
+              borderColor: 'rgba(0, 0, 0, 0.2)',
+              borderWidth: 2,
+              borderDash: [5, 5],
+              pointStyle: false
+            }
+          ]
+        },
+        options: {
+          indexAxis: 'y', // Horizontal bar
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              beginAtZero: true,
+              max: 100,
+              grid: {
+                color: chartConfig.gridColor
+              },
+              ticks: {
+                color: chartConfig.textColor,
+                callback: function(value) {
+                  return value + '%';
+                }
+              }
+            },
+            y: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: chartConfig.textColor
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: chartConfig.legendText,
+                usePointStyle: true,
+                padding: 20,
+                font: {
+                  size: 12
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: chartConfig.tooltipBg,
+              titleColor: chartConfig.tooltipText,
+              bodyColor: chartConfig.tooltipText,
+              padding: 12,
+              mode: 'index',
+              intersect: false,
+              borderColor: chartConfig.tooltipBorder,
+              borderWidth: 1
+            }
+          }
+        }
+      });
+    } else {
+      // Jika tidak ada data, tampilkan pesan kosong
+      const chartContainer = lowPerformanceCtx.parentNode;
+      const existingEmptyState = chartContainer.querySelector('.empty-state');
+
+      if (!existingEmptyState) {
+        const noDataDiv = document.createElement('div');
+        noDataDiv.className = 'empty-state';
+        noDataDiv.innerHTML = `
+          <i class="fas fa-check-circle text-muted mb-3" style="font-size: 2.5rem;"></i>
+          <p class="text-muted">Tidak ada pilar yang perlu perhatian saat ini.</p>
+        `;
+        chartContainer.replaceChild(noDataDiv, lowPerformanceCtx);
+      }
+    }
+  }
 </script>
 @endsection
