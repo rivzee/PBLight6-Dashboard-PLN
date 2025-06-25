@@ -1,67 +1,28 @@
-name: CI Laravel - Iterasi 4
+name: Code Linting
 
 on:
   push:
     branches:
       - iterasi4
   pull_request:
-    branches:
-      - iterasi4
 
 jobs:
-  laravel-tests:
+  lint:
+    name: Lint iterasi4 branch
     runs-on: ubuntu-latest
-
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: laravel
-        ports:
-          - 3306:3306
-        options: |
-          --health-cmd="mysqladmin ping --silent"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=3
+    if: |
+      github.ref == 'refs/heads/iterasi4' || github.head_ref == 'iterasi4'
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Setup PHP
+      - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: mbstring, bcmath, mysql
 
       - name: Install dependencies
-        working-directory: src/Dashboard-PLN
-        run: composer install --prefer-dist --no-progress
+        run: composer install
 
-      - name: Setup environment
-        working-directory: src/Dashboard-PLN
-        run: |
-          cp .env.example .env
-          php artisan key:generate
-
-      - name: Run migrations
-        working-directory: src/Dashboard-PLN
-        env:
-          DB_HOST: 127.0.0.1
-          DB_PORT: 3306
-          DB_DATABASE: db_pblight
-          DB_USERNAME: root
-          DB_PASSWORD: root
-        run: php artisan migrate --force
-
-      - name: Run tests
-        working-directory: src/Dashboard-PLN
-        env:
-          DB_HOST: 127.0.0.1
-          DB_PORT: 3306
-          DB_DATABASE: db_pblight
-          DB_USERNAME: root
-          DB_PASSWORD: root
-        run: php artisan test
+      - name: Run Code Sniffer
+        run: vendor/bin/phpcs --standard=PSR12 app/ routes/ tests/
