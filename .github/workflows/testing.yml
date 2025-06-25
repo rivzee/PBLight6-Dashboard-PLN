@@ -1,0 +1,50 @@
+name: CI Laravel - Iterasi 4
+
+on:
+  push:
+    branches:
+      - iterasi4
+  pull_request:
+    branches:
+      - iterasi4
+
+jobs:
+  force-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout iterasi4
+        uses: actions/checkout@v3
+        with:
+          php-version: '8.2'
+          extensions: mbstring, bcmath, mysql
+
+      - name: Install dependencies
+        working-directory: src/Dashboard-PLN
+        run: composer install --prefer-dist --no-progress
+
+      - name: Setup environment
+        working-directory: src/Dashboard-PLN
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run migrations
+        working-directory: src/Dashboard-PLN
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: db_pblight
+          DB_USERNAME: root
+          DB_PASSWORD: root
+        run: php artisan migrate --force
+
+      - name: Run tests
+        working-directory: src/Dashboard-PLN
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: db_pblight
+          DB_USERNAME: root
+          DB_PASSWORD: root
+        run: php artisan test
