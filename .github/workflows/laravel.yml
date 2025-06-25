@@ -1,28 +1,68 @@
-name: Code Linting
+name: CI Laravel
 
 on:
   push:
-    branches:
-      - iterasi4
+    branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
-  lint:
-    name: Lint iterasi4 branch
+  laravel-tests:
     runs-on: ubuntu-latest
-    if: |
-      github.ref == 'refs/heads/iterasi4' || github.head_ref == 'iterasi4'
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: laravel
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Set up PHP
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          extensions: mbstring, bcmath, mysql
+          ini-values: post_max_size=256M, upload_max_filesize=256M
+          coverage: none
 
       - name: Install dependencies
-        run: composer install
+        working-directory: src/Dashboard-PLN
+        run: composer install --prefer-dist --no-progress
 
-      - name: Run Code Sniffer
-        run: vendor/bin/phpcs --standard=PSR12 app/ routes/ tests/
+      - name: Copy .env
+        working-directory: src/Dashboard-PLN
+        run: cp .env.example .env
+
+      - name: Generate app key
+        working-directory: src/Dashboard-PLN
+        run: php artisan key:generate
+
+      - name: Run migrations
+        working-directory: src/Dashboard-PLN
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: db_pblight
+          DB_USERNAME: root
+          DB_PASSWORD: root
+        run: php artisan migrate --force
+
+      - name: Run tests
+        working-directory: src/Dashboard-PLN
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: db_pblight
+          DB_USERNAME: root
+          DB_PASSWORD: root
+        run: php artisan test
