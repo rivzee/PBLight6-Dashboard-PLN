@@ -3,7 +3,6 @@ name: Laravel Auto Linting (Branch Testing)
 on:
   push:
     branches: [testing]
-  workflow_dispatch:  # bisa juga dijalankan manual
 
 jobs:
   lint:
