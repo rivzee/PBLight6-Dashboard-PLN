@@ -1,0 +1,28 @@
+name: Code Linting
+
+on:
+  push:
+    branches:
+      - iterasi4
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint iterasi4 branch
+    runs-on: ubuntu-latest
+    if: |
+      github.ref == 'refs/heads/iterasi4' || github.head_ref == 'iterasi4'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Run Code Sniffer
+        run: vendor/bin/phpcs --standard=PSR12 app/ routes/ tests/
