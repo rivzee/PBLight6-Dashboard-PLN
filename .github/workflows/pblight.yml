@@ -1,4 +1,4 @@
-name: Laravel Code Linting
+name: Laravel Linting
 
 on:
   push:
@@ -21,24 +21,27 @@ jobs:
         with:
           php-version: '8.2'
 
+      - name: Show directory structure
+        run: ls -R
+
       - name: Install Dependencies
-        working-directory: src/dashboard-PLN
+        working-directory: src/Dashboard-PLN
         run: composer install --no-progress --prefer-dist
 
       - name: Run Laravel Pint
-        working-directory: src/dashboard-PLN
+        working-directory: src/Dashboard-PLN
         run: |
           composer require laravel/pint --dev
           vendor/bin/pint src/
 
       - name: Run PHPStan
-        working-directory: src/dashboard-PLN
+        working-directory: src/Dashboard-PLN
         run: |
           composer require phpstan/phpstan --dev
           vendor/bin/phpstan analyse src --level=max
 
       - name: Run PHP_CodeSniffer
-        working-directory: src/dashboard-PLN
+        working-directory: src/Dashboard-PLN
         run: |
           composer require squizlabs/php_codesniffer --dev
           vendor/bin/phpcs --standard=PSR12 src/
