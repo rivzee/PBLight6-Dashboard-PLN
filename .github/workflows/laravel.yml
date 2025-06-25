@@ -1,12 +1,14 @@
-name: Laravel Manual Linting
+name: Laravel Auto Linting (Branch Testing)
 
 on:
-  workflow_dispatch:  # 
+  push:
+    branches: [testing]
+  workflow_dispatch:  # bisa juga dijalankan manual
 
 jobs:
   lint:
-    if: github.ref == 'refs/heads/testing'  
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/testing'
 
     steps:
       - name: Checkout Repository
