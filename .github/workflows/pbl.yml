@@ -1,13 +1,11 @@
-name: Laravel Linting
+name: Laravel Manual Linting
 
 on:
-  push:
-    branches: [testing]
-  pull_request:
-    branches: [testing]
+  workflow_dispatch:  
 
 jobs:
   lint:
+    if: github.ref == 'refs/heads/testing'  
     runs-on: ubuntu-latest
 
     steps:
