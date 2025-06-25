@@ -1,28 +1,42 @@
-name: Code Linting
+name: Laravel Linting
 
 on:
   push:
-    branches:
-      - iterasi4
+    branches: [testing]
   pull_request:
+    branches: [testing]
 
 jobs:
   lint:
-    name: Lint iterasi4 branch
     runs-on: ubuntu-latest
-    if: |
-      github.ref == 'refs/heads/iterasi4' || github.head_ref == 'iterasi4'
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      - name: Set up PHP
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
 
-      - name: Install dependencies
-        run: composer install
+      - name: Install Dependencies
+        working-directory: src/Dashboard-PLN
+        run: composer install --no-progress --prefer-dist
 
-      - name: Run Code Sniffer
-        run: vendor/bin/phpcs --standard=PSR12 app/ routes/ tests/
+      - name: Run Laravel Pint
+        working-directory: src/Dashboard-PLN
+        run: |
+          composer require laravel/pint --dev
+          vendor/bin/pint app/
+
+      - name: Run PHPStan
+        working-directory: src/Dashboard-PLN
+        run: |
+          composer require phpstan/phpstan --dev
+          vendor/bin/phpstan analyse app --level=max
+
+      - name: Run PHP_CodeSniffer
+        working-directory: src/Dashboard-PLN
+        run: |
+          composer require squizlabs/php_codesniffer --dev
+          vendor/bin/phpcs --standard=PSR12 app/
