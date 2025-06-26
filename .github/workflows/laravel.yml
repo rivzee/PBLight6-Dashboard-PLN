@@ -33,4 +33,4 @@ jobs:
           chmod +x phpcs.phar
 
       - name: Run Code Lint (PSR-12 on src/Dashboard)
-        run: ./phpcs.phar --standard=PSR12 src/Dashboard
+        run: ./phpcs.phar --standard=PSR12 src/Dashboard-PLN
