@@ -1,20 +1,19 @@
-name: Laravel Code Linting
+name: Laravel Code Linting (with Auto Fix)
 
 on:
   push:
     branches: [ testing ]
   pull_request:
     branches: [ testing ]
-  
 
 jobs:
   lint:
-    name: Run PHP_CodeSniffer (PSR-12)
+    name: Lint & Auto-fix with PHP_CodeSniffer
     runs-on: ubuntu-latest
 
     defaults:
       run:
-        working-directory: src/Dashboard-PLN
+        working-directory: src/Dashboard-PLN 
 
     steps:
       - name: Checkout code
@@ -30,13 +29,19 @@ jobs:
       - name: Install composer dependencies
         run: composer install --no-progress --prefer-dist
 
-      - name: Download PHP_CodeSniffer (to root)
+      - name: Download PHP_CodeSniffer
         run: |
           cd ../../
           curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
-          chmod +x phpcs.phar
+          curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcbf.phar
+          chmod +x phpcs.phar phpcbf.phar
 
-      - name: Run PHP_CodeSniffer on Laravel folders
+      - name: Run Lint Check (phpcs)
         run: |
           cd ../../
-          php phpcs.phar --standard=PSR12 src/Dashboard-PLN/app src/Dashboard-PLN/
+          php phpcs.phar --standard=PSR12 src/Dashboard-PLN/app src/Dashboard-PLN/routes
+
+      - name: Auto Fix Code Style Violations (phpcbf)
+        run: |
+          cd ../../
+          php phpcbf.phar --standard=PSR12 src/Dashboard-PLN/app src/Dashboard-PLN/routes
