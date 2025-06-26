@@ -1335,6 +1335,12 @@ use Illuminate\Support\Str;
             <span class="menu-text">Log Aktivitas</span>
           </a>
         </li>
+        <li>
+          <a href="{{ route('lokasi.index') }}" class="{{ request()->routeIs('lokasi.*') ? 'active' : '' }}">
+            <i class="fas fa-map-marker-alt icon"></i>
+            <span class="menu-text">Lokasi</span>
+          </a>
+        </li>
         @endif
 
      {{-- Menu untuk Admin (PIC Bidang) --}}
