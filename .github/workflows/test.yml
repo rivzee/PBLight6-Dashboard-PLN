@@ -3,10 +3,11 @@ name: Laravel Code Linting
 on:
   push:
     branches:
-      - [testing]
+      - testing
   pull_request:
     branches:
-      - [testing]
+      - testing
+  workflow_dispatch:
 
 jobs:
   lint:
