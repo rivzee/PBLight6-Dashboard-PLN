@@ -1,0 +1,37 @@
+name: Laravel Code Linting
+
+on:
+  push:
+    branches:
+      - testing
+  pull_request:
+    branches:
+      - testing
+workflow_dispatch:  
+
+jobs:
+  lint:
+    name: Run PHP_CodeSniffer (PSR-12) via PHAR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, xml
+          coverage: none
+
+      - name: Install project dependencies (no dev tools)
+        run: composer install --no-progress --no-suggest --prefer-dist
+
+      - name: Download PHP_CodeSniffer
+        run: |
+          curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
+          chmod +x phpcs.phar
+
+      - name: Run Code Lint (PSR-12 on src/Dashboard)
+        run: ./phpcs.phar --standard=PSR12 src/Dashboard
