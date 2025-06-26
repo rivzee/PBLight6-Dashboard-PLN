@@ -2,16 +2,18 @@ name: Laravel Code Linting
 
 on:
   push:
-    branches:
-      - testing
+    branches: [ testing ]
   pull_request:
-    branches:
-      - testing
+    branches: [ testing ]
 
 jobs:
   lint:
-    name: Run PHP_CodeSniffer (PSR-12) via PHAR
+    name: Run PHP_CodeSniffer (PSR-12)
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: src/Dashboard-PLN
 
     steps:
       - name: Checkout code
@@ -24,13 +26,16 @@ jobs:
           extensions: mbstring, xml
           coverage: none
 
-      - name: Install project dependencies (no dev tools)
-        run: composer install --no-progress --no-suggest --prefer-dist
+      - name: Install composer dependencies
+        run: composer install --no-progress --prefer-dist
 
-      - name: Download PHP_CodeSniffer
+      - name: Download PHP_CodeSniffer (to root)
         run: |
+          cd ../../
           curl -OL https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar
           chmod +x phpcs.phar
 
-      - name: Run Code Lint (PSR-12 on src/Dashboard)
-        run: ./phpcs.phar --standard=PSR12 src/Dashboard-PLN
+      - name: Run PHP_CodeSniffer on Laravel folders
+        run: |
+          cd ../../
+          php phpcs.phar --standard=PSR12 src/Dashboard-PLN/app src/Dashboard-PLN/routes
