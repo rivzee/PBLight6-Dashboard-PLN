@@ -5,6 +5,7 @@ on:
     branches: [ testing ]
   pull_request:
     branches: [ testing ]
+  
 
 jobs:
   lint:
@@ -38,4 +39,4 @@ jobs:
       - name: Run PHP_CodeSniffer on Laravel folders
         run: |
           cd ../../
-          php phpcs.phar --standard=PSR12 src/Dashboard-PLN/app src/Dashboard-PLN/routes
+          php phpcs.phar --standard=PSR12 src/Dashboard-PLN/app src/Dashboard-PLN/
