@@ -498,44 +498,44 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const loginForm = document.getElementById('loginForm'); // Ambil elemen form login
-            const loginButton = document.getElementById('loginButton'); // Ambil tombol login
-            const transitionOverlay = document.getElementById('transitionOverlay'); // Ambil elemen overlay transisi
-            const sparkleContainer = document.getElementById('sparkleContainer'); // Ambil kontainer efek sparkle
+            const loginForm = document.getElementById('loginForm');
+            const loginButton = document.getElementById('loginButton');
+            const transitionOverlay = document.getElementById('transitionOverlay');
+            const sparkleContainer = document.getElementById('sparkleContainer');
 
-            // Fungsi untuk membuat animasi bintang-bintang (sparkle)
-            function buatEfekSparkle() {
+            // Add sparkles
+            function createSparkles() {
+                // Create 15 sparkles with random positions
                 for (let i = 0; i < 15; i++) {
                     const sparkle = document.createElement('div');
                     sparkle.classList.add('sparkle');
-                    sparkle.style.left = Math.random() * 100 + 'vw'; // Posisi horizontal acak
-                    sparkle.style.top = Math.random() * 100 + 'vh';  // Posisi vertikal acak
-                    sparkle.style.animationDelay = Math.random() * 2 + 's'; // Delay animasi acak
-                    sparkleContainer.appendChild(sparkle); // Tambahkan ke halaman
+                    sparkle.style.left = Math.random() * 100 + 'vw';
+                    sparkle.style.top = Math.random() * 100 + 'vh';
+                    sparkle.style.animationDelay = Math.random() * 2 + 's';
+                    sparkleContainer.appendChild(sparkle);
                 }
             }
 
-            // Jalankan fungsi sparkle ketika halaman selesai dimuat
-            buatEfekSparkle();
+            createSparkles();
 
-            // Saat form login dikirimkan
             loginForm.addEventListener('submit', function(e) {
-                e.preventDefault(); // Hentikan pengiriman form secara langsung
+                e.preventDefault();
 
-                loginButton.classList.add('loading'); // Tambahkan efek loading ke tombol
+                // Show loading state on button
+                loginButton.classList.add('loading');
 
-                // Setelah 1 detik, tampilkan overlay transisi
+                // Submit the form after a short delay to show the loading state
                 setTimeout(function() {
-                    transitionOverlay.classList.add('active'); // Tampilkan animasi transisi halaman
+                    // Show transition overlay
+                    transitionOverlay.classList.add('active');
 
-                    // Setelah 2.2 detik, kirim form login secara otomatis
+                    // After animation completes, submit the form
                     setTimeout(function() {
-                        loginForm.submit(); // Kirim form
-                    }, 2200); // Jeda animasi loading sebelum submit
-                }, 1000); // Jeda sebelum animasi transisi dimulai
+                        loginForm.submit();
+                    }, 2200); // Wait for loading animation (slightly longer than the loading bar animation)
+                }, 1000);
             });
         });
     </script>
-
 </body>
 </html>

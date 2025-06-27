@@ -2,23 +2,39 @@
 use Illuminate\Support\Str;
 @endphp
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>@yield('title', 'PB LIGHT') | Mandau Cipta Tenaga Nusantara</title>
+  <title>@yield('title', 'Dashboard PLN')</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
   <link rel="stylesheet" href="/css/style.css">
   <style>
     :root {
-      /* Common variables */
+      /* Common variables for both themes */
       --pln-blue: #0a4d85;
       --pln-light-blue: #009cde;
 
-      /* Light theme variables (default) */
+      /* Dark theme variables (default) */
+      --pln-bg: #0f172a;
+      --pln-surface: #1e293b;
+      --pln-surface-2: #334155;
+      --pln-text: #f8fafc;
+      --pln-text-secondary: rgba(248, 250, 252, 0.7);
+      --pln-border: rgba(248, 250, 252, 0.1);
+      --pln-shadow: rgba(0, 0, 0, 0.25);
+      --pln-accent-bg: rgba(10, 77, 133, 0.15);
+      --pln-header-bg: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
+      --sidebar-width: 70px;
+      --sidebar-expanded: 260px;
+      --sidebar-bg: #0a0f1e;
+      --transition-speed: 0.35s;
+    }
+
+    /* Light theme variables */
+    [data-theme="light"] {
       --pln-bg: #f5f7fa;
       --pln-surface: #ffffff;
       --pln-surface-2: #f0f2f5;
@@ -28,10 +44,7 @@ use Illuminate\Support\Str;
       --pln-shadow: rgba(0, 0, 0, 0.1);
       --pln-accent-bg: rgba(10, 77, 133, 0.05);
       --pln-header-bg: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
-      --sidebar-width: 70px;
-      --sidebar-expanded: 260px;
       --sidebar-bg: #0a4d85;
-      --transition-speed: 0.35s;
     }
 
     * {
@@ -133,211 +146,6 @@ use Illuminate\Support\Str;
     .topbar-icon-btn i {
       font-size: 16px;
       color: white;
-    }
-
-    /* Notifikasi */
-    .notification-btn {
-      position: relative;
-    }
-
-    .notification-badge {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background-color: #ff4757;
-      color: white;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      font-size: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    }
-
-    .notification-badge-2 {
-      position: absolute;
-      top: -5px;
-      left: -5px;
-      background-color: #2ed573;
-      color: white;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      font-size: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-    }
-
-    .notification-dropdown {
-      position: fixed;
-      top: 70px;
-      right: 20px;
-      width: 350px;
-      background: var(--pln-surface);
-      border-radius: 12px;
-      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--pln-border);
-      z-index: 1000;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-10px);
-      transition: all 0.3s ease;
-      overflow: hidden;
-      max-height: 80vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .notification-dropdown.show {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-
-    .notification-header {
-      padding: 15px;
-      border-bottom: 1px solid var(--pln-border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.05);
-    }
-
-    .notification-header h5 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--pln-text);
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      color: var(--pln-text-secondary);
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .close-btn:hover {
-      color: var(--pln-text);
-    }
-
-    .notification-body {
-      padding: 0;
-      overflow-y: auto;
-      max-height: calc(80vh - 50px);
-    }
-
-    .notification-section {
-      padding: 10px 0;
-      border-bottom: 1px solid var(--pln-border);
-    }
-
-    .notification-section h6 {
-      padding: 0 15px;
-      margin-bottom: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--pln-text-secondary);
-    }
-
-    .notification-item {
-      display: flex;
-      padding: 10px 15px;
-      border-left: 3px solid transparent;
-      text-decoration: none;
-      transition: all 0.3s ease;
-    }
-
-    .notification-item:hover {
-      background: rgba(0, 0, 0, 0.05);
-      border-left-color: var(--pln-light-blue);
-    }
-
-    .notification-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 12px;
-      flex-shrink: 0;
-    }
-
-    .notification-icon i {
-      color: white;
-      font-size: 14px;
-    }
-
-    .bg-warning {
-      background-color: #ffa502;
-    }
-
-    .bg-info {
-      background-color: #2e86de;
-    }
-
-    .notification-content {
-      flex-grow: 1;
-    }
-
-    .notification-title {
-      margin: 0 0 3px 0;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--pln-text);
-      line-height: 1.3;
-    }
-
-    .notification-info {
-      margin: 0 0 3px 0;
-      font-size: 12px;
-      color: var(--pln-text-secondary);
-    }
-
-    .notification-time {
-      margin: 0;
-      font-size: 11px;
-      color: var(--pln-text-secondary);
-      opacity: 0.8;
-    }
-
-    .notification-more {
-      display: block;
-      text-align: center;
-      padding: 8px;
-      font-size: 13px;
-      color: var(--pln-light-blue);
-      text-decoration: none;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-
-    .notification-more:hover {
-      background: rgba(0, 156, 222, 0.1);
-    }
-
-    .notification-empty {
-      padding: 30px 15px;
-      text-align: center;
-      color: var(--pln-text-secondary);
-    }
-
-    .notification-empty i {
-      font-size: 32px;
-      margin-bottom: 10px;
-      opacity: 0.5;
-    }
-
-    .notification-empty p {
-      margin: 0;
-      font-size: 14px;
     }
 
     /* Sidebar yang lebih modern */
@@ -659,6 +467,10 @@ use Illuminate\Support\Str;
         gap: 8px;
       }
 
+      .theme-switch-wrapper {
+        margin-right: 8px;
+      }
+
       .profile-name {
         display: none;
       }
@@ -669,11 +481,73 @@ use Illuminate\Support\Str;
       }
     }
 
-    @media (max-widt1h: 576px) {
+    @media (max-width: 576px) {
+      .theme-switch-wrapper {
+        display: none;
+      }
       .notification-dropdown {
         width: 250px;
         right: -70px;
       }
+    }
+
+    /* Toggle switch untuk tema */
+    .theme-switch-wrapper {
+      display: flex;
+      align-items: center;
+      margin-right: 15px;
+    }
+
+    .theme-switch {
+      display: inline-block;
+      height: 24px;
+      position: relative;
+      width: 50px;
+    }
+
+    .theme-switch input {
+      display: none;
+    }
+
+    .slider {
+      background-color: #111;
+      bottom: 0;
+      cursor: pointer;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      transition: .4s;
+      border-radius: 34px;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .slider:before {
+      background-color: #fff;
+      bottom: 3px;
+      content: "";
+      height: 16px;
+      left: 4px;
+      position: absolute;
+      transition: .4s;
+      width: 16px;
+      border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    input:checked + .slider {
+      background-color: var(--pln-light-blue);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    .theme-icon {
+      color: white;
+      margin: 0 8px;
+      font-size: 16px;
     }
 
     /* Smooth transition untuk semua elemen */
@@ -1419,30 +1293,29 @@ use Illuminate\Support\Str;
   {{-- Menu untuk Master Admin (Asisten Manajer) --}}
         @if(Auth::user()->role == 'asisten_manager')
         <li>
-          <a href="{{route('dataKinerja.index')}}" class="{{ request()->routeIs('dataKinerja.*') ? 'active' : '' }}">
-            <i class="fas fa-chart-bar icon"></i>
-            <span class="menu-text">Data Kinerja</span>
-          </a>
-        </li>
-        <li>
           <a href="{{route('akun.index')}}" class="{{ request()->routeIs('akun.*') ? 'active' : '' }}">
             <i class="fas fa-users icon"></i>
             <span class="menu-text">Data Akun</span>
           </a>
         </li>
         <li>
-          <a href="{{route('verifikasi.index')}}" class="{{ request()->routeIs('verifikasi.*') ? 'active' : '' }}">
+          <a href="{{ route('verifikasi.index') }}" class="{{ request()->routeIs('verifikasi.*') ? 'active' : '' }}">
             <i class="fas fa-check-circle icon"></i>
             <span class="menu-text">Verifikasi</span>
           </a>
         </li>
-        <li>
-          <a href="{{route('tahunPenilaian.index')}}" class="{{ request()->routeIs('tahunPenilaian.*') ? 'active' : '' }}">
+         <li>
+          <a href="{{ route('tahunPenilaian.index') }}" class="{{ request()->routeIs('tahunPenilaian.*') ? 'active' : '' }}">
             <i class="fas fa-calendar-alt icon"></i>
             <span class="menu-text">Tahun Penilaian</span>
           </a>
         </li>
-
+        <li>
+          <a href="{{route('dataKinerja.index')}}" class="{{ request()->routeIs('dataKinerja.*') ? 'active' : '' }}">
+            <i class="fas fa-chart-bar icon"></i>
+            <span class="menu-text">Data Kinerja</span>
+          </a>
+        </li>
         <li>
           <a href="{{route('targetKinerja.index')}}" class="{{ request()->routeIs('targetKinerja.*') ? 'active' : '' }}">
             <i class="fas fa-bullseye icon"></i>
@@ -1450,15 +1323,21 @@ use Illuminate\Support\Str;
           </a>
         </li>
         <li>
-          <a href="{{ route('realisasi.index') }}" class="{{ request()->routeIs('realisasi.*') ? 'active' : '' }}">
+          <a href="{{route('realisasi.index')}}" class="{{ request()->routeIs('realisasi.*') ? 'active' : '' }}">
             <i class="fas fa-tasks icon"></i>
-            <span class="menu-text">Realisasi</span>
+            <span class="menu-text">Data Realisasi</span>
           </a>
         </li>
         <li>
           <a href="{{route('aktivitasLog.index')}}" class="{{ request()->routeIs('aktivitasLog.*') ? 'active' : '' }}">
             <i class="fas fa-history icon"></i>
             <span class="menu-text">Log Aktivitas</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ route('lokasi.index') }}" class="{{ request()->routeIs('lokasi.*') ? 'active' : '' }}">
+            <i class="fas fa-map-marker-alt icon"></i>
+            <span class="menu-text">Lokasi</span>
           </a>
         </li>
         @endif
@@ -1472,9 +1351,9 @@ use Illuminate\Support\Str;
           </a>
         </li>
         <li>
-          <a href="{{ route('realisasi.index') }}" class="{{ request()->routeIs('realisasi.*') ? 'active' : '' }}">
+          <a href="{{route('realisasi.index')}}" class="{{ request()->routeIs('realisasi.*') ? 'active' : '' }}">
             <i class="fas fa-tasks icon"></i>
-            <span class="menu-text">Realisasi</span>
+            <span class="menu-text">Data Realisasi</span>
           </a>
         </li>
         <li>
@@ -1487,7 +1366,6 @@ use Illuminate\Support\Str;
         @endif
 
         {{-- Menu untuk semua user --}}
-
         <li>
           <a href="{{ route('eksporPdf.index') }}" class="{{ request()->routeIs('eksporPdf.*') ? 'active' : '' }}">
             <i class="fas fa-file-pdf icon"></i>
@@ -1505,26 +1383,14 @@ use Illuminate\Support\Str;
       </div>
 
       <div class="header-right">
-        <!-- Tombol notifikasi -->
-        <div class="topbar-icon-btn notification-btn" id="notificationBtn">
-          <i class="fas fa-bell"></i>
-          @if(Auth::check() && Auth::user()->role === 'asisten_manager')
-            @php
-              $unverifiedCount = App\Models\Realisasi::where('diverifikasi', false)->count();
-            @endphp
-            @if($unverifiedCount > 0)
-              <span class="notification-badge">{{ $unverifiedCount }}</span>
-            @endif
-          @endif
-
-          @if(Auth::check() && Auth::user()->role === 'asisten_manager')
-            @php
-              $unapprovedCount = App\Models\TargetKPI::where('disetujui', false)->count();
-            @endphp
-            @if($unapprovedCount > 0)
-              <span class="notification-badge-2">{{ $unapprovedCount }}</span>
-            @endif
-          @endif
+        <!-- Toggle tema -->
+        <div class="theme-switch-wrapper">
+          <i class="fas fa-moon theme-icon"></i>
+          <label class="theme-switch">
+            <input type="checkbox" id="theme-toggle">
+            <span class="slider"></span>
+          </label>
+          <i class="fas fa-sun theme-icon"></i>
         </div>
 
         <!-- Tanggal & jam -->
@@ -1665,7 +1531,6 @@ use Illuminate\Support\Str;
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
 
   <!-- Overlay untuk animasi logout -->
   <div class="logout-overlay" id="logoutOverlay">
@@ -1704,6 +1569,10 @@ use Illuminate\Support\Str;
               <input type="email" class="form-control" id="email" name="email" value="{{ Auth::user()->email }}">
             </div>
 
+            <div class="form-group">
+              <label for="phone" class="form-label">Nomor Telepon</label>
+              <input type="text" class="form-control" id="phone" name="phone" value="{{ Auth::user()->phone ?? '' }}">
+            </div>
 
             <div class="form-actions">
               <button type="submit" class="btn-primary">
@@ -1931,9 +1800,9 @@ use Illuminate\Support\Str;
           this.classList.add('active');
 
           tabContents.forEach(content => content.classList.remove('active'));
+
           const tabId = 'tab-' + this.getAttribute('data-tab');
-          const tabContent = document.getElementById(tabId);
-          if (tabContent) tabContent.classList.add('active');
+          document.getElementById(tabId).classList.add('active');
         });
       });
     }
@@ -2296,5 +2165,6 @@ use Illuminate\Support\Str;
   </script>
 
   @yield('scripts')
+
 </body>
 </html>
