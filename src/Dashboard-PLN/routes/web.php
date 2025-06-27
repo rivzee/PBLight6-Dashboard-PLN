@@ -12,6 +12,7 @@ use App\Http\Controllers\RealisasiController;
 use App\Http\Controllers\VerifikasiController;
 use App\Http\Controllers\TargetKinerjaController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LokasiController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Bidang;
 use App\Models\Indikator;
@@ -106,7 +107,6 @@ Route::middleware(['auth'])->group(function () {
 
 
      // Resource controllers untuk fitur CRUD
-    Route::resource('verifikasi', VerifikasiController::class);
     Route::resource('tahunPenilaian', TahunPenilaianController::class);
     Route::get('/tahunPenilaian/{id}/activate', [TahunPenilaianController::class, 'activate'])->name('tahunPenilaian.activate');
     Route::get('/tahunPenilaian/{id}/lock', [TahunPenilaianController::class, 'lock'])->name('tahunPenilaian.lock');
@@ -136,6 +136,17 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.update-photo');
 
+      // Verifikasi KPI - PENTING: Rute massal harus didefinisikan SEBELUM resource route
+    Route::post('/verifikasi/massal', [VerifikasiController::class, 'verifikasiMassal'])->name('verifikasi.massal');
+
+    // Tambahkan rute baru khusus untuk verifikasi massal
+    Route::post('/verifikasi-massal', [VerifikasiController::class, 'verifikasiMassal'])->name('verifikasi.massal.alt');
+
+    // Rute untuk approval berjenjang
+    Route::post('/verifikasi/{id}/approve-pic', [VerifikasiController::class, 'approveByPic'])->name('verifikasi.approve.pic');
+    Route::post('/verifikasi/{id}/approve-manager', [VerifikasiController::class, 'approveByManager'])->name('verifikasi.approve.manager');
+
+    Route::resource('verifikasi', VerifikasiController::class)->except(['create', 'edit', 'store']);
+
+    Route::get('/lokasi-kantor', [LokasiController::class, 'index'])->name('lokasi.index');
 });
-
-

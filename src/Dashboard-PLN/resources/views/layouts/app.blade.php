@@ -669,7 +669,7 @@ use Illuminate\Support\Str;
       }
     }
 
-    @media (max-width: 576px) {
+    @media (max-widt1h: 576px) {
       .notification-dropdown {
         width: 250px;
         right: -70px;
@@ -1658,84 +1658,7 @@ use Illuminate\Support\Str;
         </div>
       </div>
     </div>
-        <!-- Dropdown notifikasi -->
-        <div class="notification-dropdown" id="notificationDropdown">
-            <div class="notification-header">
-            <h5>Notifikasi</h5>
-            <button class="close-btn" id="closeNotification"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="notification-body">
-            @if(Auth::check() && Auth::user()->role === 'asisten_manager')
-                @php
-                $unverifiedItems = App\Models\Realisasi::with(['indikator', 'user'])
-                    ->where('diverifikasi', false)
-                    ->latest()
-                    ->take(5)
-                    ->get();
 
-                $unapprovedItems = App\Models\TargetKPI::with(['indikator', 'user'])
-                    ->where('disetujui', false)
-                    ->latest()
-                    ->take(5)
-                    ->get();
-                @endphp
-
-                @if($unverifiedItems->count() > 0)
-                <div class="notification-section">
-                    <h6>Realisasi yang Perlu Diverifikasi</h6>
-                    @foreach($unverifiedItems as $item)
-                    <a href="{{ route('verifikasi.show', $item->id) }}" class="notification-item">
-                        <div class="notification-icon bg-warning">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="notification-content">
-                        <p class="notification-title">{{ $item->indikator->kode }} - {{ $item->indikator->nama }}</p>
-                        <p class="notification-info">Diinput oleh: {{ $item->user->name }}</p>
-                        <p class="notification-time">{{ $item->created_at->diffForHumans() }}</p>
-                        </div>
-                    </a>
-                    @endforeach
-                    @if($unverifiedCount > 5)
-                    <a href="{{ route('verifikasi.index') }}" class="notification-more">Lihat {{ $unverifiedCount - 5 }} lainnya</a>
-                    @endif
-                </div>
-                @endif
-
-                @if($unapprovedItems->count() > 0)
-                <div class="notification-section">
-                    <h6>Target yang Perlu Disetujui</h6>
-                    @foreach($unapprovedItems as $item)
-                    <a href="{{ route('targetKinerja.index') }}" class="notification-item">
-                        <div class="notification-icon bg-info">
-                        <i class="fas fa-bullseye"></i>
-                        </div>
-                        <div class="notification-content">
-                        <p class="notification-title">{{ $item->indikator->kode }} - {{ $item->indikator->nama }}</p>
-                        <p class="notification-info">Diinput oleh: {{ $item->user->name }}</p>
-                        <p class="notification-time">{{ $item->created_at->diffForHumans() }}</p>
-                        </div>
-                    </a>
-                    @endforeach
-                    @if($unapprovedCount > 5)
-                    <a href="{{ route('targetKinerja.index') }}" class="notification-more">Lihat {{ $unapprovedCount - 5 }} lainnya</a>
-                    @endif
-                </div>
-                @endif
-
-                @if($unverifiedItems->count() === 0 && $unapprovedItems->count() === 0)
-                <div class="notification-empty">
-                    <i class="fas fa-check-circle"></i>
-                    <p>Tidak ada notifikasi baru</p>
-                </div>
-                @endif
-            @else
-                <div class="notification-empty">
-                <i class="fas fa-bell-slash"></i>
-                <p>Tidak ada notifikasi baru</p>
-                </div>
-            @endif
-            </div>
-        </div>
     <main class="main">
       @yield('content')
     </main>
@@ -1998,14 +1921,12 @@ use Illuminate\Support\Str;
       });
     }
 
-    // Perbaikan: Tab bisa dipilih dengan klik area manapun (termasuk ikon/foto)
     const profileTabs = document.querySelectorAll('.profile-tab');
     const tabContents = document.querySelectorAll('.profile-tab-content');
 
     if (profileTabs.length && tabContents.length) {
       profileTabs.forEach(tab => {
-        tab.addEventListener('click', function (e) {
-          e.preventDefault();
+        tab.addEventListener('click', function () {
           profileTabs.forEach(t => t.classList.remove('active'));
           this.classList.add('active');
 
@@ -2181,8 +2102,6 @@ use Illuminate\Support\Str;
     });
   </script>
 
-
-
   <!-- Script untuk alert password -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -2266,7 +2185,84 @@ use Illuminate\Support\Str;
 
 
 
+        <!-- Dropdown notifikasi -->
+        <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-header">
+            <h5>Notifikasi</h5>
+            <button class="close-btn" id="closeNotification"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="notification-body">
+            @if(Auth::check() && Auth::user()->role === 'asisten_manager')
+                @php
+                $unverifiedItems = App\Models\Realisasi::with(['indikator', 'user'])
+                    ->where('diverifikasi', false)
+                    ->latest()
+                    ->take(5)
+                    ->get();
 
+                $unapprovedItems = App\Models\TargetKPI::with(['indikator', 'user'])
+                    ->where('disetujui', false)
+                    ->latest()
+                    ->take(5)
+                    ->get();
+                @endphp
+
+                @if($unverifiedItems->count() > 0)
+                <div class="notification-section">
+                    <h6>Realisasi yang Perlu Diverifikasi</h6>
+                    @foreach($unverifiedItems as $item)
+                    <a href="{{ route('verifikasi.show', $item->id) }}" class="notification-item">
+                        <div class="notification-icon bg-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="notification-content">
+                        <p class="notification-title">{{ $item->indikator->kode }} - {{ $item->indikator->nama }}</p>
+                        <p class="notification-info">Diinput oleh: {{ $item->user->name }}</p>
+                        <p class="notification-time">{{ $item->created_at->diffForHumans() }}</p>
+                        </div>
+                    </a>
+                    @endforeach
+                    @if($unverifiedCount > 5)
+                    <a href="{{ route('verifikasi.index') }}" class="notification-more">Lihat {{ $unverifiedCount - 5 }} lainnya</a>
+                    @endif
+                </div>
+                @endif
+
+                @if($unapprovedItems->count() > 0)
+                <div class="notification-section">
+                    <h6>Target yang Perlu Disetujui</h6>
+                    @foreach($unapprovedItems as $item)
+                    <a href="{{ route('targetKinerja.index') }}" class="notification-item">
+                        <div class="notification-icon bg-info">
+                        <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="notification-content">
+                        <p class="notification-title">{{ $item->indikator->kode }} - {{ $item->indikator->nama }}</p>
+                        <p class="notification-info">Diinput oleh: {{ $item->user->name }}</p>
+                        <p class="notification-time">{{ $item->created_at->diffForHumans() }}</p>
+                        </div>
+                    </a>
+                    @endforeach
+                    @if($unapprovedCount > 5)
+                    <a href="{{ route('targetKinerja.index') }}" class="notification-more">Lihat {{ $unapprovedCount - 5 }} lainnya</a>
+                    @endif
+                </div>
+                @endif
+
+                @if($unverifiedItems->count() === 0 && $unapprovedItems->count() === 0)
+                <div class="notification-empty">
+                    <i class="fas fa-check-circle"></i>
+                    <p>Tidak ada notifikasi baru</p>
+                </div>
+                @endif
+            @else
+                <div class="notification-empty">
+                <i class="fas fa-bell-slash"></i>
+                <p>Tidak ada notifikasi baru</p>
+                </div>
+            @endif
+            </div>
+        </div>
 
 
   <script>

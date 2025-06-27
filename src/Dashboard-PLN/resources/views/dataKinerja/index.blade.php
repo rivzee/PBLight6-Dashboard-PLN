@@ -423,7 +423,7 @@
                         <i class="fas fa-chart-line"></i>
                     </div>
                 </div>
-<div class="stat-value">{{ number_format($nilaiNKO, 2) }}%</div>
+                <div class="stat-value">{{ number_format($nilaiNKO, 2) }}%</div>
                 <p class="stat-description">Nilai Kinerja Organisasi</p>
             </div>
         </div>
@@ -465,127 +465,118 @@
                         <i class="fas fa-bullseye"></i>
                     </div>
                 </div>
-                <div class="stat-value">100%</div>
+                <div class="stat-value">{{ number_format($target, 0) }}%</div>
                 <p class="stat-description">Target Kinerja</p>
             </div>
         </div>
     </div>
 
     <!-- Chart Tren NKO -->
+<div class="grid-span-12">
+    <div class="card chart-card">
+        <h3 class="chart-title">
+            <i class="fas fa-chart-line"></i> Tren NKO {{ $tahun }}
+        </h3>
+        <div class="chart-container large position-relative">
+            <!-- Elemen canvas Chart -->
+            <canvas id="nkoTrendChart" height="300"></canvas>
+        </div>
+    </div>
+</div>
+
+
+<!-- Section: Analisis Status Indikator -->
+<div class="section-divider">
+    <h2><i class="fas fa-chart-pie"></i> Status & Komposisi Indikator</h2>
+</div>
+
+<!-- Grid untuk chart status -->
+<div class="dashboard-grid">
+    <!-- Komposisi Indikator -->
+    <div class="grid-span-6">
+        <div class="card chart-card">
+            <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Komposisi Indikator</h3>
+            <div class="chart-container medium position-relative">
+
+                <!-- Canvas untuk Chart -->
+                <canvas id="indikatorCompositionChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Mapping -->
+    <div class="grid-span-6">
+        <div class="card chart-card">
+            <h3 class="chart-title"><i class="fas fa-map"></i> Pemetaan Status Indikator</h3>
+            <div class="chart-container medium position-relative">
+                <!-- Canvas untuk Chart -->
+                <canvas id="statusMappingChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section: Analisis Tren & Prediksi -->
+<div class="section-divider">
+    <h2><i class="fas fa-chart-line"></i> Tren & Prediksi</h2>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Tren Historis -->
+    <div class="grid-span-6">
+        <div class="card chart-card">
+            <h3 class="chart-title"><i class="fas fa-history"></i> Tren Historis</h3>
+            <div class="chart-container medium position-relative">
+                <canvas id="historicalTrendChart" height="280"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forecast -->
+    <div class="grid-span-6">
+        <div class="card chart-card">
+            <h3 class="chart-title"><i class="fas fa-chart-line"></i> Proyeksi {{ $tahun }}</h3>
+            <div class="chart-container medium position-relative">
+                <canvas id="forecastChart" height="280"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Section: Analisis Per-Pilar -->
+<div class="section-divider">
+    <h2><i class="fas fa-layer-group"></i> Analisis Per-Pilar</h2>
+</div>
+
+<div class="dashboard-grid">
     <div class="grid-span-12">
         <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-chart-line"></i> Tren NKO {{ $tahun }}</h3>
-            <div id="nkoTrendChart" class="chart-container large">
-                <div class="loading-chart">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
-                    <p class="mt-2">Memuat data...</p>
-                </div>
+            <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Kinerja Per-Pilar</h3>
+            <div class="chart-container medium position-relative">
+                <canvas id="pilarChart" height="280"></canvas>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Section: Analisis Status Indikator -->
-    <div class="section-divider">
-        <h2><i class="fas fa-chart-pie"></i>Status & Komposisi Indikator</h2>
-    </div>
 
-    <!-- Grid untuk chart status -->
-    <div class="dashboard-grid">
-        <div class="grid-span-6">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Komposisi Indikator</h3>
-                <div id="indikatorCompositionChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Section: Analisis Per-Bidang -->
+<div class="section-divider">
+    <h2><i class="fas fa-building"></i> Analisis Per-Bidang</h2>
+</div>
 
-        <div class="grid-span-6">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-map"></i> Pemetaan Status Indikator</h3>
-                <div id="statusMappingChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
-                </div>
+<div class="dashboard-grid">
+    <div class="grid-span-12">
+        <div class="card chart-card">
+            <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Kinerja Per-Bidang</h3>
+            <div class="chart-container medium position-relative">
+
+                <canvas id="bidangChart" height="280"></canvas>
             </div>
         </div>
     </div>
-
-    <!-- Section: Analisis Tren & Prediksi -->
-    <div class="section-divider">
-        <h2><i class="fas fa-chart-line"></i>Tren & Prediksi</h2>
-    </div>
-
-    <div class="dashboard-grid">
-        <div class="grid-span-6">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-history"></i> Tren Historis</h3>
-                <div id="historicalTrendChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid-span-6">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-line"></i> Proyeksi {{ $tahun }}</h3>
-                <div id="forecastChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Section: Analisis Per-Pilar -->
-    <div class="section-divider">
-        <h2><i class="fas fa-layer-group"></i>Analisis Per-Pilar</h2>
-    </div>
-
-    <div class="dashboard-grid">
-        <div class="grid-span-12">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Kinerja Per-Pilar</h3>
-                <div id="pilarChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Section: Analisis Per-Bidang -->
-    <div class="section-divider">
-        <h2><i class="fas fa-building"></i>Analisis Per-Bidang</h2>
-    </div>
-
-    <div class="dashboard-grid">
-        <div class="grid-span-12">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Kinerja Per-Bidang</h3>
-                <div id="bidangChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+</div>
 
     <!-- Section: Top & Bottom Indikator -->
     <div class="section-divider">
@@ -733,574 +724,211 @@
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM Content Loaded - Initializing charts');
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('DOM Loaded - Init charts');
 
-        // Validasi data sebelum inisialisasi chart
-        const trendNKOData = @json($trendNKO);
-        const indikatorCompositionData = @json($indikatorComposition);
-        const statusMappingData = @json($statusMapping);
-        const historicalTrendData = @json($historicalTrend);
-        const forecastData = @json($forecastData);
-        const pilarData = @json($pilarData);
-        const bidangData = @json($bidangData);
+    const trendNKOData = @json($trendNKO ?? []);
+    const indikatorCompositionData = @json($indikatorComposition ?? []);
+    const statusMappingData = @json($statusMapping ?? []);
+    const historicalTrendData = @json($historicalTrend ?? []);
+    const forecastData = @json($forecastData ?? []);
+    const pilarData = @json($pilarData ?? []);
+    const bidangData = @json($bidangData ?? []);
 
-        console.log('Trend NKO Data:', trendNKOData);
-        console.log('Indikator Composition Data:', indikatorCompositionData);
-        console.log('Status Mapping Data:', statusMappingData);
-        console.log('Historical Trend Data:', historicalTrendData);
-        console.log('Forecast Data:', forecastData);
-        console.log('Pilar Data:', pilarData);
-        console.log('Bidang Data:', bidangData);
+    console.log({ trendNKOData, indikatorCompositionData, statusMappingData });
 
-        // Script untuk inisialisasi seluruh chart
+    initNkoTrendChart(trendNKOData);
+    initIndikatorCompositionChart(indikatorCompositionData);
+    initStatusMappingChart(statusMappingData);
+    initHistoricalTrendChart(historicalTrendData);
+    initForecastChart(forecastData);
+    initPilarChart(pilarData);
+    initBidangChart(bidangData);
+});
 
-        // Inisialisasi Chart Tren NKO
-        initNkoTrendChart();
+function initNkoTrendChart(data) {
+    const ctx = document.getElementById('nkoTrendChart');
+    if (!ctx || !data.length) return;
 
-        // Inisialisasi Chart Komposisi Indikator
-        initIndikatorCompositionChart();
+    const labels = data.map(item => item.bulan);
+    const values = data.map(item => item.nko);
 
-        // Inisialisasi Chart Status Mapping
-        initStatusMappingChart();
-
-        // Inisialisasi Chart Tren Historis
-        initHistoricalTrendChart();
-
-        // Inisialisasi Chart Forecast
-        initForecastChart();
-
-        // Inisialisasi Chart Per-Pilar
-        initPilarChart();
-
-        // Inisialisasi Chart Per-Bidang
-        initBidangChart();
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [{
+                label: 'NKO',
+                data: values,
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78,115,223,0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, max: 100 },
+                x: { grid: { display: false } }
+            }
+        }
     });
+}
 
-    function initNkoTrendChart() {
-        const ctx = document.getElementById('nkoTrendChart');
-        const chartData = @json($trendNKO);
+function initIndikatorCompositionChart(data) {
+    const ctx = document.getElementById('indikatorCompositionChart');
+    if (!ctx || !data) return;
 
-        console.log('Initializing NKO Trend Chart with data:', chartData);
+    const labels = Object.keys(data);
+    const values = Object.values(data);
 
-        // Validasi data
-        if (!ctx) {
-            console.error('NKO Trend Chart: Missing chart element');
-            return;
-        }
-
-        if (!chartData || !Array.isArray(chartData) || chartData.length === 0) {
-            console.error('NKO Trend Chart: Invalid or empty data');
-
-            // Tampilkan pesan error di chart container
-            if (ctx.querySelector('.loading-chart')) {
-                ctx.querySelector('.loading-chart').innerHTML = `
-                    <div class="text-center py-5">
-                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                        <p>Tidak ada data tren NKO yang tersedia.</p>
-                    </div>
-                `;
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [{
+                data: values,
+                backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
             }
-            return;
         }
+    });
+}
 
-        if (typeof Chart === 'undefined') {
-            console.error('NKO Trend Chart: Chart.js library not loaded');
-            return;
-        }
+function initStatusMappingChart(data) {
+    const ctx = document.getElementById('statusMappingChart');
+    if (!ctx || !data.length) return;
 
-        // Hapus loading indicator
-        if (ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').remove();
-        }
-
-        // Siapkan data untuk chart
-        const labels = chartData.map(item => item.bulan);
-        const values = chartData.map(item => item.nilai);
-
-        console.log('NKO Chart Labels:', labels);
-        console.log('NKO Chart Values:', values);
-
-        // Cek apakah ada instance chart yang sudah ada
-        if (window.nkoChart) {
-            window.nkoChart.destroy();
-        }
-
-        // Buat chart baru
-        window.nkoChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Nilai NKO',
-                    data: values,
-                    borderColor: '#4e73df',
-                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
-                    borderWidth: 3,
-                    pointBackgroundColor: '#4e73df',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                    pointHoverBackgroundColor: '#2e59d9',
-                    pointHoverBorderColor: '#fff',
-                    pointHoverBorderWidth: 2,
-                    tension: 0.3,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        titleFont: {
-                            family: "'Poppins', sans-serif",
-                            size: 14
-                        },
-                        bodyFont: {
-                            family: "'Poppins', sans-serif",
-                            size: 13
-                        },
-                        padding: 12,
-                        displayColors: false,
-                        callbacks: {
-                            label: function(context) {
-                                return `Nilai NKO: ${context.raw.toFixed(2)}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            font: {
-                                family: "'Poppins', sans-serif",
-                                size: 12
-                            }
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)',
-                            drawBorder: false
-                        },
-                        ticks: {
-                            font: {
-                                family: "'Poppins', sans-serif",
-                                size: 12
-                            },
-                            callback: function(value) {
-                                return value + '%';
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // Implementasi fungsi untuk chart lainnya dengan validasi data
-    function initIndikatorCompositionChart() {
-        const ctx = document.getElementById('indikatorCompositionChart');
-        const chartData = @json($indikatorComposition);
-
-        // Validasi data
-        if (!ctx || !chartData || !chartData.length || !window.Chart) {
-            console.error('Indikator Composition Chart: Missing element, data, or Chart library');
-            return;
-        }
-
-        // Hapus loading indicator
-        if (ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').remove();
-        }
-
-        // Siapkan data untuk chart
-        const labels = chartData.map(item => item.status);
-        const values = chartData.map(item => item.jumlah);
-
-        // Buat chart baru
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: values,
-                    backgroundColor: [
-                        '#1cc88a', // Tercapai
-                        '#f6c23e', // Perlu Perhatian
-                        '#e74a3b', // Tidak Tercapai
-                    ],
-                    borderWidth: 0,
-                    hoverOffset: 10
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            font: {
-                                family: "'Poppins', sans-serif",
-                                size: 12
-                            }
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        titleFont: {
-                            family: "'Poppins', sans-serif",
-                            size: 14
-                        },
-                        bodyFont: {
-                            family: "'Poppins', sans-serif",
-                            size: 13
-                        },
-                        padding: 12,
-                        displayColors: true
-                    }
-                }
-            }
-        });
-    }
-
-    // Fungsi untuk Status Mapping Chart dengan validasi data
-    function initStatusMappingChart() {
-        const ctx = document.getElementById('statusMappingChart');
-        if (ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').remove();
-        }
-
-        const mappingData = @json($statusMapping ?? []);
-
-        // Validasi data
-        if (!mappingData || mappingData.length === 0) {
-            showNoDataMessage(ctx, 'Tidak ada data status mapping');
-            return;
-        }
-
-        new Chart(ctx, {
-            type: 'polarArea',
-            data: {
-                labels: mappingData.map(item => item.status),
-                datasets: [{
-                    data: mappingData.map(item => item.count),
-                    backgroundColor: [
-                        'rgba(78, 115, 223, 0.8)',
-                        'rgba(28, 200, 138, 0.8)',
-                        'rgba(54, 185, 204, 0.8)',
-                        'rgba(246, 194, 62, 0.8)',
-                        'rgba(231, 74, 59, 0.8)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        ticks: {
-                            display: false
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'right'
-                    }
-                }
-            }
-        });
-    }
-
-    // Fungsi untuk Historical Trend Chart dengan validasi data
-    function initHistoricalTrendChart() {
-        const ctx = document.getElementById('historicalTrendChart');
-        if (ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').remove();
-        }
-
-        const historicalData = @json($historicalTrend ?? []);
-
-        // Validasi data
-        if (!historicalData || historicalData.length === 0) {
-            showNoDataMessage(ctx, 'Tidak ada data tren historis');
-            return;
-        }
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: historicalData.map(item => item.tahun || item.label),
-                datasets: [{
-                    label: 'Tren Historis',
-                    data: historicalData.map(item => item.nilai || item.value),
-                    backgroundColor: 'rgba(78, 115, 223, 0.2)',
-                    borderColor: 'rgba(78, 115, 223, 1)',
-                    borderWidth: 3,
-                    pointRadius: 5,
-                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
-                    tension: 0.3,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        min: 0,
-                        max: 100,
-                        grid: {
-                            drawBorder: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
-                }
-            }
-        });
-    }
-
-    // Fungsi untuk Forecast Chart dengan validasi data
-    function initForecastChart() {
-        const ctx = document.getElementById('forecastChart');
-        if (ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').remove();
-        }
-
-        const forecastData = @json($forecastData ?? []);
-
-        // Validasi data
-        if (!forecastData || forecastData.length === 0) {
-            showNoDataMessage(ctx, 'Tidak ada data proyeksi');
-            return;
-        }
-
-        // Pisahkan data aktual dan proyeksi
-        const labels = forecastData.map(item => item.bulan || item.label);
-        const actualData = forecastData.map(item => {
-            if (item.tipe === 'Aktual' || item.type === 'actual') {
-                return item.nilai || item.value;
-            }
-            return null;
-        });
-        const projectionData = forecastData.map(item => {
-            if (item.tipe === 'Forecast' || item.type === 'forecast') {
-                return item.nilai || item.value;
-            }
-            return null;
-        });
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Aktual',
-                        data: actualData,
-                        backgroundColor: 'rgba(78, 115, 223, 0.2)',
-                        borderColor: 'rgba(78, 115, 223, 1)',
-                        borderWidth: 3,
-                        pointRadius: 5,
-                        pointBackgroundColor: 'rgba(78, 115, 223, 1)',
-                        tension: 0.3,
-                        fill: false
-                    },
-                    {
-                        label: 'Proyeksi',
-                        data: projectionData,
-                        backgroundColor: 'rgba(246, 194, 62, 0.2)',
-                        borderColor: 'rgba(246, 194, 62, 1)',
-                        borderWidth: 3,
-                        borderDash: [5, 5],
-                        pointRadius: 5,
-                        pointBackgroundColor: 'rgba(246, 194, 62, 1)',
-                        tension: 0.3,
-                        fill: false
-                    }
+    new Chart(ctx, {
+        type: 'polarArea',
+        data: {
+            labels: data.map(d => d.status),
+            datasets: [{
+                data: data.map(d => d.count),
+                backgroundColor: [
+                    'rgba(78, 115, 223, 0.8)',
+                    'rgba(28, 200, 138, 0.8)',
+                    'rgba(246, 194, 62, 0.8)',
+                    'rgba(231, 74, 59, 0.8)'
                 ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        min: 0,
-                        max: 100,
-                        grid: {
-                            drawBorder: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
-                }
+            }]
+        },
+        options: { responsive: true }
+    });
+}
+
+function initHistoricalTrendChart(data) {
+    const ctx = document.getElementById('historicalTrendChart');
+    if (!ctx || !data.length) return;
+
+    const labels = data.map(item => item.bulan);
+    const values = data.map(item => item.nko);
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Tren Historis',
+                data: values,
+                backgroundColor: 'rgba(78,115,223,0.2)',
+                borderColor: 'rgba(78,115,223,1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: { responsive: true }
+    });
+}
+
+function initForecastChart(data) {
+    const ctx = document.getElementById('forecastChart');
+    if (!ctx || !data.length) return;
+
+    const labels = data.map(d => d.bulan);
+    const values = data.map(d => d.nko);
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Forecast',
+                data: values,
+                borderColor: '#f6c23e',
+                backgroundColor: 'rgba(246, 194, 62, 0.2)',
+                borderDash: [5, 5],
+                borderWidth: 2,
+                tension: 0.3,
+                fill: false
+            }]
+        },
+        options: { responsive: true }
+    });
+}
+
+function initPilarChart(data) {
+    const ctx = document.getElementById('pilarChart');
+    if (!ctx || Object.keys(data).length === 0) return;
+
+    const labels = Object.keys(data);
+    const values = Object.values(data);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Nilai Pilar',
+                data: values,
+                backgroundColor: '#36b9cc'
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true, max: 100 }
             }
-        });
-    }
-
-    // Fungsi untuk Pilar Chart dengan validasi data
-    function initPilarChart() {
-        const ctx = document.getElementById('pilarChart');
-        if (ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').remove();
         }
+    });
+}
 
-        const pilarData = @json($pilarData ?? []);
+function initBidangChart(data) {
+    const ctx = document.getElementById('bidangChart');
+    if (!ctx || Object.keys(data).length === 0) return;
 
-        // Validasi data
-        if (!pilarData || pilarData.length === 0) {
-            showNoDataMessage(ctx, 'Tidak ada data pilar');
-            return;
-        }
+    const labels = Object.keys(data);
+    const values = Object.values(data);
 
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: pilarData.map(item => item.nama),
-                datasets: [{
-                    label: 'Nilai Pilar',
-                    data: pilarData.map(item => item.nilai),
-                    backgroundColor: [
-                        'rgba(78, 115, 223, 0.8)',
-                        'rgba(28, 200, 138, 0.8)',
-                        'rgba(54, 185, 204, 0.8)',
-                        'rgba(246, 194, 62, 0.8)',
-                        'rgba(231, 74, 59, 0.8)',
-                        'rgba(111, 66, 193, 0.8)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: {
-                            drawBorder: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Nilai Bidang',
+                data: values,
+                backgroundColor: '#4e73df'
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            scales: {
+                x: { beginAtZero: true, max: 100 }
             }
-        });
-    }
-
-    // Fungsi untuk Bidang Chart dengan validasi data
-    function initBidangChart() {
-        const ctx = document.getElementById('bidangChart');
-        if (ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').remove();
         }
-
-        const bidangData = @json($bidangData ?? []);
-
-        // Validasi data
-        if (!bidangData || bidangData.length === 0) {
-            showNoDataMessage(ctx, 'Tidak ada data bidang');
-            return;
-        }
-
-        new Chart(ctx, {
-            type: 'horizontalBar',
-            data: {
-                labels: bidangData.map(item => item.nama),
-                datasets: [{
-                    label: 'Nilai Bidang',
-                    data: bidangData.map(item => item.nilai),
-                    backgroundColor: 'rgba(54, 185, 204, 0.8)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: {
-                            drawBorder: false
-                        }
-                    },
-                    y: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
-    }
-
-    // Fungsi untuk menampilkan pesan tidak ada data
-    function showNoDataMessage(container, message) {
-        const messageElement = document.createElement('div');
-        messageElement.className = 'text-center py-5';
-        messageElement.innerHTML = `
-            <i class="fas fa-chart-bar fa-3x text-secondary mb-3"></i>
-            <p class="text-secondary">${message}</p>
-        `;
-        container.appendChild(messageElement);
-    }
+    });
+}
 </script>
+
 @endsection

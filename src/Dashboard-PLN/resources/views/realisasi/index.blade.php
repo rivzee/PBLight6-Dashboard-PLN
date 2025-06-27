@@ -282,7 +282,6 @@
                                         @if ($indikator->firstRealisasi?->diverifikasi)
                                             <span class="badge bg-success">Terverifikasi</span>
                                             <div class="small text-muted">
-                                                oleh: {{ optional(App\Models\User::find($indikator->verifikasi_oleh))->name }}<br>
                                                 {{ \Carbon\Carbon::parse($indikator->verifikasi_pada)->format('d M Y H:i') }}
                                             </div>
                                         @else
