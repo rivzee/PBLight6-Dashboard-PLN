@@ -31,7 +31,13 @@ class Realisasi extends Model
         'tahun',      // ditambahkan
         'bulan',      // ditambahkan
         'periode_tipe', // ditambahkan
-        'uploaded_by',
+        'approval_level', // level approval (1: PIC, 2: Manager, 3: Asisten Manager)
+        'disetujui_pic', // disetujui oleh PIC
+        'disetujui_pic_oleh', // ID user PIC yang menyetujui
+        'disetujui_pic_pada', // waktu disetujui oleh PIC
+        'disetujui_manager', // disetujui oleh Manager
+        'disetujui_manager_oleh', // ID user Manager yang menyetujui
+        'disetujui_manager_pada', // waktu disetujui oleh Manager
     ];
 
     protected $casts = [
@@ -42,6 +48,11 @@ class Realisasi extends Model
         'tanggal' => 'date',
         'tahun' => 'integer',
         'bulan' => 'integer',
+        'approval_level' => 'integer',
+        'disetujui_pic' => 'boolean',
+        'disetujui_pic_pada' => 'datetime',
+        'disetujui_manager' => 'boolean',
+        'disetujui_manager_pada' => 'datetime',
     ];
 
     public function indikator(): BelongsTo
@@ -53,12 +64,6 @@ class Realisasi extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-    
-    public function uploader()
-    {
-        return $this->belongsTo(User::class, 'uploaded_by');
-    }
-
 
     public function verifikator(): BelongsTo
     {
@@ -88,6 +93,70 @@ class Realisasi extends Model
         return $this->diverifikasi;
     }
 
+    /**
+     * Memeriksa apakah realisasi telah disetujui oleh PIC
+     */
+    public function isApprovedByPic()
+    {
+        return $this->disetujui_pic;
+    }
+
+    /**
+     * Memeriksa apakah realisasi telah disetujui oleh Manager
+     */
+    public function isApprovedByManager()
+    {
+        return $this->disetujui_manager;
+    }
+
+    /**
+     * Mendapatkan level approval saat ini
+     */
+    public function getCurrentApprovalLevel()
+    {
+        if ($this->diverifikasi) {
+            return 3; // Fully verified
+        } elseif ($this->disetujui_manager) {
+            return 2; // Approved by manager
+        } elseif ($this->disetujui_pic) {
+            return 1; // Approved by PIC
+        } else {
+            return 0; // Not approved
+        }
+    }
+
+    /**
+     * Mendapatkan status approval dalam bentuk string
+     */
+    public function getApprovalStatusAttribute()
+    {
+        if ($this->diverifikasi) {
+            return 'Terverifikasi';
+        } elseif ($this->disetujui_manager) {
+            return 'Disetujui Manager';
+        } elseif ($this->disetujui_pic) {
+            return 'Disetujui PIC';
+        } else {
+            return 'Belum Disetujui';
+        }
+    }
+
+    /**
+     * Mendapatkan warna status approval
+     */
+    public function getApprovalColorAttribute()
+    {
+        if ($this->diverifikasi) {
+            return 'success';
+        } elseif ($this->disetujui_manager) {
+            return 'info';
+        } elseif ($this->disetujui_pic) {
+            return 'primary';
+        } else {
+            return 'warning';
+        }
+    }
+
     // Boot method untuk mengisi tahun, bulan, dan periode_tipe otomatis saat saving
     protected static function booted()
     {
@@ -103,3 +172,4 @@ class Realisasi extends Model
         });
     }
 }
+

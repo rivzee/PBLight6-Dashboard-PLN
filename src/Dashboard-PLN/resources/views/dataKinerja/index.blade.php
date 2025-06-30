@@ -324,92 +324,215 @@
     .filter-form select {
         min-width: 120px;
     }
+.pilar-card {
+  background: #f1f6fd;
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+.pilar-card h3.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #007bff;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.pilar-card h3.card-title i {
+  margin-right: 10px;
+}
+
+.pillar-container {
+  display: flex;
+  justify-content: space-between; /* GANTI INI */
+  flex-wrap: nowrap;
+  margin: 15px 0;
+  gap: 15px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+
+.pillar-item-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.pillar-item {
+  flex: 0 0 auto;
+  width: 170px;
+  background: #e9f1fa;
+  border-radius: 16px;
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+  transition: transform 0.3s ease;
+  position: relative;
+  cursor: pointer;
+}
+.pillar-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(90deg, #007bff, #00c6ff); /* 🔵 Biru gradasi */
+  z-index: 2;
+}
+.pillar-item:hover {
+  transform: translateY(-5px);
+}
+
+.pillar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  min-height: 35px;
+}
+
+.pillar-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #00aaff;
+  margin-bottom: 6px;
+}
+
+.circle-progress {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: 0 auto;
+}
+
+.circle-progress canvas {
+  width: 100px;
+  height: 100px;
+}
+
+.circle-progress-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+.section-wrapper {
+  background: #f4f8fd;
+  padding: 20px;
+  border-radius: 18px;
+  border: 1px solid var(--pln-border, #dbe6f5);
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.05);
+  margin-bottom: 30px;
+
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--pln-text, #333);
+  position: relative;
+  padding-left: 20px;
+}
+
+.section-header h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 3px;
+  width: 5px;
+  height: 80%;
+  background: var(--pln-light-blue, #00c6ff);
+  border-radius: 4px;
+}
+
 </style>
 @endsection
 
 @section('content')
 <div class="dashboard-content">
-    <!-- Filter -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <form action="{{ route('dataKinerja.index') }}" method="get" class="form-inline">
-                        <div class="row align-items-center">
-                            <div class="col-md-4 mb-2 mb-md-0">
-                                <label for="tahun" class="mr-2">Tahun:</label>
-                                <select name="tahun" id="tahun" class="form-control">
-                                    @php
-                                        $currentYear = date('Y');
-                                        $startYear = $currentYear - 5;
-                                        $endYear = $currentYear;
-                                    @endphp
-
-                                    @for($year = $endYear; $year >= $startYear; $year--)
-                                        <option value="{{ $year }}" {{ $tahun == $year ? 'selected' : '' }}>{{ $year }}</option>
-                                    @endfor
-                                </select>
-                            </div>
-
-                            <div class="col-md-4 mb-2 mb-md-0">
-                                <label for="bulan" class="mr-2">Bulan:</label>
-                                <select name="bulan" id="bulan" class="form-control">
-                                    @php
-                                        $namaBulan = [
-                                            1 => 'Januari',
-                                            2 => 'Februari',
-                                            3 => 'Maret',
-                                            4 => 'April',
-                                            5 => 'Mei',
-                                            6 => 'Juni',
-                                            7 => 'Juli',
-                                            8 => 'Agustus',
-                                            9 => 'September',
-                                            10 => 'Oktober',
-                                            11 => 'November',
-                                            12 => 'Desember'
-                                        ];
-                                    @endphp
-
-                                    @foreach($namaBulan as $value => $nama)
-                                        <option value="{{ $value }}" {{ $bulan == $value ? 'selected' : '' }}>{{ $nama }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-md-4 mb-2 mb-md-0">
-                                <label for="status_verifikasi" class="mr-2">Status:</label>
-                                <select name="status_verifikasi" id="status_verifikasi" class="form-control">
-                                    <option value="all" {{ $statusVerifikasi == 'all' ? 'selected' : '' }}>Semua Data</option>
-                                    <option value="verified" {{ $statusVerifikasi == 'verified' ? 'selected' : '' }}>Terverifikasi</option>
-                                    <option value="unverified" {{ $statusVerifikasi == 'unverified' ? 'selected' : '' }}>Belum Terverifikasi</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-filter mr-1"></i> Filter
-                                </button>
-                                <a href="{{ route('dataKinerja.index') }}" class="btn btn-outline-secondary ml-2">
-                                    <i class="fas fa-sync-alt mr-1"></i> Reset
-                                </a>
-                            </div>
+<!-- Filter -->
+<div class="row mb-4">
+    <!-- Filter Form -->
+    <div class="col-md-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <form action="{{ route('dataKinerja.index') }}" method="get">
+                    <div class="row g-3 align-items-end">
+                        <!-- Tahun -->
+                        <div class="col-md-4">
+                            <label for="tahun" class="form-label">Tahun</label>
+                            <select name="tahun" id="tahun" class="form-control">
+                                @php
+                                    $currentYear = date('Y');
+                                    $startYear = $currentYear - 5;
+                                @endphp
+                                @for($year = $currentYear; $year >= $startYear; $year--)
+                                    <option value="{{ $year }}" {{ $tahun == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                @endfor
+                            </select>
                         </div>
-                    </form>
-                </div>
+
+                        <!-- Bulan -->
+                        <div class="col-md-4">
+                            <label for="bulan" class="form-label">Bulan</label>
+                            <select name="bulan" id="bulan" class="form-control">
+                                @php
+                                    $namaBulan = [
+                                        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                                    ];
+                                @endphp
+                                @foreach($namaBulan as $value => $nama)
+                                    <option value="{{ $value }}" {{ $bulan == $value ? 'selected' : '' }}>{{ $nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+
+                        <!-- Tombol -->
+                        <div class="col-md-4 d-flex justify-content-start">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-filter me-1"></i> Filter
+                            </button>
+                            <a href="{{ route('dataKinerja.index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-sync-alt me-1"></i> Reset
+                            </a>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Data Bulan: <strong>{{ date('F Y', mktime(0, 0, 0, $bulan, 1, $tahun)) }}</strong></h5>
-                        <span class="badge bg-primary text-white">{{ $totalIndikator }} Indikator</span>
-                    </div>
+    </div>
+
+    <!-- Ringkasan Bulan -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body d-flex flex-column justify-content-center h-100">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Data Bulan:
+                        <strong>{{ date('F Y', mktime(0, 0, 0, $bulan, 1, $tahun)) }}</strong>
+                    </h6>
+                    <span class="badge bg-primary text-white">{{ $totalIndikator }} Indikator</span>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
 
     @include('components.alert')
 
@@ -485,37 +608,6 @@
 </div>
 
 
-<!-- Section: Analisis Status Indikator -->
-<div class="section-divider">
-    <h2><i class="fas fa-chart-pie"></i> Status & Komposisi Indikator</h2>
-</div>
-
-<!-- Grid untuk chart status -->
-<div class="dashboard-grid">
-    <!-- Komposisi Indikator -->
-    <div class="grid-span-6">
-        <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Komposisi Indikator</h3>
-            <div class="chart-container medium position-relative">
-
-                <!-- Canvas untuk Chart -->
-                <canvas id="indikatorCompositionChart" height="300"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Status Mapping -->
-    <div class="grid-span-6">
-        <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-map"></i> Pemetaan Status Indikator</h3>
-            <div class="chart-container medium position-relative">
-                <!-- Canvas untuk Chart -->
-                <canvas id="statusMappingChart" height="300"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Section: Analisis Tren & Prediksi -->
 <div class="section-divider">
     <h2><i class="fas fa-chart-line"></i> Tren & Prediksi</h2>
@@ -549,16 +641,42 @@
     <h2><i class="fas fa-layer-group"></i> Analisis Per-Pilar</h2>
 </div>
 
-<div class="dashboard-grid">
-    <div class="grid-span-12">
-        <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Kinerja Per-Pilar</h3>
-            <div class="chart-container medium position-relative">
-                <canvas id="pilarChart" height="280"></canvas>
+<div class="section-wrapper">
+    <div class="section-header">
+    </div>
+
+    <div class="card pilar-card">
+        <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Nilai Kinerja Per-Pilar</h3>
+
+        @if($pilars->isEmpty())
+            <div class="text-center text-muted py-4">
+                <em>Belum ada data pilar untuk periode ini.</em>
             </div>
-        </div>
+        @else
+            @foreach($pilars->chunk(3) as $chunk)
+                <div class="pillar-container">
+                    @foreach($chunk as $index => $pilar)
+                        @php
+                            $globalIndex = $loop->parent->index * 3 + $index;
+                        @endphp
+                        <a href="{{ route('dataKinerja.pilar', $pilar->id) }}" class="pillar-item-link">
+                            <div class="pillar-item">
+                                <div class="pillar-title">{{ strtoupper($pilar->nama) }}</div>
+                                <div class="pillar-value text-primary">{{ number_format($pilar->nilai, 1) }}%</div>
+                                <div class="circle-progress">
+                                    <canvas id="pilarChart{{ $globalIndex }}"></canvas>
+                                    <div class="circle-progress-value">{{ number_format($pilar->nilai, 1) }}%</div>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            @endforeach
+        @endif
     </div>
 </div>
+
+
 
 
 <!-- Section: Analisis Per-Bidang -->
@@ -746,7 +864,35 @@ document.addEventListener('DOMContentLoaded', function () {
     initForecastChart(forecastData);
     initPilarChart(pilarData);
     initBidangChart(bidangData);
+    initPilarProgressCards(pilarProgressData)
 });
+function initPilarProgressCards(data) {
+    if (!Array.isArray(data)) return;
+
+    data.forEach((pilar, index) => {
+        const canvas = document.getElementById(`pilarChart${index}`);
+        if (!canvas || typeof pilar.nilai !== 'number') return;
+
+        new Chart(canvas, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [pilar.nilai, 100 - pilar.nilai],
+                    backgroundColor: ['#e74a3b', '#e6e6e6'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '80%',
+                responsive: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                }
+            }
+        });
+    });
+}
 
 function initNkoTrendChart(data) {
     const ctx = document.getElementById('nkoTrendChart');
@@ -929,6 +1075,49 @@ function initBidangChart(data) {
         }
     });
 }
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const canvasList = document.querySelectorAll('.circle-progress canvas');
+
+    canvasList.forEach(canvas => {
+        const ctx = canvas.getContext('2d');
+        const valueText = canvas.parentElement.querySelector('.circle-progress-value')?.innerText || '0';
+        const nilai = parseFloat(valueText.replace('%', '')) || 0;
+
+        const width = canvas.width = 80;
+        const height = canvas.height = 80;
+        const radius = 35;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const lineWidth = 6;
+        const startAngle = -0.5 * Math.PI;
+        const endAngle = startAngle + (2 * Math.PI * (nilai / 100));
+
+        // Tentukan warna berdasarkan nilai
+        let color = '#dc3545'; // Merah (default)
+        if (nilai >= 80) {
+            color = '#28a745'; // Hijau
+        } else if (nilai >= 60) {
+            color = '#ffc107'; // Kuning
+        }
+
+        // Background lingkaran abu-abu
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = '#e6ecf2';
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+
+        // Progress
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+    });
+});
 </script>
 
 @endsection

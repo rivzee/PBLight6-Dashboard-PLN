@@ -384,31 +384,9 @@
 
     @include('components.alert')
 
-    <!-- Pilar Header -->
     <div class="pilar-header-card pilar-{{ strtolower($pilar->kode) }}">
         <div class="pilar-icon-large">
-            @switch(strtolower($pilar->kode))
-                @case('a')
-                    <i class="fas fa-coins"></i>
-                    @break
-                @case('b')
-                    <i class="fas fa-lightbulb"></i>
-                    @break
-                @case('c')
-                    <i class="fas fa-microchip"></i>
-                    @break
-                @case('d')
-                    <i class="fas fa-chart-line"></i>
-                    @break
-                @case('e')
-                    <i class="fas fa-users"></i>
-                    @break
-                @case('f')
-                    <i class="fas fa-balance-scale"></i>
-                    @break
-                @default
-                    <i class="fas fa-star"></i>
-            @endswitch
+            <i class="fas fa-chart-pie"></i>
         </div>
         <div class="pilar-info">
             <h1 class="pilar-name">{{ $pilar->nama }}</h1>
@@ -416,31 +394,29 @@
             <p class="pilar-description">{{ $pilar->deskripsi ?? 'Pilar Strategis PLN' }}</p>
             <div class="pilar-stats">
                 <div class="pilar-stat-item">
-                    <div class="pilar-value-large">{{ number_format($pilar->nilai, 2) }}%</div>
+                    <div class="pilar-value-large">{{ number_format($pilar->nilai ?? 0, 2) }}%</div>
                     <div class="pilar-stat-label">Nilai Kinerja</div>
                 </div>
                 <div class="pilar-stat-item">
-                    <div class="pilar-stat-value">{{ $pilar->indikators_count }}</div>
+                    <div class="pilar-stat-value">{{ $pilar->indikators_count ?? 0 }}</div>
                     <div class="pilar-stat-label">Total Indikator</div>
                 </div>
                 <div class="pilar-stat-item">
-                    <div class="pilar-stat-value">{{ $pilar->indikators_tercapai }}</div>
+                    <div class="pilar-stat-value">{{ $pilar->indikators_tercapai ?? 0 }}</div>
                     <div class="pilar-stat-label">Indikator Tercapai</div>
                 </div>
                 <div class="pilar-stat-item">
-                    <div class="pilar-stat-value">{{ $pilar->indikators_count - $pilar->indikators_tercapai }}</div>
-                    <div class="pilar-stat-label">Indikator Belum Tercapai</div>
+                    <div class="pilar-stat-value">{{ ($pilar->indikators_count ?? 0) - ($pilar->indikators_tercapai ?? 0) }}</div>
+                    <div class="pilar-stat-label">Belum Tercapai</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Chart Perbandingan Indikator -->
     <div class="dashboard-grid">
         <div class="grid-span-6">
-            <!-- Grafik Perbandingan Nilai Indikator -->
             <div class="chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Perbandingan Nilai Indikator</h3>
+                <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Perbandingan Indikator</h3>
                 <div id="indikatorComparisonChart" class="chart-container">
                     <div class="loading-chart">
                         <i class="fas fa-circle-notch fa-spin fa-3x"></i>
@@ -450,7 +426,6 @@
             </div>
         </div>
         <div class="grid-span-6">
-            <!-- Grafik Trend Bulanan -->
             <div class="chart-card">
                 <h3 class="chart-title"><i class="fas fa-chart-line"></i> Trend Bulanan {{ $tahun }}</h3>
                 <div id="trendBulananChart" class="chart-container">
@@ -463,9 +438,8 @@
         </div>
     </div>
 
-    <!-- Daftar Indikator -->
     <div class="grid-span-12">
-        <h3 class="mb-4"><i class="fas fa-list-alt mr-2 pilar-{{ strtolower($pilar->kode) }}"></i> Daftar Indikator</h3>
+        <h3 class="mb-4"><i class="fas fa-list-alt mr-2"></i> Daftar Indikator</h3>
     </div>
 
     <div class="indikator-grid">
@@ -476,25 +450,27 @@
                 <span class="indikator-code">{{ $indikator->kode }}</span>
             </div>
             <div class="indikator-bidang">
-                <i class="fas fa-building mr-1"></i> {{ $indikator->bidang->nama }}
+                <i class="fas fa-building mr-1"></i> {{ $indikator->bidang->nama ?? '-' }}
             </div>
-
             <div class="indikator-progress">
-                <div class="indikator-progress-bar" style="width: {{ $indikator->persentase }}%; background-color: {{ $indikator->persentase >= 90 ? '#1cc88a' : ($indikator->persentase >= 70 ? '#f6c23e' : '#e74a3b') }}"></div>
+                <div class="indikator-progress-bar"
+                     style="width: {{ $indikator->persentase ?? 0 }}%;
+                            background-color: {{ ($indikator->persentase ?? 0) >= 90 ? '#1cc88a' :
+                                                 (($indikator->persentase ?? 0) >= 70 ? '#f6c23e' : '#e74a3b') }}">
+                </div>
             </div>
-
             <div class="indikator-values">
                 <div class="indikator-value-item">
                     <div class="indikator-value-label">Target</div>
-                    <div class="indikator-value-number">{{ number_format($indikator->target, 2) }}</div>
+                    <div class="indikator-value-number">{{ number_format($indikator->target ?? 0) }}</div>
                 </div>
                 <div class="indikator-value-item">
                     <div class="indikator-value-label">Realisasi</div>
-                    <div class="indikator-value-number">{{ number_format($indikator->nilai_aktual, 2) }}</div>
+                    <div class="indikator-value-number">{{ number_format($indikator->nilai_aktual ?? 0, 2) }}</div>
                 </div>
                 <div class="indikator-value-item">
                     <div class="indikator-value-label">Pencapaian</div>
-                    <div class="indikator-value-number">{{ number_format($indikator->persentase, 2) }}%</div>
+                    <div class="indikator-value-number">{{ number_format($indikator->persentase ?? 0, 2) }}%</div>
                 </div>
             </div>
             <div class="indikator-actions">
@@ -508,12 +484,20 @@
 </div>
 @endsection
 
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
 @section('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Data untuk chart
+    document.addEventListener('DOMContentLoaded', function () {
         const indikatorData = @json($indikatorChartData);
         const trendData = @json($trendBulanan);
+
+        // Tentukan warna berdasarkan nilai pencapaian
+        const getColor = (val) => {
+            if (val >= 90) return '#1cc88a';       // hijau
+            if (val >= 70) return '#f6c23e';       // kuning
+            return '#e74a3b';                      // merah
+        };
 
         // Chart Perbandingan Indikator
         if (indikatorData && indikatorData.length > 0 && typeof ApexCharts !== 'undefined') {
@@ -525,64 +509,35 @@
                 chart: {
                     type: 'bar',
                     height: 300,
-                    fontFamily: 'Poppins, sans-serif',
-                    toolbar: {
-                        show: false
-                    }
+                    toolbar: { show: false },
+                    fontFamily: 'Poppins, sans-serif'
                 },
-                colors: ['var(--pilar-color)'],
+                colors: indikatorData.map(item => getColor(item.persentase)),
                 plotOptions: {
                     bar: {
                         horizontal: false,
                         columnWidth: '55%',
-                        borderRadius: 6,
-                        dataLabels: {
-                            position: 'top'
-                        }
+                        borderRadius: 6
                     },
                 },
                 dataLabels: {
                     enabled: true,
-                    formatter: function (val) {
-                        return val.toFixed(1) + "%";
-                    },
+                    formatter: val => val.toFixed(1) + "%",
                     offsetY: -20,
-                    style: {
-                        fontSize: '12px',
-                        colors: ["#304758"]
-                    }
+                    style: { fontSize: '12px', colors: ["#304758"] }
                 },
                 xaxis: {
                     categories: indikatorData.map(item => item.kode),
-                    position: 'bottom',
-                    axisBorder: {
-                        show: false
-                    },
-                    axisTicks: {
-                        show: false
-                    },
-                    labels: {
-                        show: true,
-                        style: {
-                            fontSize: '12px'
-                        }
-                    }
+                    labels: { style: { fontSize: '12px' } }
                 },
                 yaxis: {
-                    min: 0,
                     max: 100,
                     labels: {
-                        formatter: function(val) {
-                            return val.toFixed(0) + '%';
-                        }
+                        formatter: val => val.toFixed(0) + '%'
                     }
                 },
                 tooltip: {
-                    y: {
-                        formatter: function(val) {
-                            return val.toFixed(2) + '%';
-                        }
-                    }
+                    y: { formatter: val => val.toFixed(2) + '%' }
                 },
                 grid: {
                     borderColor: '#e0e0e0',
@@ -590,9 +545,12 @@
                 }
             };
 
-            const indikatorChart = new ApexCharts(document.querySelector('#indikatorComparisonChart'), indikatorOptions);
+            const indikatorChart = new ApexCharts(
+                document.querySelector('#indikatorComparisonChart'),
+                indikatorOptions
+            );
             indikatorChart.render();
-            document.querySelector('#indikatorComparisonChart .loading-chart').style.display = 'none';
+            document.querySelector('#indikatorComparisonChart .loading-chart')?.remove();
         }
 
         // Chart Trend Bulanan
@@ -605,18 +563,10 @@
                 chart: {
                     type: 'line',
                     height: 300,
-                    fontFamily: 'Poppins, sans-serif',
-                    toolbar: {
-                        show: false
-                    },
-                    zoom: {
-                        enabled: false
-                    }
+                    toolbar: { show: false },
+                    fontFamily: 'Poppins, sans-serif'
                 },
-                colors: ['var(--pilar-color)'],
-                dataLabels: {
-                    enabled: false
-                },
+                colors: ['#007bff'],
                 stroke: {
                     curve: 'smooth',
                     width: 3
@@ -625,45 +575,23 @@
                     categories: trendData.map(item => item.bulan),
                     labels: {
                         rotate: -45,
-                        rotateAlways: false,
-                        style: {
-                            fontSize: '10px'
-                        }
+                        style: { fontSize: '10px' }
                     }
                 },
                 yaxis: {
-                    min: 0,
                     max: 100,
                     labels: {
-                        formatter: function(val) {
-                            return val.toFixed(0) + '%';
-                        }
+                        formatter: val => val.toFixed(0) + '%'
                     }
                 },
                 tooltip: {
-                    y: {
-                        formatter: function(val) {
-                            return val.toFixed(2) + '%';
-                        }
-                    }
-                },
-                grid: {
-                    borderColor: '#e0e0e0',
-                    strokeDashArray: 4,
-                    xaxis: {
-                        lines: {
-                            show: true
-                        }
-                    }
+                    y: { formatter: val => val.toFixed(2) + '%' }
                 },
                 markers: {
                     size: 5,
                     colors: ['#fff'],
-                    strokeColors: 'var(--pilar-color)',
-                    strokeWidth: 2,
-                    hover: {
-                        size: 7
-                    }
+                    strokeColors: '#007bff',
+                    strokeWidth: 2
                 },
                 fill: {
                     type: 'gradient',
@@ -675,13 +603,22 @@
                         opacityTo: 0.2,
                         stops: [0, 100]
                     }
+                },
+                grid: {
+                    borderColor: '#e0e0e0',
+                    strokeDashArray: 4,
+                    xaxis: { lines: { show: true } }
                 }
             };
 
-            const trendChart = new ApexCharts(document.querySelector('#trendBulananChart'), trendOptions);
+            const trendChart = new ApexCharts(
+                document.querySelector('#trendBulananChart'),
+                trendOptions
+            );
             trendChart.render();
-            document.querySelector('#trendBulananChart .loading-chart').style.display = 'none';
+            document.querySelector('#trendBulananChart .loading-chart')?.remove();
         }
     });
 </script>
 @endsection
+
