@@ -13,6 +13,31 @@ use Illuminate\Support\Str;
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <style>
+    @media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    background-color: #1a1a1a;
+    transition: left 0.3s ease;
+    z-index: 999;
+  }
+
+  .sidebar.active {
+    left: 0;
+  }
+
+  .sidebar-toggle {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+}
+
     :root {
       /* Common variables */
       --pln-blue: #0a4d85;
@@ -1392,9 +1417,24 @@ use Illuminate\Support\Str;
         padding: 15px;
       }
     }
+    .sidebar.expanded .menu-text {
+  display: inline !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
   </style>
   @yield('styles')
 </head>
+<script>
+  function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.classList.toggle('expanded');
+    }
+  }
+</script>
+
 <body data-theme="dark">
   <div class="container-fluid">
     <!-- Sidebar yang lebih modern -->
@@ -1461,12 +1501,12 @@ use Illuminate\Support\Str;
             <span class="menu-text">Log Aktivitas</span>
           </a>
         </li>
-        <li>
+        {{-- <li>
           <a href="{{ route('lokasi.index') }}" class="{{ request()->routeIs('lokasi.*') ? 'active' : '' }}">
             <i class="fas fa-map-marker-alt icon"></i>
             <span class="menu-text">Lokasi</span>
           </a>
-        </li>
+        </li> --}}
         @endif
 
      {{-- Menu untuk Admin (PIC Bidang) --}}
@@ -1510,6 +1550,11 @@ use Illuminate\Support\Str;
 
     <!-- Header yang lebih modern -->
     <div class="dashboard-header">
+      <!-- Tombol hamburger -->
+      <button class="sidebar-toggle d-md-none" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+
       <div class="header-text">
         <h1 class="header-title">@yield('page_title', 'Dashboard PLN')</h1>
         <p class="header-subtitle">PT PLN MANDAU CIPTA TENAGA NUSANTARA</p>
@@ -2282,8 +2327,6 @@ use Illuminate\Support\Str;
       }
     });
   </script>
-
-
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
