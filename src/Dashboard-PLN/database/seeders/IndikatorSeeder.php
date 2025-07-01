@@ -31,6 +31,7 @@ class IndikatorSeeder extends Seeder
         $bidangPbn = Bidang::where('kode', 'PBN')->first();
         $bidangHcm = Bidang::where('kode', 'HCM')->first();
         $bidangK3l = Bidang::where('kode', 'K3L')->first();
+        $bidangSPI = Bidang::where('kode', 'SPI')->first();
 
         // Indikator untuk Pilar A (Nilai Ekonomi dan Sosial)
         $indikatorsA = [
@@ -276,7 +277,7 @@ class IndikatorSeeder extends Seeder
             // Bidang Perencanaan Korporat (F2)
             [
                 'pilar_id' => $pilarF->id,
-                'bidang_id' => $bidangPkr->id,
+                'bidang_id' => $bidangSPI->id,
                 'kode' => 'F2',
                 'nama' => 'Kepatuhan Regulasi',
                 'deskripsi' => 'Kepatuhan terhadap Regulasi',

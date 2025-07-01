@@ -30,6 +30,7 @@ class DashboardController extends Controller
             case 'pic_k3l':
             case 'pic_perencanaan_korporat':
             case 'pic_hukum':
+            case 'pic_spi':
                 return $this->admin($request);
             default:
                 return redirect()->route('login')->with('error', 'Role tidak dikenali.');

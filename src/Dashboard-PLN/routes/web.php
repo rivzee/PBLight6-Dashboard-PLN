@@ -76,7 +76,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/admin/sekretaris-perusahaan', function () {
         return view('dashboard.admin_sekretaris');
     })->name('dashboard.admin.sekretaris_perusahaan');
-
+    Route::get('/dashboard/admin/spi', function () {
+        return view('dashboard.admin_spi');
+    })->name('dashboard.admin.spi');
         // CRUD Akun - sudah dikonfigurasi di controller
     Route::resource('akun', AkunController::class);
 

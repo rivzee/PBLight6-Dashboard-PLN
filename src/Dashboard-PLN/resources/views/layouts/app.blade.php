@@ -1373,6 +1373,12 @@ use Illuminate\Support\Str;
             <span class="menu-text">Ekspor PDF</span>
           </a>
         </li>
+        <li>
+          <a href="{{ route('lokasi.index') }}" class="{{ request()->routeIs('lokasi.*') ? 'active' : '' }}">
+            <i class="fas fa-map-marker-alt icon"></i>
+            <span class="menu-text">Lokasi</span>
+          </a>
+        </li>
       </ul>
     </div>
 

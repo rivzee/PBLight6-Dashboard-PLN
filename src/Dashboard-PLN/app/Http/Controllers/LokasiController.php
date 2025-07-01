@@ -8,26 +8,56 @@ class LokasiController extends Controller
 {
     public function index()
     {
-        $alamat = 'Jl. Musyawarah, Payung Sekaki, Pekanbaru, Riau';
+        // Daftar lokasi dengan alamat dan (opsional) koordinat
+        $lokasiList = [
+            [
+                'nama' => 'Head Office I',
+                'alamat' => 'Plaza Simatupang, Jakarta',
+            ],
+            [
+                'nama' => 'Head Office II',
+                'alamat' => 'Jl. Musyawarah, Payung Sekaki, Pekanbaru, Riau',
+            ],
+            [
+                'nama' => 'Operating Office',
+                'alamat' => 'North Duri Cogeneration Plant Lapangan Minyak, Duri, Riau',
+                'lat' => 1.309878,
+                'lng' => 101.108318,
+            ],
+        ];
 
-        $response = Http::withHeaders([
-            'User-Agent' => 'DashboardPLN-MCTN/1.0 (admin@pln.co.id)' // WAJIB
-        ])->get('https://nominatim.openstreetmap.org/search', [
-            'q' => $alamat,
-            'format' => 'json',
-            'limit' => 1
-        ]);
+        $lokasiDenganKoordinat = [];
 
-        $data = $response->json();
+        foreach ($lokasiList as $lokasi) {
+            // Gunakan koordinat manual jika sudah disediakan
+            if (isset($lokasi['lat']) && isset($lokasi['lng'])) {
+                $lokasiDenganKoordinat[] = $lokasi;
+                continue;
+            }
 
-        $koordinat = count($data)
-            ? ['lat' => $data[0]['lat'], 'lng' => $data[0]['lon']]
-            : ['lat' => -0.486702, 'lng' => 101.423199]; // Fallback jika gagal
+            // Panggil Nominatim untuk mendapatkan koordinat dari alamat
+            $response = Http::withHeaders([
+                'User-Agent' => 'DashboardPLN-MCTN/1.0 (admin@pln.co.id)' // WAJIB agar tidak diblokir
+            ])->get('https://nominatim.openstreetmap.org/search', [
+                'q' => trim($lokasi['alamat']),
+                'format' => 'json',
+                'limit' => 1
+            ]);
+
+            $data = $response->json();
+
+            if (!empty($data) && isset($data[0]['lat'], $data[0]['lon'])) {
+                $lokasiDenganKoordinat[] = [
+                    'nama' => $lokasi['nama'],
+                    'alamat' => $lokasi['alamat'],
+                    'lat' => $data[0]['lat'],
+                    'lng' => $data[0]['lon'],
+                ];
+            }
+        }
 
         return view('lokasi.index', [
-            'alamat' => $alamat,
-            'lat' => $koordinat['lat'],
-            'lng' => $koordinat['lng']
+            'lokasiList' => $lokasiDenganKoordinat
         ]);
     }
 }
