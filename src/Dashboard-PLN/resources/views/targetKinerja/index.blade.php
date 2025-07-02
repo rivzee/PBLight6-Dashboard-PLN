@@ -99,7 +99,7 @@
 
     .stat-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 30px var(--pln-shadow);
+        box-shadow: 0 15px 30px var(--pln-shadow);  
     }
 
     .stat-card::before {
@@ -308,8 +308,7 @@
         height: 8px;
         border-radius: 4px;
         background-color: var(--pln-surface-2);
-            transition: height 0.2s ease;
-
+        transition: height 0.2s ease;
     }
 
     .monthly-preview-item.filled {
@@ -628,42 +627,17 @@
                                             </div>
                                             <div class="small text-muted mt-1">
                                                 <i class="fas fa-info-circle"></i>
-                                                <a href="#" data-bs-toggle="modal" data-bs-target="#monthlyModal{{ $indikator->id }}">
+                                                <a href="#"
+                                                    class="lihat-target"
+                                                    data-kode="{{ $indikator->kode }}"
+                                                    data-bulanan='@json($indikator->target_data->target_bulanan)'
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#monthlyModal">
                                                     Lihat detail
                                                 </a>
+
                                             </div>
 
-                                            <!-- Modal Target Bulanan -->
-                                            <div class="modal fade" id="monthlyModal{{ $indikator->id }}" tabindex="-1" aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-centered">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Target Bulanan: {{ $indikator->kode }}</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="table-responsive">
-                                                                <table class="table table-bordered">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>Bulan</th>
-                                                                            <th>Target</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        @foreach($bulanan as $index => $nilai)
-                                                                            <tr>
-                                                                                <td>{{ \Carbon\Carbon::create(null, $index+1, 1)->locale('id')->monthName }}</td>
-                                                                                <td>{{ number_format($nilai, 2) }}</td>
-                                                                            </tr>
-                                                                        @endforeach
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         @else
                                             <div class="monthly-preview">
                                                 @for($i = 0; $i < 12; $i++)
@@ -739,23 +713,48 @@
     @endforeach
     @endif
 </div>
+<div class="modal fade" id="monthlyModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <table class="table table-bordered mb-0">
+          <thead><tr><th>Bulan</th><th>Target</th></tr></thead>
+          <tbody id="tbody-target"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
 @section('scripts')
 <script>
-    $(document).ready(function() {
-        console.log('Document ready!');
+document.addEventListener('DOMContentLoaded', () => {
+  // tooltip tetap
+  document.querySelectorAll('[data-bs-toggle="tooltip"]')
+           .forEach(el => new bootstrap.Tooltip(el));
 
-        // Initialize tooltips
-        $('[data-bs-toggle="tooltip"]').tooltip();
+  const modal  = document.getElementById('monthlyModal');
+  const tbody  = modal.querySelector('#tbody-target');
+  const title  = modal.querySelector('.modal-title');
 
-        // Tambahkan ID ke setiap pilar card untuk navigasi
-        $('.pilar-card').each(function(index) {
-            var pilarCode = $(this).find('.card-header strong').text();
-            if (pilarCode) {
-                $(this).attr('id', 'pilar-' + pilarCode);
-            }
-        });
+  document.querySelectorAll('.lihat-target').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const data = JSON.parse(btn.dataset.bulanan);
+      const kode = btn.dataset.kode;
+
+      title.textContent = `Target Bulanan: ${kode}`;
+      tbody.innerHTML = data.map((v, i) => {
+        const bulan = new Date(2025, i).toLocaleString('id-ID', {month:'long'});
+        return `<tr><td>${bulan}</td><td>${Number(v).toFixed(2)}</td></tr>`;
+      }).join('');
     });
+  });
+});
 </script>
 @endsection
+
