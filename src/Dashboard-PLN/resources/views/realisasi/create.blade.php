@@ -229,21 +229,23 @@
                     <div class="col-md-6">
                         <div class="info-row">
                             <div class="info-label">Kode:</div>
-                            <div class="info-value">{{ $indikator->kode }}</div>
+                            <div class="info-value">{{ $indikator->kode ?? '-' }}</div>
                         </div>
                         <div class="info-row">
                             <div class="info-label">Nama:</div>
-                            <div class="info-value">{{ $indikator->nama }}</div>
+                            <div class="info-value">{{ $indikator->nama ?? '-' }}</div>
                         </div>
                         <div class="info-row">
                             <div class="info-label">Target:</div>
-                            <div class="info-value">{{ number_format($indikator->target, 2) }}</div>
+                            <div class="info-value">
+                                {{ number_format($indikator->target ?? 0, 2) }}
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="info-row">
                             <div class="info-label">Bidang:</div>
-                            <div class="info-value">{{ $indikator->bidang->nama }}</div>
+                            <div class="info-value">{{ $indikator->bidang->nama ?? '-' }}</div>
                         </div>
                         <div class="info-row">
                             <div class="info-label">Tipe:</div>
@@ -251,7 +253,7 @@
                         </div>
                     </div>
                 </div>
-                @if($indikator->deskripsi)
+                @if(!empty($indikator->deskripsi))
                     <div class="info-row mt-2">
                         <div class="info-label">Deskripsi:</div>
                         <div class="info-value">{{ $indikator->deskripsi }}</div>
@@ -265,16 +267,17 @@
 
                 <input type="hidden" name="indikator_id" value="{{ $indikator->id }}">
 
-                <!-- Tanggal -->
+                <!-- Tanggal Realisasi -->
                 <div class="form-group mb-4">
-                    <label for="tanggal">Tanggal Realisasi <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control @error('tanggal') is-invalid @enderror"
-                           id="tanggal" name="tanggal" value="{{ old('tanggal', date('Y-m-d')) }}" required>
-                    @error('tanggal')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <label for="tanggal_display">Tanggal Realisasi</label>
+                    <input type="text" class="form-control" id="tanggal_display"
+                           value="{{ \Carbon\Carbon::parse($tanggal ?? now())->translatedFormat('d F Y') }}" disabled>
+
+                    <!-- Input tersembunyi untuk dikirim ke backend -->
+                    <input type="hidden" name="tanggal" value="{{ $tanggal ?? now()->toDateString() }}">
+
                     <small class="form-text text-muted">
-                        <i class="fas fa-calendar-alt me-1"></i> Pilih tanggal realisasi KPI.
+                        <i class="fas fa-calendar-alt me-1"></i> Tanggal ini diambil dari halaman sebelumnya.
                     </small>
                 </div>
 
@@ -291,7 +294,7 @@
                     </small>
                 </div>
 
-                <!-- Visual Progress (opsional, bisa aktifkan via JS jika ingin) -->
+                <!-- Visual Progress -->
                 <div id="targetVisualContainer" class="mb-4" style="display: none;">
                     <div class="target-visual">
                         <div class="target-progress" id="targetProgress" style="width: 0%"></div>
@@ -328,6 +331,7 @@
         </div>
     </div>
 </div>
+
 @endsection
 
 @section('scripts')

@@ -12,6 +12,7 @@ use App\Http\Controllers\RealisasiController;
 use App\Http\Controllers\VerifikasiController;
 use App\Http\Controllers\TargetKinerjaController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LokasiController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Bidang;
 use App\Models\Indikator;
@@ -75,7 +76,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/admin/sekretaris-perusahaan', function () {
         return view('dashboard.admin_sekretaris');
     })->name('dashboard.admin.sekretaris_perusahaan');
-
+    Route::get('/dashboard/admin/spi', function () {
+        return view('dashboard.admin_spi');
+    })->name('dashboard.admin.spi');
         // CRUD Akun - sudah dikonfigurasi di controller
     Route::resource('akun', AkunController::class);
 
@@ -146,4 +149,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/verifikasi/{id}/approve-manager', [VerifikasiController::class, 'approveByManager'])->name('verifikasi.approve.manager');
 
     Route::resource('verifikasi', VerifikasiController::class)->except(['create', 'edit', 'store']);
+
+    Route::get('/lokasi-kantor', [LokasiController::class, 'index'])->name('lokasi.index');
 });

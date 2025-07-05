@@ -7,8 +7,9 @@ use App\Models\Pilar;
 use App\Models\Bidang;
 use App\Models\Indikator;
 use App\Models\Realisasi;
+use App\Models\TargetKPI;
 use Carbon\Carbon;
-use DateTime; // ✅ tambahkan baris ini
+use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -26,299 +27,474 @@ class DataKinerjaController extends Controller
     /**
      * Menampilkan dashboard analitik utama
      */
-public function index(Request $request)
-{
-    $tahun = $request->input('tahun', now()->year);
-    $bulan = $request->input('bulan', now()->month);
-    $statusVerifikasi = $request->input('status_verifikasi', 'all');
+    public function index(Request $request)
+    {
+        $tahun = $request->input('tahun', now()->year);
+        $bulan = $request->input('bulan', now()->month);
+        $statusVerifikasi = $request->input('status_verifikasi', 'all');
 
-    $indikatorQuery = Indikator::with([
-        'bidang',
-        'pilar',
-        'realisasis' => function ($q) use ($tahun, $bulan) {
-            $q->where('tahun', $tahun)->where('bulan', $bulan);
+        $indikatorQuery = Indikator::with([
+            'bidang',
+            'pilar',
+            'realisasis' => fn($q) => $q->where('tahun', $tahun)->where('bulan', '<=', 12),
+            'targetKPI' => fn($q) => $q
+                ->whereHas('tahunPenilaian', fn($q2) => $q2->where('tahun', $tahun))
+                ->where('disetujui', true),
+        ]);
+
+        if ($statusVerifikasi === 'verified') {
+            $indikatorQuery->whereHas('realisasis', fn($q) => $q->where('diverifikasi', true));
+        } elseif ($statusVerifikasi === 'unverified') {
+            $indikatorQuery->whereHas('realisasis', fn($q) => $q->where('diverifikasi', false));
         }
-    ]);
 
-    if ($statusVerifikasi === 'verified') {
-        $indikatorQuery->whereHas('realisasis', fn($q) => $q->where('diverifikasi', true));
-    } elseif ($statusVerifikasi === 'unverified') {
-        $indikatorQuery->whereHas('realisasis', fn($q) => $q->where('diverifikasi', false));
-    }
+        $indikators = $indikatorQuery->get();
 
-    $indikators = $indikatorQuery->get();
+        // Hitung persentase bulan aktif
+        foreach ($indikators as $indikator) {
+            $targetKPI = $indikator->targetKPI->first();
+            $targetBulan = $targetKPI?->target_bulanan[$bulan] ?? 0;
 
-    // Ringkasan
-    $totalIndikator = $indikators->count();
-    $totalIndikatorTercapai = $indikators->filter(fn($i) => $i->getPersentase($tahun, $bulan) >= 100)->count();
-    $persenTercapai = $totalIndikator > 0 ? round(($totalIndikatorTercapai / $totalIndikator) * 100, 2) : 0;
-    $nilaiNKO = $indikators->avg(fn($i) => $i->getPersentase($tahun, $bulan));
+            $realisasi = $indikator->realisasis
+                ->where('bulan', $bulan)
+                ->where('diverifikasi', true)
+                ->sum('nilai');
 
-    // Komposisi Indikator
-    $indikatorComposition = [
-        'Tercapai' => $totalIndikatorTercapai,
-        'Belum Tercapai' => $indikators->filter(fn($i) => $i->getPersentase($tahun, $bulan) > 0 && $i->getPersentase($tahun, $bulan) < 100)->count(),
-        'Tanpa Data' => $indikators->filter(fn($i) => $i->getPersentase($tahun, $bulan) == 0)->count(),
-    ];
+            $persentase = ($targetBulan > 0 && $realisasi > 0)
+                ? min(($realisasi / $targetBulan) * 100, 110)
+                : 0;
 
-    // Pemetaan status indikator
-    $statusMapping = $indikators->map(fn($i) => [
-        'kode' => $i->kode,
-        'nama' => $i->nama,
-        'bidang' => $i->bidang->nama ?? '-',
-        'persen' => $i->getPersentase($tahun, $bulan),
-    ])->values();
+            $indikator->persentase = round($persentase, 2);
+            $indikator->target_tahunan = $targetKPI?->target_tahunan ?? 0;
+        }
 
-    // Tren historis (bulan lalu sampai bulan ini)
-    $historicalTrend = collect(range(1, $bulan))->map(fn($b) => [
-        'bulan' => DateTime::createFromFormat('!m', $b)->format('F'),
-        'nko' => round($indikators->avg(fn($i) => $i->getPersentase($tahun, $b)), 2),
-    ])->toArray();
+        // Hitung NKO Score utama
+        $pilarGroups = $indikators->groupBy(fn($i) => $i->pilar->nama ?? 'Tanpa Pilar');
+        $nilaiNKO = $pilarGroups->count() > 0
+            ? round($pilarGroups->map(fn($group) => $group->avg('persentase'))->avg(), 2)
+            : 0;
 
-    // Forecast (bulan setelah ini sampai Desember, dummy prediksi)
-    $forecastData = collect(range($bulan + 1, 12))->map(fn($b) => [
-        'bulan' => DateTime::createFromFormat('!m', $b)->format('F'),
-        'nko' => round(rand(70, 100) + rand(0, 99) / 100, 2), // Dummy prediksi
-    ])->toArray();
+        $totalIndikator = $indikators->count();
+        $totalIndikatorTercapai = $indikators->filter(fn($i) => $i->persentase >= 80)->count();
 
-    // Data per pilar
-    $pilarData = $indikators->groupBy(fn($i) => $i->pilar->nama ?? 'Tanpa Pilar')->map(function ($group) use ($tahun, $bulan) {
-        $rata = $group->avg(fn($i) => $i->getPersentase($tahun, $bulan));
-        return round($rata, 2);
-    });
+        $persenTercapai = $totalIndikator > 0
+            ? round(($totalIndikatorTercapai / $totalIndikator) * 100, 2)
+            : 0;
 
-    // Data per bidang
-    $bidangData = $indikators->groupBy(fn($i) => $i->bidang->nama ?? 'Tanpa Bidang')->map(function ($group) use ($tahun, $bulan) {
-        $rata = $group->avg(fn($i) => $i->getPersentase($tahun, $bulan));
-        return round($rata, 2);
-    });
+        $indikatorComposition = [
+            'Tercapai' => $totalIndikatorTercapai,
+            'Belum Tercapai' => $indikators->filter(fn($i) => $i->persentase > 0 && $i->persentase < 100)->count(),
+            'Tanpa Data' => $indikators->filter(fn($i) => $i->persentase == 0)->count(),
+        ];
 
-    // Tren NKO tahunan
-    $trendNKO = collect(range(1, 12))->map(fn($bln) => [
-        'bulan' => DateTime::createFromFormat('!m', $bln)->format('F'),
-        'nko' => round($indikators->avg(fn($i) => $i->getPersentase($tahun, $bln)), 2),
-    ])->toArray();
-
-    // Tertinggi dan terendah
-    $analisisData = [
-        'tertinggi' => $indikators->sortByDesc(fn($i) => $i->getPersentase($tahun, $bulan))->take(5)->map(fn($i) => [
+        $statusMapping = $indikators->map(fn($i) => [
             'kode' => $i->kode,
             'nama' => $i->nama,
             'bidang' => $i->bidang->nama ?? '-',
-            'nilai' => round($i->getPersentase($tahun, $bulan), 2),
-        ])->values()->all(),
+            'persen' => $i->persentase,
+        ])->values();
 
-        'terendah' => $indikators->sortBy(fn($i) => $i->getPersentase($tahun, $bulan))->take(5)->map(fn($i) => [
-            'kode' => $i->kode,
-            'nama' => $i->nama,
-            'bidang' => $i->bidang->nama ?? '-',
-            'nilai' => round($i->getPersentase($tahun, $bulan), 2),
-        ])->values()->all(),
+        // === Trend Historis NKO (Perbulan) ===
+        $trendNKO = collect();
+        foreach (range(1, 12) as $b) {
+            // Hitung persentase masing-masing indikator pada bulan ke-b
+            foreach ($indikators as $indikator) {
+                $target = $indikator->targetKPI->first()?->target_bulanan[$b] ?? 0;
+                $real = $indikator->realisasis
+                    ->where('bulan', $b)
+                    ->where('diverifikasi', true)
+                    ->sum('nilai');
 
-        'perkembangan' => collect(range(1, 12))->map(function ($bln) use ($indikators, $tahun) {
-            $total = $indikators->count();
-            $tercapai = $indikators->filter(fn($i) => $i->getPersentase($tahun, $bln) >= 100)->count();
-            $persen = $total > 0 ? round($tercapai / $total * 100, 2) : 0;
+                $persen = ($target > 0 && $real > 0)
+                    ? min(($real / $target) * 100, 110)
+                    : 0;
 
-            return [
-                'bulan' => DateTime::createFromFormat('!m', $bln)->format('F'),
-                'nko' => round($indikators->avg(fn($i) => $i->getPersentase($tahun, $bln)), 2),
-                'tercapai' => $tercapai,
-                'total' => $total,
-                'persentase' => $persen,
+                $indikator->{"persen_bulan_$b"} = $persen;
+            }
+
+            // Hitung rata-rata per pilar untuk bulan ke-b
+            $pilarBulanan = $indikators->groupBy(fn($i) => $i->pilar->nama ?? 'Tanpa Pilar')
+                ->map(fn($group) => $group->avg("persen_bulan_$b"));
+
+            $nkoBulan = $pilarBulanan->avg();
+
+            $trendNKO->push([
+                'bulan' => DateTime::createFromFormat('!m', $b)->format('F') . ' ' . $tahun,
+                'nko' => round($nkoBulan ?? 0, 2),
+            ]);
+        }
+
+        $historicalTrend = $trendNKO;
+
+        // === Forecast (Prediksi 10 Bulan ke Depan) ===
+        $X = [];
+        $Y = [];
+        $counter = 1;
+        $lastMonthIndex = 0;
+
+        foreach ($trendNKO as $index => $item) {
+            if ($item['nko'] > 0) {
+                $X[] = $counter;
+                $Y[] = $item['nko'];
+                $lastMonthIndex = $index + 1;
+                $counter++;
+            }
+        }
+
+        $n = count($X);
+        $sumX = array_sum($X);
+        $sumY = array_sum($Y);
+        $sumXY = array_sum(array_map(fn($x, $y) => $x * $y, $X, $Y));
+        $sumX2 = array_sum(array_map(fn($x) => $x * $x, $X));
+
+        $denom = ($n * $sumX2 - $sumX ** 2) ?: 1;
+        $a = ($n * $sumXY - $sumX * $sumY) / $denom;
+        $b = ($sumY * $sumX2 - $sumX * $sumXY) / $denom;
+
+        $forecastData = collect();
+        $totalForecast = 10;
+        $currentMonth = $lastMonthIndex;
+        $currentYear = $tahun;
+
+        for ($i = 1; $i <= $totalForecast; $i++) {
+            $x = $n + $i;
+            $forecast = $a * $x + $b;
+
+            $forecastMonth = ($currentMonth + $i) % 12;
+            $forecastMonth = $forecastMonth === 0 ? 12 : $forecastMonth;
+            $forecastYear = $currentYear + floor(($currentMonth + $i - 1) / 12);
+
+            $forecastData->push([
+                'bulan' => DateTime::createFromFormat('!m', $forecastMonth)->format('F') . ' ' . $forecastYear,
+                'nko' => round($forecast, 2),
+            ]);
+        }
+
+        $pilarData = $pilarGroups->map(fn($group) => round($group->avg('persentase'), 2));
+
+        $bidangData = $indikators->groupBy(fn($i) => $i->bidang->nama ?? 'Tanpa Bidang')
+            ->map(fn($group) => round($group->avg('persentase'), 2));
+
+        $analisisData = [
+            'tertinggi' => $indikators->sortByDesc('persentase')->take(5)->map(fn($i) => [
+                'kode' => $i->kode,
+                'nama' => $i->nama,
+                'bidang' => $i->bidang->nama ?? '-',
+                'nilai' => $i->persentase,
+            ])->values()->all(),
+
+            'terendah' => $indikators->sortBy('persentase')->take(5)->map(fn($i) => [
+                'kode' => $i->kode,
+                'nama' => $i->nama,
+                'bidang' => $i->bidang->nama ?? '-',
+                'nilai' => $i->persentase,
+            ])->values()->all(),
+
+            'perkembangan' => $trendNKO->map(function ($data, $index) use ($indikators) {
+                $b = $index + 1;
+                $total = $indikators->count();
+                $tercapai = $indikators->filter(function ($i) use ($b) {
+                    $target = $i->targetKPI->first()?->target_bulanan[$b] ?? 0;
+                    $real = $i->realisasis
+                        ->where('bulan', $b)
+                        ->where('diverifikasi', true)
+                        ->sum('nilai');
+                    $persen = ($target > 0 && $real > 0)
+                        ? min(($real / $target) * 100, 110)
+                        : 0;
+                    return $persen >= 100;
+                })->count();
+
+                return [
+                    'bulan' => $data['bulan'],
+                    'nko' => $data['nko'],
+                    'tercapai' => $tercapai,
+                    'total' => $total,
+                    'persentase' => $total > 0 ? round($tercapai / $total * 100, 2) : 0,
+                ];
+            }),
+        ];
+
+        $pilars = $pilarGroups->map(function ($indikatorList, $pilarNama) {
+            $first = $indikatorList->first();
+            return (object) [
+                'id' => $first->pilar->id ?? 0,
+                'kode' => $first->pilar->kode ?? '-',
+                'nama' => $pilarNama,
+                'deskripsi' => $first->pilar->deskripsi ?? null,
+                'nilai' => round($indikatorList->avg('persentase'), 2),
+                'indikators_count' => $indikatorList->count(),
+                'indikators_tercapai' => $indikatorList->filter(fn($i) => $i->persentase >= 100)->count(),
             ];
-        })->toArray(),
-    ];
+        })->values();
 
-    return view('dataKinerja.index', compact(
-        'tahun',
-        'bulan',
-        'statusVerifikasi',
-        'totalIndikator',
-        'totalIndikatorTercapai',
-        'persenTercapai',
-        'nilaiNKO',
-        'trendNKO',
-        'indikatorComposition',
-        'statusMapping',
-        'historicalTrend',
-        'forecastData',
-        'pilarData',
-        'bidangData',
-        'analisisData'
-    ));
-}
+        $target = $indikators->first()?->targetKPI->first()?->target_tahunan ?? 0;
+
+        return view('dataKinerja.index', compact(
+            'tahun',
+            'bulan',
+            'statusVerifikasi',
+            'totalIndikator',
+            'totalIndikatorTercapai',
+            'persenTercapai',
+            'nilaiNKO',
+            'trendNKO',
+            'forecastData',
+            'indikatorComposition',
+            'statusMapping',
+            'historicalTrend',
+            'pilarData',
+            'bidangData',
+            'analisisData',
+            'pilars',
+            'target'
+        ));
+    }
 
     /**
      * Menampilkan data kinerja per pilar
      */
-    public function pilar(Request $request, $id = null)
-    {
-        $tahun = $request->tahun ?? Carbon::now()->year;
-        $bulan = $request->bulan ?? Carbon::now()->month;
+public function pilar(Request $request, $id = null)
+{
+    $tahun = $request->input('tahun') ?? now()->year;
+    $bulan = $request->input('bulan') ?? now()->month;
 
-        if ($id) {
-            // Jika ID pilar disebutkan, tampilkan detail pilar
-            $pilar = Pilar::with(['indikators' => function($query) {
-                $query->where('aktif', true)->with('bidang');
-            }])->findOrFail($id);
+    if ($id) {
+        // === DETAIL PILAR ===
+        $pilar = Pilar::with(['indikators' => fn ($q) =>
+            $q->where('aktif', true)->with('bidang')
+        ])->findOrFail($id);
 
-            // Data nilai indikator dalam pilar
-            foreach ($pilar->indikators as $indikator) {
-                $nilai = Realisasi::where('indikator_id', $indikator->id)
-                    ->where('tahun', $tahun)
-                    ->where('bulan', $bulan)
-                    ->where('periode_tipe', 'bulanan')
-                    ->first();
+        $indikators = $pilar->indikators;
 
-                $indikator->nilai = $nilai ? $nilai->persentase : 0;
-                $indikator->nilai_aktual = $nilai ? $nilai->nilai : 0;
-                $indikator->persentase = $nilai ? $nilai->persentase : 0;
-            }
+        foreach ($indikators as $indikator) {
+            $targetKPI = TargetKPI::where('indikator_id', $indikator->id)
+                ->where('disetujui', true)
+                ->whereHas('tahunPenilaian', fn ($q) => $q->where('tahun', $tahun))
+                ->first();
 
-            // Data tren pilar bulanan
-            $trendPilar = $this->getTrendPilar($id, $tahun);
+            $targetBulan = $targetKPI?->target_bulanan[$bulan] ?? 0;
 
-            // Siapkan indikators untuk view
-            $indikators = $pilar->indikators;
+            $realisasi = Realisasi::where('indikator_id', $indikator->id)
+                ->where('tahun', $tahun)
+                ->where('bulan', $bulan)
+                ->where('diverifikasi', true)
+                ->sum('nilai');
 
-            // Data untuk chart perbandingan indikator
-            $indikatorChartData = $indikators->map(function($indikator) {
-                return [
-                    'kode' => $indikator->kode,
-                    'nama' => $indikator->nama,
-                    'persentase' => $indikator->persentase
-                ];
-            });
+            $persentase = ($targetBulan > 0 && $realisasi > 0)
+                ? min(($realisasi / $targetBulan) * 100, 110)
+                : 0;
 
-            // Data untuk chart trend bulanan
-            $trendBulanan = collect($trendPilar)->map(function($item) {
-                return [
-                    'bulan' => $item['bulan'],
-                    'nilai' => $item['nilai']
-                ];
-            });
-
-            return view('dataKinerja.pilar_detail', compact(
-                'pilar',
-                'tahun',
-                'bulan',
-                'trendPilar',
-                'indikators',
-                'indikatorChartData',
-                'trendBulanan'
-            ));
-        } else {
-            // Jika tidak, tampilkan daftar semua pilar
-            $pilars = Pilar::with('indikators')->orderBy('urutan')->get();
-
-            foreach ($pilars as $pilar) {
-                $pilar->nilai = $pilar->getNilai($tahun, $bulan);
-            }
-
-            // Ambil indikator utama (indikator dengan flag is_utama = true atau 5 indikator teratas)
-            $indikatorUtama = Indikator::with(['pilar', 'bidang'])
-                ->where('aktif', true)
-                ->orderBy('is_utama', 'desc')
-                ->orderBy('prioritas', 'desc')
-                ->take(5)
-                ->get();
-
-            // Tambahkan data nilai untuk setiap indikator utama
-            foreach ($indikatorUtama as $indikator) {
-                $nilai = Realisasi::where('indikator_id', $indikator->id)
-                    ->where('tahun', $tahun)
-                    ->where('bulan', $bulan)
-                    ->where('periode_tipe', 'bulanan')
-                    ->first();
-
-                $indikator->nilai = $nilai ? $nilai->persentase : 0;
-                $indikator->nilai_aktual = $nilai ? $nilai->nilai : 0;
-                $indikator->persentase = $nilai ? $nilai->persentase : 0;
-            }
-
-            // Data untuk chart perbandingan pilar
-            $pilarChartData = $pilars->map(function($pilar) {
-                return [
-                    'kode' => $pilar->kode,
-                    'nama' => $pilar->nama,
-                    'nilai' => $pilar->nilai
-                ];
-            });
-
-            return view('dataKinerja.pilar_index', compact('pilars', 'tahun', 'bulan', 'indikatorUtama', 'pilarChartData'));
+            $indikator->target = $targetBulan;
+            $indikator->nilai_aktual = $realisasi;
+            $indikator->persentase = round($persentase, 2);
         }
+
+        $pilar->nilai = $indikators->avg('persentase') ?? 0;
+        $pilar->indikators_count = $indikators->count();
+        $pilar->indikators_tercapai = $indikators->where('persentase', '>=', 100)->count();
+
+        $trendPilar = $this->getTrendPilar($id, $tahun);
+        $trendBulanan = collect($trendPilar)->map(fn ($t) => [
+            'bulan' => $t['bulan'],
+            'nilai' => $t['nilai'],
+        ]);
+
+        $indikatorChartData = $indikators->map(fn ($i) => [
+            'kode' => $i->kode,
+            'nama' => $i->nama,
+            'persentase' => $i->persentase,
+        ]);
+
+        return view('dataKinerja.pilar_detail', compact(
+            'pilar', 'tahun', 'bulan', 'indikators', 'indikatorChartData', 'trendPilar', 'trendBulanan'
+        ));
     }
 
-    /**
-     * Menampilkan data kinerja per bidang
-     */
-    public function bidang(Request $request, $id = null)
-    {
-        $tahun = $request->tahun ?? Carbon::now()->year;
-        $bulan = $request->bulan ?? Carbon::now()->month;
+    // === INDEX PILAR ===
+    $pilars = Pilar::with('indikators')->orderBy('urutan')->get();
 
-        if ($id) {
-            // Jika ID bidang disebutkan, tampilkan detail bidang
-            $bidang = Bidang::with(['indikators' => function($query) {
-                $query->where('aktif', true)->with('pilar');
-            }])->findOrFail($id);
+    foreach ($pilars as $pilar) {
+        $totalPersen = 0;
+        $jumlah = 0;
 
-            // Data nilai indikator dalam bidang
-            foreach ($bidang->indikators as $indikator) {
-                $nilai = Realisasi::where('indikator_id', $indikator->id)
-                    ->where('tahun', $tahun)
-                    ->where('bulan', $bulan)
-                    ->where('periode_tipe', 'bulanan')
-                    ->first();
+        foreach ($pilar->indikators as $indikator) {
+            $realisasi = Realisasi::where('indikator_id', $indikator->id)
+                ->where('tahun', $tahun)
+                ->where('bulan', $bulan)
+                ->where('periode_tipe', 'bulanan')
+                ->first();
 
-                $indikator->nilai = $nilai ? $nilai->persentase : 0;
-            }
+            $persentase = $realisasi?->persentase ?? 0;
+            $indikator->persentase = $persentase;
 
-            // Data tren bidang bulanan
-            $trendBidang = $this->getTrendBidang($id, $tahun);
-
-            return view('dataKinerja.bidang_detail', compact('bidang', 'tahun', 'bulan', 'trendBidang'));
-        } else {
-            // Jika tidak, tampilkan daftar semua bidang
-            $bidangs = Bidang::all();
-
-            foreach ($bidangs as $bidang) {
-                $bidang->nilai = $bidang->getNilaiRata($tahun, $bulan);
-            }
-
-            return view('dataKinerja.bidang_index', compact('bidangs', 'tahun', 'bulan'));
+            $totalPersen += $persentase;
+            $jumlah++;
         }
+
+        $pilar->nilai = $jumlah > 0 ? $totalPersen / $jumlah : 0;
+        $pilar->indikators_count = $pilar->indikators->count();
+        $pilar->indikators_tercapai = $pilar->indikators->filter(fn($i) => $i->persentase >= 90)->count();
     }
 
-    /**
-     * Menampilkan data kinerja per indikator
-     */
-    public function indikator(Request $request, $id)
-    {
-        $indikator = Indikator::with(['pilar', 'bidang'])->findOrFail($id);
-        $tahun = $request->tahun ?? Carbon::now()->year;
+    $indikatorUtama = Indikator::with(['pilar', 'bidang'])
+        ->where('aktif', true)
+        ->orderBy('is_utama', 'desc')
+        ->orderBy('prioritas', 'desc')
+        ->take(5)
+        ->get();
 
-        // Ambil data historis nilai indikator
-        $realisasi = Realisasi::where('indikator_id', $id)
+    foreach ($indikatorUtama as $indikator) {
+        $realisasi = Realisasi::where('indikator_id', $indikator->id)
             ->where('tahun', $tahun)
+            ->where('bulan', $bulan)
             ->where('periode_tipe', 'bulanan')
-            ->orderBy('bulan')
-            ->get();
+            ->first();
 
-        // Siapkan data untuk chart
-        $chartData = [];
-
-        for ($i = 1; $i <= 12; $i++) {
-            $nilai = $realisasi->where('bulan', $i)->first();
-            $chartData[] = [
-                'bulan' => Carbon::create(null, $i, 1)->locale('id')->monthName,
-                'nilai' => $nilai ? $nilai->persentase : 0,
-            ];
-        }
-
-        return view('dataKinerja.indikator', compact('indikator', 'tahun', 'realisasi', 'chartData'));
+        $indikator->nilai = $realisasi?->nilai ?? 0;
+        $indikator->persentase = $realisasi?->persentase ?? 0;
     }
+
+    $pilarChartData = $pilars->map(fn($pilar) => [
+        'kode' => $pilar->kode,
+        'nama' => $pilar->nama,
+        'nilai' => $pilar->nilai
+    ]);
+
+    return view('dataKinerja.pilar_index', compact(
+        'pilars', 'tahun', 'bulan', 'indikatorUtama', 'pilarChartData'
+    ));
+}
+
+
+    // /**
+    //  * Menampilkan data kinerja per bidang
+    //  */
+    // public function bidang(Request $request, $id = null)
+    // {
+    //     $tahun = $request->tahun ?? Carbon::now()->year;
+    //     $bulan = $request->bulan ?? Carbon::now()->month;
+
+    //     if ($id) {
+    //         // Jika ID bidang disebutkan, tampilkan detail bidang
+    //         $bidang = Bidang::with(['indikators' => function($query) {
+    //             $query->where('aktif', true)->with('pilar');
+    //         }])->findOrFail($id);
+
+    //         // Data nilai indikator dalam bidang
+    //         foreach ($bidang->indikators as $indikator) {
+    //             $nilai = Realisasi::where('indikator_id', $indikator->id)
+    //                 ->where('tahun', $tahun)
+    //                 ->where('bulan', $bulan)
+    //                 ->where('periode_tipe', 'bulanan')
+    //                 ->first();
+
+    //             $indikator->nilai = $nilai ? $nilai->persentase : 0;
+    //         }
+
+    //         // Data tren bidang bulanan
+    //         $trendBidang = $this->getTrendBidang($id, $tahun);
+
+    //         return view('dataKinerja.bidang_detail', compact('bidang', 'tahun', 'bulan', 'trendBidang'));
+    //     } else {
+    //         // Jika tidak, tampilkan daftar semua bidang
+    //         $bidangs = Bidang::all();
+
+    //         foreach ($bidangs as $bidang) {
+    //             $bidang->nilai = $bidang->getNilaiRata($tahun, $bulan);
+    //         }
+
+    //         return view('dataKinerja.bidang_index', compact('bidangs', 'tahun', 'bulan'));
+    //     }
+    // }
+
+    // /**
+    //  * Menampilkan data kinerja per indikator
+    //  */
+    // public function indikator(Request $request, $id)
+    // {
+    //     $indikator = Indikator::with(['pilar', 'bidang', 'targetKPI.tahunPenilaian'])->findOrFail($id);
+    //     $tahun = $request->tahun ?? Carbon::now()->year;
+
+    //     // Ambil data realisasi bulanan
+    //     $realisasiBulanan = Realisasi::where('indikator_id', $id)
+    //         ->where('tahun', $tahun)
+    //         ->orderBy('bulan')
+    //         ->get();
+
+    //     // Ambil target tahunan yang disetujui
+    //     $targetKPI = $indikator->targetKPI
+    //         ->where('disetujui', true)
+    //         ->filter(fn($t) => $t->tahunPenilaian && $t->tahunPenilaian->tahun == $tahun)
+    //         ->first();
+
+    //     $targetTahunan = $targetKPI ? $targetKPI->target_tahunan : 0;
+    //     $targetBulanan = $targetTahunan > 0 ? $targetTahunan / 12 : 0;
+
+    //     // Siapkan data realisasi + hitung persentase
+    //     $realisasi = collect();
+
+    //     for ($i = 1; $i <= 12; $i++) {
+    //         $real = $realisasiBulanan->firstWhere('bulan', $i);
+    //         $nilai = $real ? $real->nilai : 0;
+
+    //         // Hitung persentase secara hati-hati agar tidak tinggi di awal bulan
+    //         if ($targetBulanan > 0) {
+    //             $persentase = min(100, ($nilai / $targetBulanan) * 100);
+    //         } else {
+    //             $persentase = 0;
+    //         }
+
+    //         $realisasi->push((object)[
+    //             'bulan' => $i,
+    //             'nilai' => $nilai,
+    //             'persentase' => $persentase
+    //         ]);
+    //     }
+
+    //     // Siapkan data untuk chart (gunakan persentase untuk tren visual)
+    //     $chartData = $realisasi->map(function ($item) {
+    //         return [
+    //             'bulan' => Carbon::create(null, $item->bulan, 1)->locale('id')->monthName,
+    //             'nilai' => $item->persentase
+    //         ];
+    //     });
+
+    //     // Ambil realisasi terbaru yang ada nilainya
+    //     $realisasiTerakhir = $realisasi->sortByDesc('bulan')->firstWhere('nilai', '>', 0);
+
+    //     // Tentukan status
+    //     $statusText = '-';
+    //     $statusClass = 'info-card';
+
+    //     if ($realisasiTerakhir && $targetBulanan > 0) {
+    //         $persen = $realisasiTerakhir->persentase;
+
+    //         if ($persen >= 90) {
+    //             $statusText = 'Tercapai';
+    //             $statusClass = 'info-card success';
+    //         } elseif ($persen >= 70) {
+    //             $statusText = 'Perlu Perhatian';
+    //             $statusClass = 'info-card warning';
+    //         } else {
+    //             $statusText = 'Tidak Tercapai';
+    //             $statusClass = 'info-card danger';
+    //         }
+    //     }
+
+    //     // Set nilai target ke dalam objek indikator agar bisa ditampilkan di Blade
+    //     $indikator->target = $targetTahunan;
+
+    //     return view('dataKinerja.indikator', compact(
+    //         'indikator',
+    //         'tahun',
+    //         'realisasi',
+    //         'chartData',
+    //         'statusText',
+    //         'statusClass',
+    //         'realisasiTerakhir'
+    //     ));
+    // }
 
     /**
      * Menampilkan analisis perbandingan
@@ -714,31 +890,24 @@ public function index(Request $request)
     /**
      * Mendapatkan tren nilai pilar per bulan
      */
+        /**
+     * Mendapatkan tren nilai pilar per bulan dalam setahun.
+     */
     private function getTrendPilar($pilarId, $tahun)
     {
-        $result = [];
-        $namaBulan = [
-            1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
-            5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
-            9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
-        ];
+        $trend = [];
 
-        $pilar = Pilar::find($pilarId);
-
-        if (!$pilar) return [];
-
-        for ($i = 1; $i <= 12; $i++) {
-            $nilai = $pilar->getNilai($tahun, $i);
-
-            $result[] = [
-                'bulan' => $namaBulan[$i],
-                'nilai' => $nilai,
+        for ($bulan = 1; $bulan <= 12; $bulan++) {
+            $pilar = Pilar::with('indikators')->find($pilarId);
+            $nilai = $pilar ? $pilar->getNilai($tahun, $bulan) : 0;
+            $trend[] = [
+                'bulan' => date('F', mktime(0, 0, 0, $bulan, 1)),
+                'nilai' => $nilai
             ];
         }
 
-        return $result;
+        return $trend;
     }
-
     /**
      * Mendapatkan tren nilai bidang per bulan
      */
@@ -888,30 +1057,22 @@ public function index(Request $request)
     /**
      * Mendapatkan tren historis tahunan
      */
-    private function getHistoricalTrend()
-    {
-        $trendData = [];
-        $currentYear = Carbon::now()->year;
+private function getHistoricalTrend()
+{
+    $trendData = [];
+    $currentYear = Carbon::now()->year;
 
-        // Ambil data untuk 5 tahun terakhir
-        for ($year = $currentYear - 4; $year <= $currentYear; $year++) {
-            $nko = $this->hitungNKO($year, null);
+    for ($year = $currentYear - 4; $year <= $currentYear; $year++) {
+        $nko = $this->hitungNKO($year, null); // pakai realisasi murni
 
-            // Tambahkan sedikit variasi untuk tahun-tahun sebelumnya
-            if ($year < $currentYear) {
-                // Semakin ke belakang, semakin rendah nilainya (tren naik)
-                $yearDiff = $currentYear - $year;
-                $nko = max(50, $nko - ($yearDiff * 3 + rand(-2, 2)));
-            }
-
-            $trendData[] = [
-                'tahun' => $year,
-                'nilai' => $nko
-            ];
-        }
-
-        return $trendData;
+        $trendData[] = [
+            'tahun' => $year,
+            'nilai' => round($nko, 2)
+        ];
     }
+
+    return $trendData;
+}
 
     /**
      * Mendapatkan data forecast untuk 6 bulan ke depan

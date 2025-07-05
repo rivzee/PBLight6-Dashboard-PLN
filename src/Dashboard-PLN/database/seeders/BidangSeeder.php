@@ -36,7 +36,7 @@ class BidangSeeder extends Seeder
                 'nama' => 'Bidang Perencanaan Korporat',
                 'kode' => 'PKR',
                 'role_pic' => 'pic_perencanaan_korporat',
-                'deskripsi' => 'Bertanggung jawab untuk KPI A9, B3, F2',
+                'deskripsi' => 'Bertanggung jawab untuk KPI A9, B3',
             ],
             [
                 'nama' => 'Bidang Manajemen Risiko',
@@ -61,6 +61,12 @@ class BidangSeeder extends Seeder
                 'kode' => 'K3L',
                 'role_pic' => 'pic_k3l',
                 'deskripsi' => 'Bertanggung jawab untuk KPI E5',
+            ],
+            [
+                'nama' => 'Bidang Satuan Pengawas Internal',
+                'kode' => 'SPI',
+                'role_pic' => 'pic_spi',
+                'deskripsi' => 'Bertanggung jawab untuk KPI F2',
             ],
         ];
 

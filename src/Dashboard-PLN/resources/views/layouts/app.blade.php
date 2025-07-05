@@ -10,31 +10,40 @@ use Illuminate\Support\Str;
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <style>
+    @media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    background-color: #1a1a1a;
+    transition: left 0.3s ease;
+    z-index: 999;
+  }
+
+  .sidebar.active {
+    left: 0;
+  }
+
+  .sidebar-toggle {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+}
+
     :root {
-      /* Common variables for both themes */
+      /* Common variables */
       --pln-blue: #0a4d85;
       --pln-light-blue: #009cde;
 
-      /* Dark theme variables (default) */
-      --pln-bg: #0f172a;
-      --pln-surface: #1e293b;
-      --pln-surface-2: #334155;
-      --pln-text: #f8fafc;
-      --pln-text-secondary: rgba(248, 250, 252, 0.7);
-      --pln-border: rgba(248, 250, 252, 0.1);
-      --pln-shadow: rgba(0, 0, 0, 0.25);
-      --pln-accent-bg: rgba(10, 77, 133, 0.15);
-      --pln-header-bg: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
-      --sidebar-width: 70px;
-      --sidebar-expanded: 260px;
-      --sidebar-bg: #0a0f1e;
-      --transition-speed: 0.35s;
-    }
-
-    /* Light theme variables */
-    [data-theme="light"] {
+      /* Light theme variables (default) */
       --pln-bg: #f5f7fa;
       --pln-surface: #ffffff;
       --pln-surface-2: #f0f2f5;
@@ -44,7 +53,10 @@ use Illuminate\Support\Str;
       --pln-shadow: rgba(0, 0, 0, 0.1);
       --pln-accent-bg: rgba(10, 77, 133, 0.05);
       --pln-header-bg: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
+      --sidebar-width: 70px;
+      --sidebar-expanded: 260px;
       --sidebar-bg: #0a4d85;
+      --transition-speed: 0.35s;
     }
 
     * {
@@ -146,6 +158,211 @@ use Illuminate\Support\Str;
     .topbar-icon-btn i {
       font-size: 16px;
       color: white;
+    }
+
+    /* Notifikasi */
+    .notification-btn {
+      position: relative;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: #ff4757;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .notification-badge-2 {
+      position: absolute;
+      top: -5px;
+      left: -5px;
+      background-color: #2ed573;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .notification-dropdown {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      width: 350px;
+      background: var(--pln-surface);
+      border-radius: 12px;
+      box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--pln-border);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      overflow: hidden;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .notification-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .notification-header {
+      padding: 15px;
+      border-bottom: 1px solid var(--pln-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .notification-header h5 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--pln-text);
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--pln-text-secondary);
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .close-btn:hover {
+      color: var(--pln-text);
+    }
+
+    .notification-body {
+      padding: 0;
+      overflow-y: auto;
+      max-height: calc(80vh - 50px);
+    }
+
+    .notification-section {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--pln-border);
+    }
+
+    .notification-section h6 {
+      padding: 0 15px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--pln-text-secondary);
+    }
+
+    .notification-item {
+      display: flex;
+      padding: 10px 15px;
+      border-left: 3px solid transparent;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .notification-item:hover {
+      background: rgba(0, 0, 0, 0.05);
+      border-left-color: var(--pln-light-blue);
+    }
+
+    .notification-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .notification-icon i {
+      color: white;
+      font-size: 14px;
+    }
+
+    .bg-warning {
+      background-color: #ffa502;
+    }
+
+    .bg-info {
+      background-color: #2e86de;
+    }
+
+    .notification-content {
+      flex-grow: 1;
+    }
+
+    .notification-title {
+      margin: 0 0 3px 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--pln-text);
+      line-height: 1.3;
+    }
+
+    .notification-info {
+      margin: 0 0 3px 0;
+      font-size: 12px;
+      color: var(--pln-text-secondary);
+    }
+
+    .notification-time {
+      margin: 0;
+      font-size: 11px;
+      color: var(--pln-text-secondary);
+      opacity: 0.8;
+    }
+
+    .notification-more {
+      display: block;
+      text-align: center;
+      padding: 8px;
+      font-size: 13px;
+      color: var(--pln-light-blue);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .notification-more:hover {
+      background: rgba(0, 156, 222, 0.1);
+    }
+
+    .notification-empty {
+      padding: 30px 15px;
+      text-align: center;
+      color: var(--pln-text-secondary);
+    }
+
+    .notification-empty i {
+      font-size: 32px;
+      margin-bottom: 10px;
+      opacity: 0.5;
+    }
+
+    .notification-empty p {
+      margin: 0;
+      font-size: 14px;
     }
 
     /* Sidebar yang lebih modern */
@@ -467,10 +684,6 @@ use Illuminate\Support\Str;
         gap: 8px;
       }
 
-      .theme-switch-wrapper {
-        margin-right: 8px;
-      }
-
       .profile-name {
         display: none;
       }
@@ -482,73 +695,10 @@ use Illuminate\Support\Str;
     }
 
     @media (max-width: 576px) {
-      .theme-switch-wrapper {
-        display: none;
-      }
-
       .notification-dropdown {
         width: 250px;
         right: -70px;
       }
-    }
-
-    /* Toggle switch untuk tema */
-    .theme-switch-wrapper {
-      display: flex;
-      align-items: center;
-      margin-right: 15px;
-    }
-
-    .theme-switch {
-      display: inline-block;
-      height: 24px;
-      position: relative;
-      width: 50px;
-    }
-
-    .theme-switch input {
-      display: none;
-    }
-
-    .slider {
-      background-color: #111;
-      bottom: 0;
-      cursor: pointer;
-      left: 0;
-      position: absolute;
-      right: 0;
-      top: 0;
-      transition: .4s;
-      border-radius: 34px;
-      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .slider:before {
-      background-color: #fff;
-      bottom: 3px;
-      content: "";
-      height: 16px;
-      left: 4px;
-      position: absolute;
-      transition: .4s;
-      width: 16px;
-      border-radius: 50%;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
-
-    input:checked + .slider {
-      background-color: var(--pln-light-blue);
-    }
-
-    input:checked + .slider:before {
-      transform: translateX(26px);
-    }
-
-    .theme-icon {
-      color: white;
-      margin: 0 8px;
-      font-size: 16px;
     }
 
     /* Smooth transition untuk semua elemen */
@@ -904,65 +1054,64 @@ use Illuminate\Support\Str;
       animation: spinFade 0.5s ease forwards;
     }
 
-    /* Overlay saat logout */
-    .logout-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(5px);
-      z-index: 9999;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
+/* Overlay logout */
+.logout-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
 
-    .logout-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
+.logout-overlay.active {
+  display: flex;
+}
 
-    .logout-message {
-      color: white;
-      font-size: 1.5rem;
-      margin-top: 20px;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.5s ease;
-    }
+.logout-spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid #fff;
+  border-top: 6px solid var(--pln-light-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
 
-    .logout-overlay.active .logout-message {
-      opacity: 1;
-      transform: translateY(0);
-    }
+.logout-message {
+  color: #fff;
+  font-size: 1.2rem;
+  text-align: center;
+  max-width: 90%;
+  line-height: 1.5;
+}
 
-    .logout-spinner {
-      width: 60px;
-      height: 60px;
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top: 4px solid var(--pln-light-blue);
-      animation: spin 1s linear infinite;
-      opacity: 0;
-      transform: scale(0.7);
-      transition: all 0.5s ease;
-    }
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+/* Responsiveness for smaller screens */
+@media (max-width: 600px) {
+  .logout-spinner {
+    width: 40px;
+    height: 40px;
+    border-width: 4px;
+  }
 
-    .logout-overlay.active .logout-spinner {
-      opacity: 1;
-      transform: scale(1);
-    }
+  .logout-message {
+    font-size: 1rem;
+    padding: 0 10px;
+  }
+}
+
 
     /* Modal Profil Styles */
     .profile-modal {
@@ -1268,9 +1417,24 @@ use Illuminate\Support\Str;
         padding: 15px;
       }
     }
+    .sidebar.expanded .menu-text {
+  display: inline !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
   </style>
   @yield('styles')
 </head>
+<script>
+  function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.classList.toggle('expanded');
+    }
+  }
+</script>
+
 <body data-theme="dark">
   <div class="container-fluid">
     <!-- Sidebar yang lebih modern -->
@@ -1294,29 +1458,25 @@ use Illuminate\Support\Str;
   {{-- Menu untuk Master Admin (Asisten Manajer) --}}
         @if(Auth::user()->role == 'asisten_manager')
         <li>
+          <a href="{{route('dataKinerja.index')}}" class="{{ request()->routeIs('dataKinerja.*') ? 'active' : '' }}">
+            <i class="fas fa-chart-bar icon"></i>
+            <span class="menu-text">Data Kinerja</span>
+          </a>
+        </li>
+        <li>
           <a href="{{route('akun.index')}}" class="{{ request()->routeIs('akun.*') ? 'active' : '' }}">
             <i class="fas fa-users icon"></i>
             <span class="menu-text">Data Akun</span>
           </a>
         </li>
-        <li>
-          <a href="{{ route('verifikasi.index') }}" class="{{ request()->routeIs('verifikasi.*') ? 'active' : '' }}">
-            <i class="fas fa-check-circle icon"></i>
-            <span class="menu-text">Verifikasi</span>
-          </a>
-        </li>
+
          <li>
           <a href="{{ route('tahunPenilaian.index') }}" class="{{ request()->routeIs('tahunPenilaian.*') ? 'active' : '' }}">
             <i class="fas fa-calendar-alt icon"></i>
             <span class="menu-text">Tahun Penilaian</span>
           </a>
         </li>
-        <li>
-          <a href="{{route('dataKinerja.index')}}" class="{{ request()->routeIs('dataKinerja.*') ? 'active' : '' }}">
-            <i class="fas fa-chart-bar icon"></i>
-            <span class="menu-text">Data Kinerja</span>
-          </a>
-        </li>
+
         <li>
           <a href="{{route('targetKinerja.index')}}" class="{{ request()->routeIs('targetKinerja.*') ? 'active' : '' }}">
             <i class="fas fa-bullseye icon"></i>
@@ -1330,11 +1490,23 @@ use Illuminate\Support\Str;
           </a>
         </li>
         <li>
+          <a href="{{ route('verifikasi.index') }}" class="{{ request()->routeIs('verifikasi.*') ? 'active' : '' }}">
+            <i class="fas fa-check-circle icon"></i>
+            <span class="menu-text">Verifikasi</span>
+          </a>
+        </li>
+        <li>
           <a href="{{route('aktivitasLog.index')}}" class="{{ request()->routeIs('aktivitasLog.*') ? 'active' : '' }}">
             <i class="fas fa-history icon"></i>
             <span class="menu-text">Log Aktivitas</span>
           </a>
         </li>
+        {{-- <li>
+          <a href="{{ route('lokasi.index') }}" class="{{ request()->routeIs('lokasi.*') ? 'active' : '' }}">
+            <i class="fas fa-map-marker-alt icon"></i>
+            <span class="menu-text">Lokasi</span>
+          </a>
+        </li> --}}
         @endif
 
      {{-- Menu untuk Admin (PIC Bidang) --}}
@@ -1367,25 +1539,127 @@ use Illuminate\Support\Str;
             <span class="menu-text">Ekspor PDF</span>
           </a>
         </li>
+        <li>
+          <a href="{{ route('lokasi.index') }}" class="{{ request()->routeIs('lokasi.*') ? 'active' : '' }}">
+            <i class="fas fa-map-marker-alt icon"></i>
+            <span class="menu-text">Lokasi</span>
+          </a>
+        </li>
       </ul>
     </div>
 
     <!-- Header yang lebih modern -->
     <div class="dashboard-header">
+      <!-- Tombol hamburger -->
+      <button class="sidebar-toggle d-md-none" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+
       <div class="header-text">
         <h1 class="header-title">@yield('page_title', 'Dashboard PLN')</h1>
         <p class="header-subtitle">PT PLN MANDAU CIPTA TENAGA NUSANTARA</p>
       </div>
 
       <div class="header-right">
-        <!-- Toggle tema -->
-        <div class="theme-switch-wrapper">
-          <i class="fas fa-moon theme-icon"></i>
-          <label class="theme-switch">
-            <input type="checkbox" id="theme-toggle">
-            <span class="slider"></span>
-          </label>
-          <i class="fas fa-sun theme-icon"></i>
+
+        <!-- Tombol notifikasi -->
+        <div class="topbar-icon-btn notification-btn" id="notificationBtn">
+          <i class="fas fa-bell"></i>
+          @if(Auth::check() && Auth::user()->role === 'asisten_manager')
+            @php
+              $unverifiedCount = App\Models\Realisasi::where('diverifikasi', false)->count();
+            @endphp
+            @if($unverifiedCount > 0)
+              <span class="notification-badge">{{ $unverifiedCount }}</span>
+            @endif
+          @endif
+
+          @if(Auth::check() && Auth::user()->role === 'asisten_manager')
+            @php
+              $unapprovedCount = App\Models\TargetKPI::where('disetujui', false)->count();
+            @endphp
+            @if($unapprovedCount > 0)
+              <span class="notification-badge-2">{{ $unapprovedCount }}</span>
+            @endif
+          @endif
+        </div>
+                <!-- Dropdown notifikasi -->
+        <div class="notification-dropdown" id="notificationDropdown">
+            <div class="notification-header">
+            <h5>Notifikasi</h5>
+            <button class="close-btn" id="closeNotification"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="notification-body">
+            @if(Auth::check() && Auth::user()->role === 'asisten_manager')
+                @php
+                $unverifiedItems = App\Models\Realisasi::with(['indikator', 'user'])
+                    ->where('diverifikasi', false)
+                    ->latest()
+                    ->take(5)
+                    ->get();
+
+                $unapprovedItems = App\Models\TargetKPI::with(['indikator', 'user'])
+                    ->where('disetujui', false)
+                    ->latest()
+                    ->take(5)
+                    ->get();
+                @endphp
+
+                @if($unverifiedItems->count() > 0)
+                <div class="notification-section">
+                    <h6>Realisasi yang Perlu Diverifikasi</h6>
+                    @foreach($unverifiedItems as $item)
+                    <a href="{{ route('verifikasi.show', $item->id) }}" class="notification-item">
+                        <div class="notification-icon bg-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="notification-content">
+                        <p class="notification-title">{{ $item->indikator->kode }} - {{ $item->indikator->nama }}</p>
+                        <p class="notification-info">Diinput oleh: {{ $item->user->name }}</p>
+                        <p class="notification-time">{{ $item->created_at->diffForHumans() }}</p>
+                        </div>
+                    </a>
+                    @endforeach
+                    @if($unverifiedCount > 5)
+                    <a href="{{ route('verifikasi.index') }}" class="notification-more">Lihat {{ $unverifiedCount - 5 }} lainnya</a>
+                    @endif
+                </div>
+                @endif
+
+                @if($unapprovedItems->count() > 0)
+                <div class="notification-section">
+                    <h6>Target yang Perlu Disetujui</h6>
+                    @foreach($unapprovedItems as $item)
+                    <a href="{{ route('targetKinerja.index') }}" class="notification-item">
+                        <div class="notification-icon bg-info">
+                        <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="notification-content">
+                        <p class="notification-title">{{ $item->indikator->kode }} - {{ $item->indikator->nama }}</p>
+                        <p class="notification-info">Diinput oleh: {{ $item->user->name }}</p>
+                        <p class="notification-time">{{ $item->created_at->diffForHumans() }}</p>
+                        </div>
+                    </a>
+                    @endforeach
+                    @if($unapprovedCount > 5)
+                    <a href="{{ route('targetKinerja.index') }}" class="notification-more">Lihat {{ $unapprovedCount - 5 }} lainnya</a>
+                    @endif
+                </div>
+                @endif
+
+                @if($unverifiedItems->count() === 0 && $unapprovedItems->count() === 0)
+                <div class="notification-empty">
+                    <i class="fas fa-check-circle"></i>
+                    <p>Tidak ada notifikasi baru</p>
+                </div>
+                @endif
+            @else
+                <div class="notification-empty">
+                <i class="fas fa-bell-slash"></i>
+                <p>Tidak ada notifikasi baru</p>
+                </div>
+            @endif
+            </div>
         </div>
 
         <!-- Tanggal & jam -->
@@ -1727,20 +2001,13 @@ use Illuminate\Support\Str;
       });
     }
 
-    const themeToggle = document.getElementById('theme-toggle');
     const body = document.body;
-    const currentTheme = localStorage.getItem('theme') || 'dark';
-    body.setAttribute('data-theme', currentTheme);
+    body.setAttribute('data-theme', 'light');
+    localStorage.setItem('theme', 'light');
 
-    if (currentTheme === 'light') {
-      themeToggle.checked = true;
-    }
 
-    themeToggle.addEventListener('change', function () {
-      const newTheme = this.checked ? 'light' : 'dark';
-      body.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-    });
+
+
 
     const logoutForm = document.querySelector('.logout-form');
     const logoutButton = document.querySelector('.logout-btn-menu');
@@ -1749,8 +2016,9 @@ use Illuminate\Support\Str;
     if (logoutForm && logoutButton) {
       logoutForm.addEventListener('submit', function (e) {
         e.preventDefault();
+        let submitted = false;
         const logoutIcon = logoutButton.querySelector('i');
-        logoutIcon.classList.add('logout-icon-animation');
+        if (logoutIcon) logoutIcon.classList.add('logout-icon-animation');
         logoutButton.classList.add('logout-animation');
 
         const profileMenu = document.getElementById('profile-menu');
@@ -1759,12 +2027,25 @@ use Illuminate\Support\Str;
           profileMenu.style.visibility = 'hidden';
         }
 
+        // Animasi overlay muncul
         setTimeout(function () {
-          logoutOverlay.classList.add('active');
+          if (logoutOverlay) logoutOverlay.classList.add('active');
+          // Setelah overlay muncul, submit form setelah 1.5 detik
           setTimeout(function () {
-            logoutForm.submit();
+            if (!submitted) {
+              submitted = true;
+              logoutForm.submit();
+            }
           }, 1500);
         }, 300);
+
+        // Fallback: submit form jika overlay gagal tampil dalam 2 detik
+        setTimeout(function () {
+          if (!submitted) {
+            submitted = true;
+            logoutForm.submit();
+          }
+        }, 2000);
       });
     }
 
@@ -1966,8 +2247,6 @@ use Illuminate\Support\Str;
     });
   </script>
 
-  @yield('scripts')
-
   <!-- Script untuk alert password -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -2048,5 +2327,41 @@ use Illuminate\Support\Str;
       }
     });
   </script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+
+  <script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Notifikasi dropdown
+      const notificationBtn = document.getElementById('notificationBtn');
+      const notificationDropdown = document.getElementById('notificationDropdown');
+      const closeNotification = document.getElementById('closeNotification');
+
+      if (notificationBtn && notificationDropdown) {
+        notificationBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          notificationDropdown.classList.toggle('show');
+        });
+
+        if (closeNotification) {
+          closeNotification.addEventListener('click', function() {
+            notificationDropdown.classList.remove('show');
+          });
+        }
+
+        // Klik di luar dropdown untuk menutup
+        document.addEventListener('click', function(e) {
+          if (!notificationDropdown.contains(e.target) && e.target !== notificationBtn) {
+            notificationDropdown.classList.remove('show');
+          }
+        });
+      }
+    });
+  </script>
+
+  @yield('scripts')
+
 </body>
 </html>

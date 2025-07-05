@@ -83,6 +83,7 @@ class AuthController extends Controller
                     'pic_human_capital',
                     'pic_k3l',
                     'pic_perencanaan_korporat',
+                    'pic_spi',
                     'karyawan',
                 ];
 

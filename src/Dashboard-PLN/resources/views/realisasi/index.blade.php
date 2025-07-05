@@ -253,14 +253,30 @@
                         </thead>
                         <tbody>
                             @foreach ($group['indikators'] as $index => $indikator)
-                                @php
-                                    $realisasi = $indikator->firstRealisasi;
-                                    $nilai = $realisasi?->nilai;
-                                    $target = $indikator->target_nilai;
-                                    $persentase = $indikator->persentase ?? 0;
-                                    $progressClass = $persentase >= 90 ? 'bg-success' : ($persentase >= 70 ? 'bg-warning' : 'bg-danger');
-                                    $query = ['tanggal' => $tanggal];
-                                @endphp
+@php
+    $realisasi = $indikator->firstRealisasi;
+    $nilai = $realisasi?->nilai;
+    $target = $indikator->target_nilai;
+
+    // Hitung persentase asli
+    $persentaseAsli = $indikator->persentase ?? 0;
+
+    // Batasi agar maksimal 110%
+    $persentase = min($persentaseAsli, 110);
+
+    // Tentukan warna berdasarkan persentase
+    if ($persentase < 95) {
+        $progressClass = 'bg-danger';
+    } elseif ($persentase >= 95 && $persentase <= 100) {
+        $progressClass = 'bg-warning';
+    } else {
+        $progressClass = 'bg-success';
+    }
+
+    $query = ['tanggal' => $tanggal];
+@endphp
+
+
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $indikator->kode }}</td>
@@ -270,19 +286,20 @@
                                     @endif
                                     <td>{{ number_format($target, 2) }}</td>
                                     <td>{{ $nilai !== null ? number_format($nilai, 2) : '-' }}</td>
-                                    <td>
-                                        <div class="progress-wrapper">
-                                            <div class="progress">
-                                                <div class="progress-bar {{ $progressClass }}" style="width: {{ $persentase }}%;"></div>
-                                            </div>
-                                            <div class="progress-value">{{ number_format($persentase, 2) }}%</div>
-                                        </div>
-                                    </td>
+<td>
+    <div class="progress-wrapper">
+        <div class="progress">
+            <div class="progress-bar {{ $progressClass }}" style="width: {{ $persentase }}%;"></div>
+        </div>
+        <div class="progress-value">{{ number_format($persentase, 2) }}%</div>
+    </div>
+</td>
+
+
                                     <td>
                                         @if ($indikator->firstRealisasi?->diverifikasi)
                                             <span class="badge bg-success">Terverifikasi</span>
                                             <div class="small text-muted">
-                                                oleh: {{ optional(App\Models\User::find($indikator->verifikasi_oleh))->name }}<br>
                                                 {{ \Carbon\Carbon::parse($indikator->verifikasi_pada)->format('d M Y H:i') }}
                                             </div>
                                         @else
