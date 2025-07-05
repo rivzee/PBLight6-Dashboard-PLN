@@ -588,7 +588,7 @@
                         <i class="fas fa-bullseye"></i>
                     </div>
                 </div>
-                <div class="stat-value">{{ number_format($target, 0) }}%</div>
+                <div class="stat-value">{{ number_format($target, 0) }}</div>
                 <p class="stat-description">Target Kinerja</p>
             </div>
         </div>

@@ -176,12 +176,17 @@ $latestActivities = AktivitasLog::with('user')
             $log->loggable->indikator->bidang_id == $bidang->id;
     });
 
-        $missingInputs = Indikator::where('bidang_id', $bidang->id)
-            ->where('aktif', true)
-            ->whereDoesntHave('realisasis', function ($query) use ($tahun, $bulan) {
-                $query->where('tahun', $tahun)->where('bulan', $bulan);
-            })
-            ->get();
+        $tanggalHariIni = now()->toDateString();
+
+$missingInputs = Indikator::where('bidang_id', $bidang->id)
+    ->where('aktif', true)
+    ->whereDoesntHave('realisasis', function ($query) use ($tahun, $bulan, $tanggalHariIni) {
+        $query->where('tahun', $tahun)
+              ->where('bulan', $bulan)
+              ->whereDate('tanggal', $tanggalHariIni);
+    })
+    ->get();
+
 
         $bidangComparison = $this->getBidangComparison($bidang->id, $tahun, $bulan);
 
@@ -340,33 +345,38 @@ $latestActivities = AktivitasLog::with('user')
         })->toArray();
     }
 
-    private function getHistoriData(int $bidangId, int $tahun): array
-    {
-        $histori = [];
+   private function getHistoriData(int $bidangId, int $tahun): array
+{
+    $histori = [];
 
-        for ($bulan = 1; $bulan <= 12; $bulan++) {
-            $indikators = Indikator::where('bidang_id', $bidangId)->where('aktif', true)->get();
+    for ($bulan = 1; $bulan <= 12; $bulan++) {
+        $indikators = Indikator::where('bidang_id', $bidangId)->where('aktif', true)->get();
 
-            $totalNilai = 0;
-            $count = 0;
+        $totalNilai = 0;
+        $count = 0;
 
-            foreach ($indikators as $indikator) {
-                $realisasi = Realisasi::where('indikator_id', $indikator->id)
-                    ->where('tahun', $tahun)
-                    ->where('bulan', $bulan)
-                    ->first();
+        foreach ($indikators as $indikator) {
+            $realisasi = Realisasi::where('indikator_id', $indikator->id)
+                ->where('tahun', $tahun)
+                ->where('bulan', $bulan)
+                ->where('diverifikasi', true) // tambahkan ini agar konsisten
+                ->first();
 
-                if ($realisasi) {
-                    $totalNilai += $realisasi->persentase;
-                    $count++;
-                }
+            if ($realisasi) {
+                $totalNilai += $realisasi->persentase;
+                $count++;
             }
-
-            $histori[] = $count > 0 ? round($totalNilai / $count, 2) : 0;
         }
 
-        return $histori;
+        $histori[] = [
+            'bulan' => DateTime::createFromFormat('!m', $bulan)->format('F'),
+            'nilai' => $count > 0 ? round($totalNilai / $count, 2) : 0
+        ];
     }
+
+    return $histori;
+}
+
 
     private function getBidangComparison(int $bidangId, int $tahun, int $bulan): array
     {
