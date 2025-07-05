@@ -16,10 +16,7 @@ class EksporPdfController extends Controller
     public function index()
     {
         $user = Auth::user();
-
-        if (!($user->isAdmin() || $user->isMasterAdmin())) {
-            return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses ke fitur ini.');
-        }
+ 
 
         $bidangs = Bidang::all();
         $pilars = Pilar::all();
