@@ -21,6 +21,7 @@ public function index(Request $request)
     $tanggal = $request->input('tanggal', Carbon::today()->toDateString());
     $parsedDate = Carbon::parse($tanggal);
     $tahun = $parsedDate->year;
+    $bulan = $parsedDate->month;
 
     // Query dasar indikator
     $indikatorsQuery = Indikator::with([
@@ -47,7 +48,6 @@ public function index(Request $request)
 
     $indikators = $indikatorsQuery->orderBy('kode')->get();
 
-    // Siapkan struktur per pilar / per bidang
     $grouped = [];
 
     foreach ($indikators as $indikator) {
@@ -57,21 +57,23 @@ public function index(Request $request)
             ->where('tahunPenilaian.tahun', $tahun)
             ->first();
 
-        $target_nilai = $targetKPI ? $targetKPI->target_tahunan : 0;
-        $persentase = 0;
-
-        if ($realisasi && $target_nilai > 0) {
-            $persentase = $targetKPI
-                ? $targetKPI->hitungPersentasePencapaian($realisasi->nilai)
-                : ($realisasi->nilai / $target_nilai) * 100;
+        // Ambil target bulanan kumulatif untuk bulan yang dipilih
+        $target_nilai = 0;
+        if ($targetKPI && is_array($targetKPI->target_bulanan)) {
+            $target_nilai = $targetKPI->target_bulanan[$bulan] ?? 0;
         }
 
-        // Simpan ke objek
+        $persentase = 0;
+        if ($realisasi && $target_nilai > 0) {
+            $persentase = ($realisasi->nilai / $target_nilai) * 100;
+        }
+
+        // Batasi maksimum 110% hanya di tampilan
         $indikator->firstRealisasi = $realisasi;
-        $indikator->persentase = $persentase;
+        $indikator->persentase = min($persentase, 110);
         $indikator->target_nilai = $target_nilai;
 
-        // Grouping
+        // Grouping per Pilar atau Bidang
         if ($user->isMasterAdmin()) {
             $key = $indikator->pilar->kode ?? 'Tanpa Pilar';
             $grouped[$key]['nama'] = $indikator->pilar->nama ?? 'Tanpa Nama';
@@ -114,6 +116,7 @@ public function create($indikatorId)
     } else {
         abort(403, 'Anda tidak memiliki akses ke fitur ini.');
     }
+    $tanggal = request('tanggal', \Carbon\Carbon::today()->toDateString());
 
     return view('realisasi.create', compact('indikator'));
 }
