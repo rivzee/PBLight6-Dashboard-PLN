@@ -600,11 +600,22 @@
     </div>
 
     @if($realisasis->count() > 0)
+     <form action="/verifikasi-massal" method="POST" id="form-verifikasi-massal">
+            @csrf
+            <div class="mb-3">
+                <button type="submit" class="btn btn-success" id="btn-verifikasi-massal" disabled>
+                    <i class="fas fa-check-double"></i> Verifikasi Terpilih
+                </button>
+            </div>
     <div class="table-container">
         <table class="verifikasi-table">
             <thead>
                 <tr>
-                    {{-- Kolom checkbox dihapus --}}
+                    <th width="5%">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="checkAll" {{ isset($isPeriodeLocked) && $isPeriodeLocked ? 'disabled' : '' }}>
+                         </div>
+                    </th>
                     <th width="10%">KPI</th>
                     <th width="20%">Indikator</th>
                     <th width="15%">Bidang</th>
@@ -618,7 +629,14 @@
             <tbody>
                 @foreach($realisasis as $realisasi)
                     <tr>
-                        {{-- Kolom checkbox dihapus --}}
+                       <td>
+                            <div class="form-check">
+                                 <input class="form-check-input check-item" type="checkbox" name="nilai_ids[]" value="{{ $realisasi->id }}"
+                                            {{ isset($isPeriodeLocked) && $isPeriodeLocked ? 'disabled' : '' }}>
+
+                                    </div>
+                                </td>
+
                         <td>{{ $realisasi->indikator->kode }}</td>
                         <td>{{ $realisasi->indikator->nama }}</td>
                         <td>{{ $realisasi->indikator->bidang->nama }}</td>
@@ -645,7 +663,7 @@
                                 @if (!$realisasi->diverifikasi && empty($isPeriodeLocked))
                                     <form action="{{ route('verifikasi.update', $realisasi->id) }}" method="POST">
                                         @csrf
-                                        @method('PUT')
+                                        @method('POST')
                                         <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Yakin verifikasi?')">
                                             <i class="fas fa-check"></i> Verifikasi
                                         </button>
@@ -662,6 +680,7 @@
             </tbody>
         </table>
     </div>
+ </form>
 
     <div class="mt-4">
         {{ $realisasis->appends(['tahun' => $tahun, 'bulan' => $bulan, 'bidang_id' => $bidangId])->links() }}
@@ -760,6 +779,13 @@
             }, 100 + (index * 50));
         });
     });
-    
+//     fetch('/verifikasi-massal', {
+//     method: 'POST', // pastikan ini POST, bukan PUT
+//     headers: {
+//         'Content-Type': 'application/json',
+//         'X-CSRF-TOKEN': '{{ csrf_token() }}'
+//     },
+//     body: JSON.stringify({ nilai_ids: [1, 2, 3] })
+// });
 </script>
 @endsection
