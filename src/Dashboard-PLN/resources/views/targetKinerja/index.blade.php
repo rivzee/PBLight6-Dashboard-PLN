@@ -99,7 +99,7 @@
 
     .stat-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 30px var(--pln-shadow);  
+        box-shadow: 0 15px 30px var(--pln-shadow);
     }
 
     .stat-card::before {
@@ -757,4 +757,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 @endsection
-

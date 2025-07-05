@@ -265,18 +265,19 @@
 
                 <input type="hidden" name="indikator_id" value="{{ $indikator->id }}">
 
-                <!-- Tanggal -->
-                <div class="form-group mb-4">
-                    <label for="tanggal">Tanggal Realisasi <span class="text-danger">*</span></label>
-                    <input type="date" class="form-control @error('tanggal') is-invalid @enderror"
-                           id="tanggal" name="tanggal" value="{{ old('tanggal', date('Y-m-d')) }}" required>
-                    @error('tanggal')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="form-text text-muted">
-                        <i class="fas fa-calendar-alt me-1"></i> Pilih tanggal realisasi KPI.
-                    </small>
-                </div>
+<!-- Tanggal Realisasi (Otomatis dari halaman index) -->
+<div class="form-group mb-4">
+    <label for="tanggal_display">Tanggal Realisasi</label>
+    <input type="text" class="form-control" id="tanggal_display" value="{{ \Carbon\Carbon::parse($tanggal)->translatedFormat('d F Y') }}" disabled>
+
+    <!-- Input tersembunyi untuk dikirim ke backend -->
+    <input type="hidden" name="tanggal" value="{{ $tanggal }}">
+
+    <small class="form-text text-muted">
+        <i class="fas fa-calendar-alt me-1"></i> Tanggal ini diambil dari halaman sebelumnya.
+    </small>
+</div>
+
 
                 <!-- Nilai -->
                 <div class="form-group mb-4">

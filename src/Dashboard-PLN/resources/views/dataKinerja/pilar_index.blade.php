@@ -154,7 +154,7 @@
         <div class="dashboard-grid">
             @foreach($pilars as $index => $pilar)
             <div class="grid-span-4">
-                <a href="{{ route('dataKinerja.pilar', $pilar->nama) }}" style="text-decoration: none">
+                <a href="{{ route('dataKinerja.pilar', ['id' => $pilar->id, 'tahun' => $tahun, 'bulan' => $bulan]) }}" style="text-decoration: none">
                     <div class="pilar-card pilar-{{ chr(97 + $index) }}">
                         <div class="pilar-header">
                             <h5 class="pilar-title">{{ strtoupper($pilar->nama) }}</h5>
@@ -162,7 +162,7 @@
                                 <i class="fas fa-bolt"></i>
                             </div>
                         </div>
-                        <div class="pilar-value">{{ $pilar->nilai }}%</div>
+                        <div class="pilar-value">{{ number_format($pilar->nilai, 2) }}%</div>
                         <div class="pilar-description">Rata-rata capaian indikator</div>
                         <div class="pilar-progress">
                             <div class="pilar-progress-bar" style="width: {{ $pilar->nilai }}%"></div>
@@ -170,14 +170,14 @@
                         <div class="pilar-indicator-count">
                             <div class="indicator-stat">
                                 <div class="indicator-stat-label">Jumlah Indikator</div>
-                                <div class="indicator-stat-value">{{ $pilar->jumlah_indikator }}</div>
+                                <div class="indicator-stat-value">{{ $pilar->indikators_count ?? $pilar->jumlah_indikator ?? 0 }}</div>
                             </div>
                             <div class="indicator-stat">
                                 <div class="indicator-stat-label">Tercapai</div>
                                 <div class="indicator-stat-value">
                                     {{
-                                        $pilar->jumlah_indikator > 0
-                                            ? round(($pilar->nilai / 100) * $pilar->jumlah_indikator)
+                                        ($pilar->indikators_count ?? $pilar->jumlah_indikator ?? 0) > 0
+                                            ? $pilar->indikators_tercapai ?? round(($pilar->nilai / 100) * ($pilar->jumlah_indikator ?? 0))
                                             : 0
                                     }}
                                 </div>
@@ -191,6 +191,7 @@
     @endif
 </div>
 @endsection
+
 
 @section('scripts')
 <script>

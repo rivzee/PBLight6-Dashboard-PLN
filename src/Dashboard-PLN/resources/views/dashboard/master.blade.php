@@ -811,6 +811,35 @@
     background-color: rgba(220, 53, 69, 0.2);
     color: #dc3545;
   }
+.btn-xs {
+  padding: 0.5rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.25;
+  border-radius: 999px; /* Supaya bulat */
+
+}
+
+.card-primary-bg {
+  background-color: #007bff !important;
+  color: white !important;
+}
+
+.card-primary-bg .chart-title {
+  color: white;
+}
+
+.card-primary-bg .data-table th,
+.card-primary-bg .data-table td {
+  color: white;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.card-primary-bg .btn,
+.card-primary-bg a {
+  color: white;
+}
+
+
 </style>
 @endsection
 
@@ -881,13 +910,13 @@
     <div class="grid-span-3">
       <div class="card stat-card">
         <div class="stat-header">
-          <h3 class="stat-title">Pilar</h3>
+          <h3 class="stat-title">KPI</h3>
           <div class="stat-icon">
             <i class="fas fa-layer-group"></i>
           </div>
         </div>
         <div class="stat-value">{{ count($data['pilar'] ?? []) }}</div>
-        <p class="stat-description">Total Pilar Kinerja</p>
+        <p class="stat-description">Key performance Indicator</p>
       </div>
     </div>
 
@@ -1032,8 +1061,8 @@
                         @endif
                       </td>
                       <td>
-                        <a href="{{ route('dataKinerja.pilar', $index + 1) }}" class="btn btn-sm btn-primary">
-                          <i class="fas fa-eye mr-1"></i> Detail
+                        <a href="{{ route('dataKinerja.pilar', $index + 1) }}" class="btn btn-xs btn-primary px-2 py-1" style="font-size: 0.75rem;">
+                        <i class="fas fa-eye mr-1"></i> Detail
                         </a>
                       </td>
                     </tr>
@@ -1160,7 +1189,7 @@
                         });
                         $pilarId = $pilarId !== false ? $pilarId + 1 : 1;
                       @endphp
-                      <a href="{{ route('dataKinerja.pilar', $pilarId) }}" class="btn btn-sm btn-primary">
+                      <a href="{{ route('dataKinerja.pilar', $pilarId) }}" class="btn btn-primary btn-xs">
                         <i class="fas fa-eye mr-1"></i> Detail
                       </a>
                     </td>
@@ -1518,104 +1547,94 @@
   }
 
   // Trend Chart
-  function initTrendChart(chartConfig = getChartConfig()) {
-    const trendCtx = document.getElementById('trendChart');
-    if (!trendCtx) return;
+// Trend Chart
+function initTrendChart(chartConfig = getChartConfig()) {
+  const trendCtx = document.getElementById('trendChart');
+  if (!trendCtx) return;
 
-    const ctx = trendCtx.getContext('2d');
-    // Simulasikan data tren (ini dapat diganti dengan data aktual)
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-    const currentMonth = {{ $bulan }};
-    const trendData = [];
+  const ctx = trendCtx.getContext('2d');
 
-    // Generate trend data up to current month
-    for (let i = 1; i <= 12; i++) {
-      if (i <= currentMonth) {
-        // Generate random values within ±10% of final NKO value for past months
-        const min = Math.max({{ $data['nko'] }} - 10, 0);
-        const max = Math.min({{ $data['nko'] }} + 5, 100);
-        const randomValue = (i < currentMonth)
-          ? (Math.random() * (max - min) + min).toFixed(1)
-          : {{ $data['nko'] }};
-        trendData.push(randomValue);
-      } else {
-        trendData.push(null); // Future months have null values
-      }
-    }
+  // Ambil data dari Laravel
+  const trendDataRaw = @json($nkoTrend ?? []);
 
-    // Destroy existing chart if exists
-    if (chartInstances.trendChart) {
-      chartInstances.trendChart.destroy();
-    }
+  const months = trendDataRaw.map(item => item.bulan);
+  const values = trendDataRaw.map(item => item.nko !== null ? Math.min(item.nko, 110) : null);
 
-    chartInstances.trendChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: months,
-        datasets: [{
-          label: 'Nilai Kinerja',
-          data: trendData,
-          backgroundColor: chartConfig.primaryColor,
-          borderColor: chartConfig.primaryBorder,
-          borderWidth: 2,
-          pointBackgroundColor: chartConfig.primaryBorder,
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-          pointRadius: 5,
-          tension: 0.3,
-          fill: true
-        }]
+  // Destroy existing chart if exists
+  if (chartInstances.trendChart) {
+    chartInstances.trendChart.destroy();
+  }
+
+  chartInstances.trendChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Nilai Kinerja',
+        data: values,
+        backgroundColor: chartConfig.primaryColor,
+        borderColor: chartConfig.primaryBorder,
+        borderWidth: 2,
+        pointBackgroundColor: chartConfig.primaryBorder,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        tension: 0.3,
+        fill: true,
+        spanGaps: false // penting agar null tidak digambar
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: chartConfig.tooltipBg,
+          titleColor: chartConfig.tooltipText,
+          bodyColor: chartConfig.tooltipText,
+          padding: 12,
+          borderColor: chartConfig.tooltipBorder,
+          borderWidth: 1,
+          callbacks: {
+            label: function (context) {
+              if (context.parsed.y === null) {
+                return 'Belum ada data';
+              }
+              return `NKO: ${context.parsed.y.toFixed(2)}%`;
+            }
+          }
+        }
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
+      scales: {
+        x: {
+          grid: {
+            color: chartConfig.gridColor
           },
-          tooltip: {
-            backgroundColor: chartConfig.tooltipBg,
-            titleColor: chartConfig.tooltipText,
-            bodyColor: chartConfig.tooltipText,
-            titleFont: {
-              size: 14,
-              weight: 'bold'
-            },
-            bodyFont: {
-              size: 13
-            },
-            padding: 12,
-            displayColors: false,
-            borderColor: chartConfig.tooltipBorder,
-            borderWidth: 1
+          ticks: {
+            color: chartConfig.textColor
           }
         },
-        scales: {
-          x: {
-            grid: {
-              color: chartConfig.gridColor
-            },
-            ticks: {
-              color: chartConfig.textColor
-            }
+        y: {
+          beginAtZero: true,
+          max: 110,
+          grid: {
+            color: chartConfig.gridColor
           },
-          y: {
-            beginAtZero: true,
-            max: 100,
-            grid: {
-              color: chartConfig.gridColor
-            },
-            ticks: {
-              color: chartConfig.textColor,
-              callback: function(value) {
-                return value + '%';
-              }
+          ticks: {
+            color: chartConfig.textColor,
+            callback: function (value) {
+              return value + '%';
             }
           }
         }
       }
-    });
-  }
+    }
+  });
+}
+
 
   // Radar Chart untuk perbandingan antar pilar
   function initRadarChart(chartConfig = getChartConfig()) {
