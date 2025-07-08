@@ -189,11 +189,8 @@
         .page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
         .page-header-actions { width: 100%; justify-content: flex-start; margin-top: 10px; }
     }
-
 </style>
 @endsection
-
-
 
 @section('content')
 <div class="dashboard-content">
@@ -212,6 +209,15 @@
     <!-- Filter Form -->
     <div class="filter-card">
         <h5><i class="fas fa-filter me-2"></i>Filter Data Realisasi</h5>
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Informasi:</strong>
+            <ul class="mb-0 mt-2">
+                <li><strong>Target Kumulatif:</strong> Target yang harus dicapai dari Januari hingga bulan yang dipilih</li>
+                <li><strong>Realisasi Harian:</strong> Data realisasi yang diinput untuk tanggal yang dipilih (bukan kumulatif)</li>
+                <li><strong>Capaian:</strong> Persentase realisasi harian terhadap target kumulatif</li>
+            </ul>
+        </div>
         <form method="GET" action="{{ route('realisasi.index') }}" class="mb-3">
             <div class="row g-3 align-items-center">
                 <div class="col-auto">
@@ -232,6 +238,7 @@
         <div class="table-card mt-4">
             <div class="card-header">
                 {{ $isMaster ? 'Pilar' : 'Bidang' }} {{ $kode }} - {{ $group['nama'] }}
+                <small class="float-end">Target Kumulatif s.d {{ \Carbon\Carbon::parse($tanggal)->locale('id')->monthName }} {{ \Carbon\Carbon::parse($tanggal)->year }}</small>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -244,8 +251,8 @@
                                 @if($isMaster)
                                     <th>Bidang</th>
                                 @endif
-                                <th>Target</th>
-                                <th>Realisasi</th>
+                                <th>Target Kumulatif</th>
+                                <th>Realisasi Harian</th>
                                 <th>Capaian</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
@@ -253,29 +260,24 @@
                         </thead>
                         <tbody>
                             @foreach ($group['indikators'] as $index => $indikator)
-@php
-    $realisasi = $indikator->firstRealisasi;
-    $nilai = $realisasi?->nilai;
-    $target = $indikator->target_nilai;
+                                @php
+                                    $realisasi = $indikator->firstRealisasi;
+                                    $target = $indikator->target_nilai;
+                                    $nilaiRealisasi = $realisasi?->nilai ?? 0;
 
-    // Hitung persentase asli
-    $persentaseAsli = $indikator->persentase ?? 0;
+                                    $persentaseAsli = $target > 0 ? ($nilaiRealisasi / $target) * 100 : 0;
+                                    $persentase = min($persentaseAsli, 110);
 
-    // Batasi agar maksimal 110%
-    $persentase = min($persentaseAsli, 110);
+                                    if ($persentase < 95) {
+                                        $progressClass = 'bg-danger';
+                                    } elseif ($persentase >= 95 && $persentase < 100) {
+                                        $progressClass = 'bg-warning';
+                                    } else {
+                                        $progressClass = 'bg-success';
+                                    }
 
-    // Tentukan warna berdasarkan persentase
-    if ($persentase < 95) {
-        $progressClass = 'bg-danger';
-    } elseif ($persentase >= 95 && $persentase <= 100) {
-        $progressClass = 'bg-warning';
-    } else {
-        $progressClass = 'bg-success';
-    }
-
-    $query = ['tanggal' => $tanggal];
-@endphp
-
+                                    $query = ['tanggal' => $tanggal];
+                                @endphp
 
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
@@ -285,25 +287,49 @@
                                         <td>{{ $indikator->bidang->nama ?? '-' }}</td>
                                     @endif
                                     <td>{{ number_format($target, 2) }}</td>
-                                    <td>{{ $nilai !== null ? number_format($nilai, 2) : '-' }}</td>
-<td>
-    <div class="progress-wrapper">
-        <div class="progress">
-            <div class="progress-bar {{ $progressClass }}" style="width: {{ $persentase }}%;"></div>
-        </div>
-        <div class="progress-value">{{ number_format($persentase, 2) }}%</div>
-    </div>
-</td>
-
-
                                     <td>
-                                        @if ($indikator->firstRealisasi?->diverifikasi)
-                                            <span class="badge bg-success">Terverifikasi</span>
-                                            <div class="small text-muted">
-                                                {{ \Carbon\Carbon::parse($indikator->verifikasi_pada)->format('d M Y H:i') }}
+                                        {{ number_format($nilaiRealisasi, 2) }}
+                                        @if($realisasi)
+                                            <div class="small text-success">
+                                                <i class="fas fa-check-circle me-1"></i>
+                                                Data tanggal {{ \Carbon\Carbon::parse($tanggal)->format('d M Y') }}
                                             </div>
                                         @else
-                                            <span class="badge bg-warning text-dark">Belum Diverifikasi</span>
+                                            <div class="small text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Belum ada data
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="progress-wrapper">
+                                            <div class="progress">
+                                                <div class="progress-bar {{ $progressClass }}" style="width: {{ min($persentase, 100) }}%;"></div>
+                                            </div>
+                                            <div class="progress-value">{{ number_format($persentase, 2) }}%</div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if($realisasi)
+                                            @if($realisasi->diverifikasi)
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check-circle me-1"></i>
+                                                    Terverifikasi
+                                                </span>
+                                                <div class="small text-muted">
+                                                    {{ \Carbon\Carbon::parse($realisasi->updated_at)->format('d M Y H:i') }}
+                                                </div>
+                                            @else
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    Belum Diverifikasi
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-minus-circle me-1"></i>
+                                                Belum Input
+                                            </span>
                                         @endif
                                     </td>
                                     <td>
@@ -327,5 +353,15 @@
             </div>
         </div>
     @endforeach
+
+    @if(empty($grouped))
+        <div class="table-card">
+            <div class="card-body text-center">
+                <i class="fas fa-info-circle text-muted mb-3" style="font-size: 3rem;"></i>
+                <h5 class="text-muted">Tidak ada data</h5>
+                <p class="text-muted">Belum ada indikator yang tersedia untuk tanggal yang dipilih.</p>
+            </div>
+        </div>
+    @endif
 </div>
 @endsection

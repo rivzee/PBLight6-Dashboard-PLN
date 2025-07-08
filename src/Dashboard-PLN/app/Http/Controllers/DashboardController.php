@@ -45,7 +45,7 @@ class DashboardController extends Controller
             return redirect()->route('dashboard');
         }
 
-        $tahun = (int) $request->input('tahun', date('Y'));
+            $tahun = (int) $request->input('tahun', date('Y'));
         $bulan = (int) $request->input('bulan', date('m'));
 
         $pilars = Pilar::with(['indikators' => function ($query) {
@@ -56,37 +56,44 @@ class DashboardController extends Controller
         $jumlahPilar = $pilars->count();
         $totalNilaiPilar = 0;
 
-        // Data utama bulan berjalan
         foreach ($pilars as $pilar) {
+            $indikators = $pilar->indikators->filter(function ($indikator) use ($tahun, $bulan) {
+                return $indikator->realisasis()
+                    ->where('tahun', $tahun)
+                    ->where('bulan', $bulan)
+                    ->where('diverifikasi', true)
+                    ->exists();
+            });
+
             $pilarData = ['nama' => $pilar->nama, 'nilai' => 0, 'indikator' => []];
             $totalNilaiIndikator = 0;
-            $jumlahIndikator = count($pilar->indikators);
 
-            foreach ($pilar->indikators as $indikator) {
-                $targetKPI = TargetKPI::where('indikator_id', $indikator->id)
-                    ->whereHas('tahunPenilaian', fn($q) => $q->where('tahun', $tahun))
+            foreach ($indikators as $indikator) {
+                $targetKPI = $indikator->targetKPI
+                    ->where('tahunPenilaian.tahun', $tahun)
                     ->first();
 
-                $targetKumulatif = $targetKPI?->target_bulanan[$bulan] ?? 0;
+                $target = $targetKPI?->target_bulanan[$bulan] ?? 0;
 
-                $realisasiKumulatif = Realisasi::where('indikator_id', $indikator->id)
+                $realisasi = $indikator->realisasis
                     ->where('tahun', $tahun)
                     ->where('bulan', $bulan)
                     ->where('diverifikasi', true)
                     ->sum('nilai');
 
-                $persentase = ($targetKumulatif > 0)
-                    ? round(($realisasiKumulatif / $targetKumulatif) * 100, 2)
+                $persen = ($target > 0 && $realisasi > 0)
+                    ? min(($realisasi / $target) * 100, 110)
                     : 0;
 
-                $totalNilaiIndikator += $persentase;
+                $totalNilaiIndikator += $persen;
 
                 $pilarData['indikator'][] = [
                     'nama' => $indikator->nama,
-                    'nilai' => $persentase
+                    'nilai' => $persen
                 ];
             }
 
+            $jumlahIndikator = count($pilarData['indikator']);
             $pilarData['nilai'] = $jumlahIndikator > 0
                 ? round($totalNilaiIndikator / $jumlahIndikator, 2)
                 : 0;

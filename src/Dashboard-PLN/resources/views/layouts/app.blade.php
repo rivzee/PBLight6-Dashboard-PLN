@@ -165,42 +165,75 @@ use Illuminate\Support\Str;
       position: relative;
     }
 
+    /* NOTIFICATION BADGE - Satu badge untuk semua notifikasi */
     .notification-badge {
-      position: absolute;
-      top: -5px;
-      right: -5px;
-      background-color: #ff4757;
-      color: white;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      font-size: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      position: absolute !important;
+      top: -8px !important;
+      right: -8px !important;
+      background: linear-gradient(135deg, #ff4757, #ff3838) !important; /* Default merah untuk realisasi */
+      color: white !important;
+      border-radius: 12px !important;
+      min-width: 20px !important;
+      height: 20px !important;
+      padding: 0 6px !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4) !important;
+      border: 2px solid white !important;
+      z-index: 1000 !important;
+      visibility: visible !important;
+      opacity: 1 !important;
     }
 
-    .notification-badge-2 {
-      position: absolute;
-      top: -5px;
-      left: -5px;
-      background-color: #2ed573;
-      color: white;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      font-size: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    /* Badge warna berdasarkan jenis notifikasi */
+    .notification-badge.realisasi-notifications {
+      background: linear-gradient(135deg, #ff4757, #ff3838) !important; /* Merah untuk realisasi */
+      box-shadow: 0 3px 12px rgba(255, 71, 87, 0.5) !important;
+    }
+
+    .notification-badge.target-notifications {
+      background: linear-gradient(135deg, #2ed573, #26d060) !important; /* Hijau untuk target */
+      box-shadow: 0 3px 12px rgba(46, 213, 115, 0.5) !important;
+    }
+
+    .notification-badge.mixed-notifications {
+      background: linear-gradient(135deg, #7c4dff, #651fff) !important; /* Ungu untuk campuran */
+      box-shadow: 0 3px 12px rgba(124, 77, 255, 0.5) !important;
+    }
+
+    /* Animation */
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .notification-badge:not(:empty) {
+      animation: pulse 2s infinite !important;
+    }
+
+    /* Hover effects */
+    .notification-btn:hover .notification-badge {
+      transform: scale(1.15) !important;
+      animation: none !important;
     }
 
     .notification-dropdown {
-      position: fixed;
-      top: 70px;
-      right: 20px;
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
       width: 350px;
       background: var(--pln-surface);
       border-radius: 12px;
@@ -275,13 +308,31 @@ use Illuminate\Support\Str;
       display: flex;
       padding: 10px 15px;
       border-left: 3px solid transparent;
-      text-decoration: none;
+      text-decoration: none !important;
       transition: all 0.3s ease;
+      cursor: pointer !important;
+      color: inherit;
+      position: relative;
+      z-index: 10;
+      pointer-events: auto;
     }
 
     .notification-item:hover {
       background: rgba(0, 0, 0, 0.05);
       border-left-color: var(--pln-light-blue);
+      text-decoration: none !important;
+      color: inherit;
+      transform: translateX(2px);
+    }
+
+    .notification-item:active {
+      transform: translateX(1px);
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    /* Pastikan child elements tidak menghalangi klik */
+    .notification-item * {
+      pointer-events: none;
     }
 
     .notification-icon {
@@ -527,10 +578,10 @@ use Illuminate\Support\Str;
     .date-display i {
       margin-right: 8px;
       color: var(--pln-light-blue);
-      animation: pulse 2s infinite;
+      animation: datePulse 2s infinite;
     }
 
-    @keyframes pulse {
+    @keyframes datePulse {
       0% { opacity: 0.7; }
       50% { opacity: 1; }
       100% { opacity: 0.7; }
@@ -792,29 +843,6 @@ use Illuminate\Support\Str;
       margin-bottom: 5px;
     }
 
-    /* Badge notifikasi - Improved */
-    .notification-badge {
-      display: none;
-      position: absolute;
-      top: 6px;
-      right: 8px;
-      background: linear-gradient(135deg, #e74c3c, #ff6b6b);
-      color: white;
-      font-size: 0.65rem;
-      min-width: 20px;
-      height: 20px;
-      border-radius: 50px;
-      text-align: center;
-      justify-content: center;
-      align-items: center;
-      font-weight: bold;
-      padding: 0 6px;
-      box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      transform-origin: center center;
-      z-index: 5;
-    }
-
     /* Badge notifikasi untuk menu dropdown */
     .notification-badge-menu {
       display: none;
@@ -1054,7 +1082,7 @@ use Illuminate\Support\Str;
       animation: spinFade 0.5s ease forwards;
     }
 
-/* Overlay logout */
+    /* Overlay logout */
 .logout-overlay {
   position: fixed;
   top: 0;
@@ -1423,6 +1451,159 @@ use Illuminate\Support\Str;
   visibility: visible !important;
 }
 
+/* Hover effect untuk badge */
+    .notification-btn:hover .notification-badge {
+      animation-play-state: paused;
+      transform: scale(1.15);
+      filter: brightness(1.2);
+    }
+
+    /* Notification Dropdown Styling */
+    .notification-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.05);
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-item {
+      text-align: center;
+      flex: 1;
+    }
+
+    .stats-number {
+      display: block;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--pln-text);
+      line-height: 1;
+    }
+
+    .stats-number.total {
+      color: var(--pln-light-blue);
+    }
+
+    .stats-label {
+      display: block;
+      font-size: 11px;
+      color: var(--pln-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    .stats-divider {
+      width: 1px;
+      height: 30px;
+      background: rgba(0, 0, 0, 0.1);
+      margin: 0 10px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .section-header h6 {
+      margin: 0;
+      flex: 1;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--pln-text);
+    }
+
+    .section-badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .section-badge.urgent {
+      background: #e74c3c;
+    }
+
+    .section-badge.info {
+      background: #3498db;
+    }
+
+    .notification-item.urgent-item {
+      border-left: 3px solid #e74c3c;
+      background: rgba(231, 76, 60, 0.02);
+    }
+
+    .notification-item.target-item {
+      border-left: 3px solid #3498db;
+      background: rgba(52, 152, 219, 0.02);
+    }
+
+    .notification-value {
+      margin-left: auto;
+      font-weight: 600;
+      color: var(--pln-light-blue);
+    }
+
+    .priority-urgent {
+      background: #e74c3c;
+      color: white;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+
+    .priority-high {
+      background: #f39c12;
+      color: white;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+
+    .notification-more.urgent {
+      background: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+
+    .notification-more.urgent:hover {
+      background: rgba(231, 76, 60, 0.15);
+    }
+
+    .notification-more.info {
+      background: rgba(52, 152, 219, 0.1);
+      color: #3498db;
+      border: 1px solid rgba(52, 152, 219, 0.2);
+    }
+
+    .notification-more.info:hover {
+      background: rgba(52, 152, 219, 0.15);
+    }
+
+    .empty-content h6 {
+      margin: 8px 0 4px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--pln-text);
+    }
+
+    .empty-content p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--pln-text-secondary);
+    }
   </style>
   @yield('styles')
 </head>
@@ -1563,103 +1744,291 @@ use Illuminate\Support\Str;
       <div class="header-right">
 
         <!-- Tombol notifikasi -->
-        <div class="topbar-icon-btn notification-btn" id="notificationBtn">
+        <div class="topbar-icon-btn notification-btn" id="notificationBtn" style="position: relative;">
           <i class="fas fa-bell"></i>
           @if(Auth::check() && Auth::user()->role === 'asisten_manager')
             @php
+              // Hitung SEMUA notifikasi yang perlu ditangani
               $unverifiedCount = App\Models\Realisasi::where('diverifikasi', false)->count();
+              $unapprovedCount = App\Models\TargetKPI::where('disetujui', false)->count();
+              $totalNotifications = $unverifiedCount + $unapprovedCount;
             @endphp
-            @if($unverifiedCount > 0)
-              <span class="notification-badge">{{ $unverifiedCount }}</span>
+
+            {{-- SATU badge untuk SEMUA notifikasi --}}
+            @if($totalNotifications > 0)
+              <span class="notification-badge
+                @if($unverifiedCount > 0 && $unapprovedCount > 0)
+                  mixed-notifications
+                @elseif($unverifiedCount > 0)
+                  realisasi-notifications
+                @else
+                  target-notifications
+                @endif"
+                id="main-notification-badge">
+                {{ $totalNotifications }}
+              </span>
             @endif
           @endif
 
-          @if(Auth::check() && Auth::user()->role === 'asisten_manager')
-            @php
-              $unapprovedCount = App\Models\TargetKPI::where('disetujui', false)->count();
-            @endphp
-            @if($unapprovedCount > 0)
-              <span class="notification-badge-2">{{ $unapprovedCount }}</span>
-            @endif
-          @endif
-        </div>
-                <!-- Dropdown notifikasi -->
-        <div class="notification-dropdown" id="notificationDropdown">
-            <div class="notification-header">
-            <h5>Notifikasi</h5>
-            <button class="close-btn" id="closeNotification"><i class="fas fa-times"></i></button>
-            </div>
+          <!-- Dropdown notifikasi - DIPERBAIKI -->
+          <div class="notification-dropdown" id="notificationDropdown">
+              <div class="notification-header">
+                  <h5><i class="fas fa-bell"></i> Notifikasi</h5>
+                  <button class="close-btn" id="closeNotification"><i class="fas fa-times"></i></button>
+              </div>
             <div class="notification-body">
             @if(Auth::check() && Auth::user()->role === 'asisten_manager')
                 @php
-                $unverifiedItems = App\Models\Realisasi::with(['indikator', 'user'])
-                    ->where('diverifikasi', false)
-                    ->latest()
-                    ->take(5)
-                    ->get();
+                // Dapatkan data realisasi dan target yang perlu ditangani dengan error handling
+                try {
+                    $unverifiedRealisasi = App\Models\Realisasi::with(['indikator', 'user'])
+                        ->where('diverifikasi', false)
+                        ->latest()
+                        ->get();
+                } catch (\Exception $e) {
+                    \Log::error('Error fetching unverified realisasi: ' . $e->getMessage());
+                    $unverifiedRealisasi = collect([]);
+                }
 
-                $unapprovedItems = App\Models\TargetKPI::with(['indikator', 'user'])
-                    ->where('disetujui', false)
-                    ->latest()
-                    ->take(5)
-                    ->get();
+                try {
+                    $unapprovedTargets = App\Models\TargetKPI::with(['indikator', 'user'])
+                        ->where('disetujui', false)
+                        ->latest()
+                        ->get();
+                } catch (\Exception $e) {
+                    \Log::error('Error fetching unapproved targets: ' . $e->getMessage());
+                    $unapprovedTargets = collect([]);
+                }
+
+                // Hitung total untuk statistik
+                $totalUnverified = $unverifiedRealisasi->count();
+                $totalUnapproved = $unapprovedTargets->count();
+                $totalNotifications = $totalUnverified + $totalUnapproved;
+
+                // Ambil 5 item pertama untuk ditampilkan
+                $unverifiedItems = $unverifiedRealisasi->take(5);
+                $unapprovedItems = $unapprovedTargets->take(5);
+
+                // Debug: Log data types untuk troubleshooting
+                if ($unverifiedItems->count() > 0) {
+                    $firstItem = $unverifiedItems->first();
+                    \Log::info('Debug Realisasi Item:', [
+                        'nilai_type' => gettype($firstItem->nilai),
+                        'nilai_value' => $firstItem->nilai,
+                        'indikator_exists' => isset($firstItem->indikator),
+                        'user_exists' => isset($firstItem->user)
+                    ]);
+                }
+
+                if ($unapprovedItems->count() > 0) {
+                    $firstTarget = $unapprovedItems->first();
+                    \Log::info('Debug Target Item:', [
+                        'target_type' => gettype($firstTarget->target_bulanan),
+                        'target_value' => $firstTarget->target_bulanan,
+                        'indikator_exists' => isset($firstTarget->indikator),
+                        'user_exists' => isset($firstTarget->user)
+                    ]);
+                }
                 @endphp
 
+                <!-- Header Statistik -->
+                @if($totalNotifications > 0)
+                <div class="notification-stats">
+                    <div class="stats-item">
+                        <span class="stats-number">{{ $totalUnverified }}</span>
+                        <span class="stats-label">Realisasi</span>
+                    </div>
+                    <div class="stats-divider"></div>
+                    <div class="stats-item">
+                        <span class="stats-number">{{ $totalUnapproved }}</span>
+                        <span class="stats-label">Target</span>
+                    </div>
+                    <div class="stats-divider"></div>
+                    <div class="stats-item">
+                        <span class="stats-number total">{{ $totalNotifications }}</span>
+                        <span class="stats-label">Total</span>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Section: Realisasi yang Perlu Diverifikasi -->
                 @if($unverifiedItems->count() > 0)
-                <div class="notification-section">
-                    <h6>Realisasi yang Perlu Diverifikasi</h6>
+                <div class="notification-section urgent-section">
+                    <div class="section-header">
+                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                        <h6>Realisasi Perlu Diverifikasi</h6>
+                        <span class="section-badge urgent">{{ $totalUnverified }}</span>
+                    </div>
+
                     @foreach($unverifiedItems as $item)
-                    <a href="{{ route('verifikasi.show', $item->id) }}" class="notification-item">
-                        <div class="notification-icon bg-warning">
-                        <i class="fas fa-exclamation-triangle"></i>
+                    @php
+                        try {
+                            $verifikasiUrl = route('verifikasi.show', $item->id);
+                        } catch (\Exception $e) {
+                            // Fallback ke halaman verifikasi index jika route show tidak ada
+                            $verifikasiUrl = route('verifikasi.index') . '?item=' . $item->id;
+                            \Log::warning('Verifikasi.show route not found, using fallback:', ['id' => $item->id, 'fallback_url' => $verifikasiUrl]);
+                        }
+                        \Log::info('Verifikasi URL generated:', ['id' => $item->id, 'url' => $verifikasiUrl]);
+                    @endphp
+                    <a href="{{ $verifikasiUrl }}" class="notification-item urgent-item"
+                       data-id="{{ $item->id }}"
+                       data-type="realisasi"
+                       title="Klik untuk verifikasi realisasi ID: {{ $item->id }}">
+                        <div class="notification-icon bg-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
                         </div>
                         <div class="notification-content">
-                        <p class="notification-title">{{ $item->indikator->kode }} - {{ $item->indikator->nama }}</p>
-                        <p class="notification-info">Diinput oleh: {{ $item->user->name }}</p>
-                        <p class="notification-time">{{ $item->created_at->diffForHumans() }}</p>
+                            <p class="notification-title">
+                                {{ $item->indikator->kode ?? 'N/A' }} - {{ Str::limit($item->indikator->nama ?? 'Indikator tidak ditemukan', 40) }}
+                            </p>
+                            <p class="notification-info">
+                                <i class="fas fa-user"></i> {{ $item->user->name ?? 'User tidak ditemukan' }}
+                                <span class="notification-value">
+                                    <i class="fas fa-chart-line"></i>
+                                    @php
+                                        try {
+                                            $nilai = $item->nilai ?? 0;
+                                            // Handle jika nilai adalah array atau object
+                                            if (is_array($nilai) || is_object($nilai)) {
+                                                $nilai = 0;
+                                            }
+                                            // Handle jika nilai adalah string yang tidak valid
+                                            if (!is_numeric($nilai)) {
+                                                $nilai = 0;
+                                            }
+                                            $formattedNilai = number_format((float)$nilai, 0, ',', '.');
+                                        } catch (\Exception $e) {
+                                            $formattedNilai = '0';
+                                            \Log::error('Error formatting nilai: ' . $e->getMessage());
+                                        }
+                                    @endphp
+                                    {{ $formattedNilai }}
+                                </span>
+                            </p>
+                            <p class="notification-time">
+                                <i class="fas fa-clock"></i> {{ $item->created_at->diffForHumans() }}
+                                @if($item->created_at->diffInHours() > 24)
+                                    <span class="priority-urgent">URGENT</span>
+                                @elseif($item->created_at->diffInHours() > 8)
+                                    <span class="priority-high">TINGGI</span>
+                                @endif
+                            </p>
+                        </div>
+                        <div class="notification-action">
+                            <i class="fas fa-chevron-right"></i>
                         </div>
                     </a>
                     @endforeach
-                    @if($unverifiedCount > 5)
-                    <a href="{{ route('verifikasi.index') }}" class="notification-more">Lihat {{ $unverifiedCount - 5 }} lainnya</a>
+
+                    @if($totalUnverified > 5)
+                    <a href="{{ route('verifikasi.index') }}" class="notification-more urgent">
+                        <i class="fas fa-tasks"></i> Verifikasi {{ $totalUnverified - 5 }} lainnya
+                    </a>
                     @endif
                 </div>
                 @endif
 
+                <!-- Section: Target yang Perlu Disetujui -->
                 @if($unapprovedItems->count() > 0)
-                <div class="notification-section">
-                    <h6>Target yang Perlu Disetujui</h6>
+                <div class="notification-section target-section">
+                    <div class="section-header">
+                        <i class="fas fa-bullseye text-info"></i>
+                        <h6>Target Perlu Disetujui</h6>
+                        <span class="section-badge info">{{ $totalUnapproved }}</span>
+                    </div>
+
                     @foreach($unapprovedItems as $item)
-                    <a href="{{ route('targetKinerja.index') }}" class="notification-item">
+                    @php
+                        try {
+                            $targetUrl = route('targetKinerja.approve', $item->id);
+                        } catch (\Exception $e) {
+                            // Fallback ke halaman target index jika route approve tidak ada
+                            $targetUrl = route('targetKinerja.index') . '?item=' . $item->id;
+                            \Log::warning('TargetKinerja.approve route not found, using fallback:', ['id' => $item->id, 'fallback_url' => $targetUrl]);
+                        }
+                        \Log::info('Target approval URL generated:', ['id' => $item->id, 'url' => $targetUrl]);
+                    @endphp
+                    <a href="{{ $targetUrl }}" class="notification-item target-item"
+                       data-id="{{ $item->id }}"
+                       data-type="target"
+                       title="Klik untuk approval target ID: {{ $item->id }}">
                         <div class="notification-icon bg-info">
-                        <i class="fas fa-bullseye"></i>
+                            <i class="fas fa-bullseye"></i>
                         </div>
                         <div class="notification-content">
-                        <p class="notification-title">{{ $item->indikator->kode }} - {{ $item->indikator->nama }}</p>
-                        <p class="notification-info">Diinput oleh: {{ $item->user->name }}</p>
-                        <p class="notification-time">{{ $item->created_at->diffForHumans() }}</p>
+                            <p class="notification-title">
+                                {{ $item->indikator->kode ?? 'N/A' }} - {{ Str::limit($item->indikator->nama ?? 'Indikator tidak ditemukan', 40) }}
+                            </p>
+                            <p class="notification-info">
+                                <i class="fas fa-user"></i> {{ $item->user->name ?? 'User tidak ditemukan' }}
+                                <span class="notification-value">
+                                    <i class="fas fa-target"></i>
+                                    @php
+                                        try {
+                                            $target = $item->target_bulanan ?? 0;
+                                            // Handle jika target adalah array atau object
+                                            if (is_array($target) || is_object($target)) {
+                                                $target = 0;
+                                            }
+                                            // Handle jika target adalah string yang tidak valid
+                                            if (!is_numeric($target)) {
+                                                $target = 0;
+                                            }
+                                            $formattedTarget = number_format((float)$target, 0, ',', '.');
+                                        } catch (\Exception $e) {
+                                            $formattedTarget = '0';
+                                            \Log::error('Error formatting target: ' . $e->getMessage());
+                                        }
+                                    @endphp
+                                    {{ $formattedTarget }}
+                                </span>
+                            </p>
+                            <p class="notification-time">
+                                <i class="fas fa-clock"></i> {{ $item->created_at->diffForHumans() }}
+                            </p>
+                        </div>
+                        <div class="notification-action">
+                            <i class="fas fa-check"></i>
                         </div>
                     </a>
                     @endforeach
-                    @if($unapprovedCount > 5)
-                    <a href="{{ route('targetKinerja.index') }}" class="notification-more">Lihat {{ $unapprovedCount - 5 }} lainnya</a>
+
+                    @if($totalUnapproved > 5)
+                    <a href="{{ route('targetKinerja.index') }}" class="notification-more info">
+                        <i class="fas fa-bullseye"></i> Lihat {{ $totalUnapproved - 5 }} lainnya
+                    </a>
                     @endif
                 </div>
                 @endif
 
-                @if($unverifiedItems->count() === 0 && $unapprovedItems->count() === 0)
+                <!-- Empty State -->
+                @if($totalNotifications === 0)
                 <div class="notification-empty">
-                    <i class="fas fa-check-circle"></i>
-                    <p>Tidak ada notifikasi baru</p>
+                    <div class="empty-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="empty-content">
+                        <h6>Semua Sudah Terverifikasi</h6>
+                        <p>Tidak ada realisasi atau target yang perlu ditinjau</p>
+                    </div>
                 </div>
                 @endif
+
             @else
+                <!-- Non-admin users -->
                 <div class="notification-empty">
-                <i class="fas fa-bell-slash"></i>
-                <p>Tidak ada notifikasi baru</p>
+                    <div class="empty-icon">
+                        <i class="fas fa-bell-slash"></i>
+                    </div>
+                    <div class="empty-content">
+                        <h6>Tidak Ada Notifikasi</h6>
+                        <p>Anda tidak memiliki akses notifikasi verifikasi</p>
+                    </div>
                 </div>
             @endif
             </div>
+          </div>
         </div>
 
         <!-- Tanggal & jam -->
@@ -1768,7 +2137,6 @@ use Illuminate\Support\Str;
             @endif
             <span class="profile-name">{{ Auth::user()->name }}</span>
             <i class="fas fa-chevron-down"></i>
-            <span class="notification-badge" id="notification-count"></span>
           </div>
           <div class="profile-menu" id="profile-menu">
             <div class="profile-menu-header">
@@ -1923,6 +2291,7 @@ use Illuminate\Support\Str;
             <div class="alert alert-danger mb-3">
                 <ul class="mb-0">
                     @foreach($errors->all() as $error)
+
                     <li>{{ $error }}</li>
                     @endforeach
                 </ul>
@@ -2334,30 +2703,180 @@ use Illuminate\Support\Str;
   <script>
 
     document.addEventListener('DOMContentLoaded', function() {
+      // Notification Badge Debug dan Setup
+      const notificationBadge = document.querySelector('.notification-badge');
+
+      console.log('🔔 NOTIFICATION BADGE DEBUG:');
+
+      @if(Auth::check() && Auth::user()->role === 'asisten_manager')
+        @php
+          $debugUnverified = App\Models\Realisasi::where('diverifikasi', false)->count();
+          $debugUnapproved = App\Models\TargetKPI::where('disetujui', false)->count();
+          $debugTotal = $debugUnverified + $debugUnapproved;
+          $allRealisasi = App\Models\Realisasi::count();
+        @endphp
+
+        console.log('� Data dari Backend:');
+        console.log('- Total realisasi di database:', {{ $allRealisasi }});
+        console.log('- Realisasi belum diverifikasi:', {{ $debugUnverified }});
+        console.log('- Target belum disetujui:', {{ $debugUnapproved }});
+        console.log('- Total notifikasi seharusnya:', {{ $debugTotal }});
+
+        if (notificationBadge) {
+          const realisasiCount = parseInt(notificationBadge.getAttribute('data-realisasi')) || 0;
+          const targetCount = parseInt(notificationBadge.getAttribute('data-target')) || 0;
+          const badgeText = notificationBadge.textContent.trim();
+
+          console.log('🎯 Badge Element Found:');
+          console.log('- Badge text:', badgeText);
+          console.log('- Data realisasi:', realisasiCount);
+          console.log('- Data target:', targetCount);
+          console.log('- Badge classes:', notificationBadge.className);
+          console.log('- Badge visible:', window.getComputedStyle(notificationBadge).display !== 'none');
+
+          // Verification check
+          if ({{ $debugTotal }} > 0 && badgeText === '') {
+            console.error('❌ MASALAH: Ada notifikasi tapi badge kosong!');
+          } else if ({{ $debugTotal }} === 0 && badgeText !== '') {
+            console.error('❌ MASALAH: Tidak ada notifikasi tapi badge terisi!');
+          } else if (parseInt(badgeText) === {{ $debugTotal }}) {
+            console.log('✅ Badge berfungsi dengan benar!');
+          } else {
+            console.warn('⚠️ Badge count tidak match dengan data backend');
+          }
+
+        } else {
+          console.log('❌ Badge element tidak ditemukan');
+          if ({{ $debugTotal }} > 0) {
+            console.error('❌ MASALAH SERIUS: Ada notifikasi tapi badge tidak ada!');
+            console.log('🔧 Kemungkinan penyebab:');
+            console.log('   - CSS display:none');
+            console.log('   - JavaScript error');
+            console.log('   - HTML tidak ter-render');
+          }
+        }
+      @else
+        console.log('👤 User bukan asisten_manager, badge tidak ditampilkan');
+      @endif
+
+      // Dropdown debugging
+      @if(Auth::check() && Auth::user()->role === 'asisten_manager')
+        console.log('\n📋 Dropdown Debug:');
+
+        // Cek dropdown elements
+        const dropdownSections = document.querySelectorAll('.notification-section');
+        console.log('- Dropdown sections ditemukan:', dropdownSections.length);
+
+        // Tampilkan detail setiap section
+        dropdownSections.forEach((section, index) => {
+          const header = section.querySelector('h6');
+          const items = section.querySelectorAll('.notification-item');
+          console.log(`  Section ${index + 1}: "${header?.textContent || 'No header'}" (${items.length} items)`);
+        });
+
+        // Check specific sections
+        const urgentSection = document.querySelector('.urgent-section');
+        if ({{ $debugUnverified }} > 0) {
+          if (urgentSection) {
+            console.log('✅ Urgent section (realisasi) ditemukan');
+          } else {
+            console.error('❌ MASALAH: Ada realisasi tapi urgent-section tidak ditemukan!');
+          }
+        }
+
+        console.log('📊 Tips: Silakan input realisasi/target baru untuk test badge');
+      @endif
+
       // Notifikasi dropdown
       const notificationBtn = document.getElementById('notificationBtn');
       const notificationDropdown = document.getElementById('notificationDropdown');
       const closeNotification = document.getElementById('closeNotification');
 
       if (notificationBtn && notificationDropdown) {
+        // Event listener sederhana untuk toggle dropdown
         notificationBtn.addEventListener('click', function(e) {
-          e.stopPropagation();
-          notificationDropdown.classList.toggle('show');
+          // Hanya cegah jika klik pada bell icon, bukan pada dropdown content
+          if (e.target.classList.contains('fa-bell') || e.target === this) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const isShown = notificationDropdown.classList.contains('show');
+
+            if (isShown) {
+              notificationDropdown.classList.remove('show');
+              console.log('🔔 Notifikasi ditutup');
+            } else {
+              notificationDropdown.classList.add('show');
+              console.log('🔔 Notifikasi dibuka');
+            }
+          }
         });
 
+        // Event listener untuk tombol close
         if (closeNotification) {
-          closeNotification.addEventListener('click', function() {
+          closeNotification.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             notificationDropdown.classList.remove('show');
+            console.log('🔔 Notifikasi ditutup via tombol close');
           });
         }
 
-        // Klik di luar dropdown untuk menutup
+        // Klik di luar untuk menutup dropdown
         document.addEventListener('click', function(e) {
-          if (!notificationDropdown.contains(e.target) && e.target !== notificationBtn) {
+          if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
             notificationDropdown.classList.remove('show');
           }
         });
+
+        // SIMPLE: Event listener untuk semua link notifikasi
+        setTimeout(() => {
+          const notificationLinks = document.querySelectorAll('.notification-item');
+          console.log('� Setting up ' + notificationLinks.length + ' notification links');
+
+          notificationLinks.forEach((link, index) => {
+            link.addEventListener('click', function(e) {
+              console.log('🔗 Link clicked:', this.href);
+
+              // Tutup dropdown
+              notificationDropdown.classList.remove('show');
+
+              // Force navigation jika diperlukan
+              setTimeout(() => {
+                if (this.href && this.href !== '#') {
+                  window.location.href = this.href;
+                }
+              }, 50);
+            });
+          });
+        }, 500);
+      } else {
+        console.error('🚨 Elemen notifikasi tidak ditemukan:', {
+          btn: !!notificationBtn,
+          dropdown: !!notificationDropdown
+        });
       }
+
+      // DEBUGGING: Test semua link di halaman
+      setTimeout(() => {
+        const allNotificationLinks = document.querySelectorAll('.notification-item');
+        console.log('🔍 DEBUGGING: Total notification links found:', allNotificationLinks.length);
+
+        allNotificationLinks.forEach((link, index) => {
+          console.log(`Link ${index}:`, {
+            href: link.href,
+            id: link.getAttribute('data-id'),
+            type: link.getAttribute('data-type'),
+            visible: link.offsetParent !== null,
+            clickable: getComputedStyle(link).pointerEvents !== 'none'
+          });
+
+          // Test manual click
+          link.addEventListener('contextmenu', function(e) {
+            console.log('🖱️ RIGHT CLICK test pada:', this.href);
+          });
+        });
+      }, 1000);
     });
   </script>
 

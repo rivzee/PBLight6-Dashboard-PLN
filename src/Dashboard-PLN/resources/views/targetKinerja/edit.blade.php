@@ -446,7 +446,33 @@
                     <div class="monthly-grid">
                         @php
                             $bulanNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                            $target_bulanan = old('target_bulanan', $target->target_bulanan) ?? [];
+                            $target_bulanan_raw = old('target_bulanan', $target->target_bulanan) ?? [];
+                            $target_bulanan_kumulatif = [];
+
+                            // Konversi data bulanan menjadi kumulatif untuk tampilan di form edit
+                            if (!empty($target_bulanan_raw)) {
+                                if (is_array($target_bulanan_raw)) {
+                                    $values = array_values($target_bulanan_raw);
+
+                                    // Jika data sudah dalam format bulanan (nilai per bulan), konversi ke kumulatif
+                                    $kumulatif = 0;
+                                    for ($i = 0; $i < 12; $i++) {
+                                        $nilaiPerBulan = $values[$i] ?? 0;
+                                        $kumulatif += $nilaiPerBulan;
+                                        $target_bulanan_kumulatif[$i] = round($kumulatif, 2);
+                                    }
+                                }
+                            }
+
+                            // Jika masih kosong, buat kumulatif dari target tahunan yang dibagi rata
+                            if (empty($target_bulanan_kumulatif)) {
+                                $targetPerBulan = $target->target_tahunan / 12;
+                                $kumulatif = 0;
+                                for ($i = 0; $i < 12; $i++) {
+                                    $kumulatif += $targetPerBulan;
+                                    $target_bulanan_kumulatif[$i] = round($kumulatif, 2);
+                                }
+                            }
                         @endphp
 
                         @for($i = 0; $i < 12; $i++)
@@ -454,13 +480,13 @@
                                 <label for="target_bulanan_{{ $i }}">{{ $bulanNames[$i] }}</label>
                                 <input type="number" class="form-control monthly-target"
                                        id="target_bulanan_{{ $i }}" name="target_bulanan[{{ $i }}]"
-                                       value="{{ $target_bulanan[$i] ?? 0 }}" step="0.01" min="0"
+                                       value="{{ $target_bulanan_kumulatif[$i] ?? 0 }}" step="0.01" min="0"
                                        {{ $target->disetujui && !auth()->user()->isMasterAdmin() ? 'readonly' : '' }}>
                             </div>
                         @endfor
                     </div>
                     <small class="form-text text-muted mt-2">
-                        <i class="fas fa-info-circle me-1"></i> Target bulanan opsional. Jika tidak diisi, akan menggunakan target tahunan / 12.
+                        <i class="fas fa-info-circle me-1"></i> Target bulanan dalam bentuk <strong>kumulatif</strong>. Contoh: jika target tahunan 120, maka Januari=10, Februari=20, Maret=30, dst.
                     </small>
                 </div>
 
@@ -482,20 +508,6 @@
                         <button type="submit" class="btn btn-primary btn-action">
                             <i class="fas fa-save"></i> Simpan Perubahan
                         </button>
-
-                        @if(auth()->user()->isMasterAdmin() && !$target->disetujui)
-                            <a href="{{ route('targetKinerja.approve', $target->id) }}"
-                               class="btn btn-success btn-action">
-                                <i class="fas fa-check-circle"></i> Setujui Target
-                            </a>
-                        @endif
-
-                        @if(auth()->user()->isMasterAdmin() && $target->disetujui)
-                            <a href="{{ route('targetKinerja.unapprove', $target->id) }}"
-                               class="btn btn-warning btn-action">
-                                <i class="fas fa-times-circle"></i> Batalkan Persetujuan
-                            </a>
-                        @endif
 
                         <a href="{{ route('targetKinerja.index', ['tahun_penilaian_id' => $tahunPenilaian->id]) }}" class="btn btn-secondary btn-action">
                             <i class="fas fa-times"></i> Batal
@@ -537,10 +549,12 @@
         const targetTahunan = parseFloat(this.value) || 0;
         const targetBulanan = targetTahunan / 12;
 
-        // Update semua input target bulanan
+        // Update semua input target bulanan dengan nilai KUMULATIF
         const bulananInputs = document.querySelectorAll('.monthly-target');
-        bulananInputs.forEach(input => {
-            input.value = targetBulanan.toFixed(2);
+        let kumulatif = 0;
+        bulananInputs.forEach((input, index) => {
+            kumulatif += targetBulanan;
+            input.value = kumulatif.toFixed(2);
         });
 
         // Update visualisasi
@@ -562,10 +576,12 @@
         const targetTahunan = parseFloat(document.getElementById('target_tahunan').value) || 0;
         const targetBulanan = targetTahunan / 12;
 
-        // Update semua input target bulanan
+        // Update semua input target bulanan dengan nilai KUMULATIF
         const bulananInputs = document.querySelectorAll('.monthly-target');
-        bulananInputs.forEach(input => {
-            input.value = targetBulanan.toFixed(2);
+        let kumulatif = 0;
+        bulananInputs.forEach((input, index) => {
+            kumulatif += targetBulanan;
+            input.value = kumulatif.toFixed(2);
         });
     });
 </script>

@@ -356,11 +356,9 @@
 
 @section('content')
 <div class="dashboard-content">
-    <!-- Header & Filter -->
     <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
-            <a href="{{ route('dataKinerja.pilar', ['tahun' => $tahun, 'bulan' => $bulan]) }}"
-               class="btn btn-sm btn-outline-secondary mb-2">
+            <a href="{{ route('dataKinerja.pilar') }}" class="btn btn-sm btn-outline-secondary mb-2">
                 <i class="fas fa-arrow-left"></i> Kembali
             </a>
             <h1 class="h3 mb-0 text-gray-800">Detail Pilar {{ $pilar->nama }}</h1>
@@ -374,9 +372,7 @@
                 </select>
                 <select name="bulan" class="form-control form-control-sm mr-2">
                     @foreach(range(1, 12) as $month)
-                        <option value="{{ $month }}" {{ $bulan == $month ? 'selected' : '' }}>
-                            {{ date('F', mktime(0, 0, 0, $month, 1)) }}
-                        </option>
+                        <option value="{{ $month }}" {{ $bulan == $month ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $month, 1)) }}</option>
                     @endforeach
                 </select>
                 <button type="submit" class="btn btn-sm btn-primary">
@@ -388,7 +384,6 @@
 
     @include('components.alert')
 
-    <!-- Kartu Header Pilar -->
     <div class="pilar-header-card pilar-{{ strtolower($pilar->kode) }}">
         <div class="pilar-icon-large">
             <i class="fas fa-chart-pie"></i>
@@ -411,16 +406,13 @@
                     <div class="pilar-stat-label">Indikator Tercapai</div>
                 </div>
                 <div class="pilar-stat-item">
-                    <div class="pilar-stat-value">
-                        {{ ($pilar->indikators_count ?? 0) - ($pilar->indikators_tercapai ?? 0) }}
-                    </div>
+                    <div class="pilar-stat-value">{{ ($pilar->indikators_count ?? 0) - ($pilar->indikators_tercapai ?? 0) }}</div>
                     <div class="pilar-stat-label">Belum Tercapai</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Grafik -->
     <div class="dashboard-grid">
         <div class="grid-span-6">
             <div class="chart-card">
@@ -446,7 +438,6 @@
         </div>
     </div>
 
-    <!-- Daftar Indikator -->
     <div class="grid-span-12">
         <h3 class="mb-4"><i class="fas fa-list-alt mr-2"></i> Daftar Indikator</h3>
     </div>
@@ -464,8 +455,8 @@
             <div class="indikator-progress">
                 <div class="indikator-progress-bar"
                      style="width: {{ $indikator->persentase ?? 0 }}%;
-                            background-color: {{ ($indikator->persentase >= 100) ? '#1cc88a' :
-                                                (($indikator->persentase >= 90) ? '#f6c23e' : '#e74a3b') }}">
+                            background-color: {{ ($indikator->persentase ?? 0) >= 90 ? '#1cc88a' :
+                                                 (($indikator->persentase ?? 0) >= 70 ? '#f6c23e' : '#e74a3b') }}">
                 </div>
             </div>
             <div class="indikator-values">
@@ -482,7 +473,11 @@
                     <div class="indikator-value-number">{{ number_format($indikator->persentase ?? 0, 2) }}%</div>
                 </div>
             </div>
-
+            <div class="indikator-actions">
+                <a href="{{ route('dataKinerja.indikator', $indikator->id) }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-search-plus fa-sm"></i> Detail
+                </a>
+            </div>
         </div>
         @endforeach
     </div>

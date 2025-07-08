@@ -200,86 +200,89 @@
 
 
 @section('content')
-<div class="dashboard-content">
-    <!-- Modern Page Header -->
-    <div class="page-header">
-        <div>
-            <h2><i class="fas fa-plus-circle me-2"></i>Input Realisasi KPI</h2>
-            <div class="page-header-subtitle">
-                Masukkan data realisasi harian kinerja indikator
+    <div class="dashboard-content">
+        <!-- Modern Page Header -->
+        <div class="page-header">
+            <div>
+                <h2><i class="fas fa-plus-circle me-2"></i>Input Realisasi KPI</h2>
+                <div class="page-header-subtitle">
+                    Masukkan data realisasi harian kinerja indikator
+                </div>
+            </div>
+            <div class="page-header-actions">
+                <a href="{{ route('realisasi.index') }}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-1"></i> Kembali
+                </a>
             </div>
         </div>
-        <div class="page-header-actions">
-            <a href="{{ route('realisasi.index') }}" class="btn btn-light">
-                <i class="fas fa-arrow-left me-1"></i> Kembali
-            </a>
-        </div>
-    </div>
 
-    @include('components.alert')
+        @include('components.alert')
 
-    <div class="form-card">
-        <div class="card-header">
-            <h6 class="m-0 font-weight-bold">Form Input Realisasi Harian</h6>
-        </div>
-        <div class="card-body">
-            <div class="info-box mb-4">
-                <h6><i class="fas fa-info-circle me-2"></i>Informasi Indikator</h6>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="info-row">
-                            <div class="info-label">Kode:</div>
-                            <div class="info-value">{{ $indikator->kode ?? '-' }}</div>
+        <div class="form-card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">Form Input Realisasi Harian</h6>
+            </div>
+            <div class="card-body">
+                <div class="info-box mb-4">
+                    <h6><i class="fas fa-info-circle me-2"></i>Informasi Indikator</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-row">
+                                <div class="info-label">Kode:</div>
+                                <div class="info-value">{{ $indikator->kode }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Nama:</div>
+                                <div class="info-value">{{ $indikator->nama }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Target Kumulatif:</div>
+                                <div class="info-value">
+                                    <strong>{{ number_format($targetKumulatif, 2) }}</strong>
+                                    <small class="text-muted">(Jan - {{ \Carbon\Carbon::create()->month($bulan)->format('M') }} {{ $tahun }})</small>
+                                </div>
+                            </div>
                         </div>
-                        <div class="info-row">
-                            <div class="info-label">Nama:</div>
-                            <div class="info-value">{{ $indikator->nama ?? '-' }}</div>
-                        </div>
-                        <div class="info-row">
-                            <div class="info-label">Target:</div>
-                            <div class="info-value">
-                                {{ number_format($indikator->target ?? 0, 2) }}
+                        <div class="col-md-6">
+                            <div class="info-row">
+                                <div class="info-label">Bidang:</div>
+                                <div class="info-value">{{ $indikator->bidang->nama }}</div>
+                            </div>
+                            <div class="info-row">
+                                <div class="info-label">Tanggal Input:</div>
+                                <div class="info-value">
+                                    <strong>{{ \Carbon\Carbon::parse($tanggal)->translatedFormat('d F Y') }}</strong>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="info-row">
-                            <div class="info-label">Bidang:</div>
-                            <div class="info-value">{{ $indikator->bidang->nama ?? '-' }}</div>
+                    @if($indikator->deskripsi)
+                        <div class="info-row mt-2">
+                            <div class="info-label">Deskripsi:</div>
+                            <div class="info-value">{{ $indikator->deskripsi }}</div>
                         </div>
-                        <div class="info-row">
-                            <div class="info-label">Tipe:</div>
-                            <div class="info-value">Harian</div>
-                        </div>
-                    </div>
+                    @endif
                 </div>
-                @if(!empty($indikator->deskripsi))
-                    <div class="info-row mt-2">
-                        <div class="info-label">Deskripsi:</div>
-                        <div class="info-value">{{ $indikator->deskripsi }}</div>
-                    </div>
-                @endif
-            </div>
 
-            <!-- FORM -->
-            <form id="formRealisasi" method="POST" action="{{ route('realisasi.store', $indikator->id) }}">
-                @csrf
+                <!-- FORM -->
+                <form id="formRealisasi" method="POST" action="{{ route('realisasi.store', $indikator->id) }}">
+                    @csrf
 
-                <input type="hidden" name="indikator_id" value="{{ $indikator->id }}">
+                    <input type="hidden" name="indikator_id" value="{{ $indikator->id }}">
 
-                <!-- Tanggal Realisasi -->
+                <!-- Tanggal Realisasi (Otomatis dari halaman index) -->
                 <div class="form-group mb-4">
                     <label for="tanggal_display">Tanggal Realisasi</label>
-                    <input type="text" class="form-control" id="tanggal_display"
-                           value="{{ \Carbon\Carbon::parse($tanggal ?? now())->translatedFormat('d F Y') }}" disabled>
+                    <input type="text" class="form-control" id="tanggal_display" value="{{ \Carbon\Carbon::parse($tanggal)->translatedFormat('d F Y') }}" disabled>
 
                     <!-- Input tersembunyi untuk dikirim ke backend -->
-                    <input type="hidden" name="tanggal" value="{{ $tanggal ?? now()->toDateString() }}">
+                    <input type="hidden" name="tanggal" value="{{ $tanggal }}">
 
                     <small class="form-text text-muted">
                         <i class="fas fa-calendar-alt me-1"></i> Tanggal ini diambil dari halaman sebelumnya.
                     </small>
                 </div>
+
 
                 <!-- Nilai -->
                 <div class="form-group mb-4">
@@ -294,7 +297,7 @@
                     </small>
                 </div>
 
-                <!-- Visual Progress -->
+                <!-- Visual Progress (opsional, bisa aktifkan via JS jika ingin) -->
                 <div id="targetVisualContainer" class="mb-4" style="display: none;">
                     <div class="target-visual">
                         <div class="target-progress" id="targetProgress" style="width: 0%"></div>
@@ -331,7 +334,6 @@
         </div>
     </div>
 </div>
-
 @endsection
 
 @section('scripts')
@@ -344,25 +346,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const targetProgress = document.getElementById('targetProgress');
     const targetValue = document.getElementById('targetValue');
     const targetVisual = document.getElementById('targetVisualContainer');
-    const target = {{ $indikator->target }};
+    const targetKumulatif = {{ $targetKumulatif }};
 
     // Update progress bar saat nilai berubah
     nilaiInput.addEventListener('input', function() {
         const nilai = parseFloat(this.value) || 0;
-        const percentage = Math.min((nilai / target) * 100, 100);
+        const percentage = Math.min((nilai / targetKumulatif) * 100, 110);
 
         // Update visual jika input valid
         if (nilai >= 0) {
             targetVisual.style.display = 'block';
-            targetProgress.style.width = percentage + '%';
+            targetProgress.style.width = Math.min(percentage, 100) + '%';
             targetValue.textContent = percentage.toFixed(1) + '%';
 
-            // Warna progress bar berdasarkan persentase
-            if (percentage >= 90) {
+            // Warna progress bar berdasarkan persentase dengan aturan baru
+            if (percentage >= 100) {
+                // Diatas 100% = Hijau
                 targetProgress.style.background = 'linear-gradient(90deg, #28a745, #75c94e)';
-            } else if (percentage >= 70) {
+            } else if (percentage >= 95) {
+                // 95% - 99% = Kuning
                 targetProgress.style.background = 'linear-gradient(90deg, #ffc107, #ffda65)';
             } else {
+                // Kurang dari 95% = Merah
                 targetProgress.style.background = 'linear-gradient(90deg, #dc3545, #ef7783)';
             }
         }

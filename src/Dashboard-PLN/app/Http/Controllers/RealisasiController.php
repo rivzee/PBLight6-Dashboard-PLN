@@ -23,7 +23,7 @@ public function index(Request $request)
     $tahun = $parsedDate->year;
     $bulan = $parsedDate->month;
 
-    // Query dasar indikator
+    // Ambil semua indikator dengan realisasi pada tanggal tersebut
     $indikatorsQuery = Indikator::with([
         'pilar',
         'bidang',
@@ -35,7 +35,6 @@ public function index(Request $request)
         }
     ]);
 
-    // Filter berdasarkan role
     if ($user->isAdmin()) {
         $bidang = $user->getBidang();
         if (!$bidang) {
@@ -51,29 +50,30 @@ public function index(Request $request)
     $grouped = [];
 
     foreach ($indikators as $indikator) {
-        $realisasi = $indikator->realisasis->first();
+        $realisasi = $indikator->realisasis->first(); // realisasi untuk tanggal tersebut
 
         $targetKPI = $indikator->targetKPI
             ->where('tahunPenilaian.tahun', $tahun)
             ->first();
 
-        // Ambil target bulanan kumulatif untuk bulan yang dipilih
-        $target_nilai = 0;
+        // Ambil target kumulatif untuk bulan
+        $target_kumulatif = 0;
         if ($targetKPI && is_array($targetKPI->target_bulanan)) {
-            $target_nilai = $targetKPI->target_bulanan[$bulan] ?? 0;
+            for ($i = 0; $i < $bulan; $i++) {
+                $target_kumulatif += $targetKPI->target_bulanan[$i] ?? 0;
+            }
         }
 
         $persentase = 0;
-        if ($realisasi && $target_nilai > 0) {
-            $persentase = ($realisasi->nilai / $target_nilai) * 100;
+        if ($realisasi && $target_kumulatif > 0) {
+            $persentase = ($realisasi->nilai / $target_kumulatif) * 100;
         }
 
-        // Batasi maksimum 110% hanya di tampilan
         $indikator->firstRealisasi = $realisasi;
         $indikator->persentase = min($persentase, 110);
-        $indikator->target_nilai = $target_nilai;
+        $indikator->target_nilai = $target_kumulatif;
 
-        // Grouping per Pilar atau Bidang
+        // Grouping
         if ($user->isMasterAdmin()) {
             $key = $indikator->pilar->kode ?? 'Tanpa Pilar';
             $grouped[$key]['nama'] = $indikator->pilar->nama ?? 'Tanpa Nama';
@@ -91,9 +91,6 @@ public function index(Request $request)
         'isMaster' => $user->isMasterAdmin(),
     ]);
 }
-
-
-
 
 
 
@@ -116,9 +113,48 @@ public function create($indikatorId)
     } else {
         abort(403, 'Anda tidak memiliki akses ke fitur ini.');
     }
-    $tanggal = request('tanggal', \Carbon\Carbon::today()->toDateString());
 
-    return view('realisasi.create', compact('indikator'));
+   // Ambil tanggal dari parameter GET (yang dipilih di halaman index)
+    // Jika tidak ada parameter tanggal, redirect kembali ke index dengan pesan error
+    // Ambil tanggal dari parameter GET (yang dipilih di halaman index)
+    $tanggal = request('tanggal');
+
+    if (!$tanggal) {
+        return redirect()->route('realisasi.index')->with('error', 'Tanggal harus dipilih terlebih dahulu.');
+    }
+
+    // Validasi format tanggal
+    try {
+        $parsedDate = \Carbon\Carbon::parse($tanggal);
+        $tahun = $parsedDate->year;
+        $bulan = $parsedDate->month;
+    } catch (\Exception $e) {
+        return redirect()->route('realisasi.index')->with('error', 'Format tanggal tidak valid.');
+    }
+
+    // Cek apakah sudah ada realisasi untuk tanggal tersebut
+    $existingRealisasi = Realisasi::where('indikator_id', $indikator->id)
+        ->whereDate('tanggal', $tanggal)
+        ->first();
+
+    if ($existingRealisasi) {
+        return redirect()->route('realisasi.index', ['tanggal' => $tanggal])
+            ->with('warning', 'Realisasi untuk tanggal ini sudah ada. Gunakan fitur edit untuk mengubah data.');
+    }
+
+    // Ambil target KPI untuk tahun ini
+    $targetKPI = TargetKPI::where('indikator_id', $indikator->id)
+        ->whereHas('tahunPenilaian', fn($q) => $q->where('tahun', $tahun))
+        ->first();
+
+    // Hitung target kumulatif dari Januari sampai bulan yang dipilih
+    $targetKumulatif = 0;
+    if ($targetKPI && is_array($targetKPI->target_bulanan)) {
+        for ($i = 0; $i < $bulan; $i++) {
+            $targetKumulatif += $targetKPI->target_bulanan[$i] ?? 0;
+        }
+    }
+    return view('realisasi.create', compact('indikator', 'tanggal', 'targetKumulatif', 'tahun', 'bulan'));
 }
 
 

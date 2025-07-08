@@ -214,37 +214,6 @@
         background-color: var(--pln-accent-bg);
     }
 
-    /* Target Status - Support Dark/Light Mode */
-    .target-status {
-        display: flex;
-        align-items: center;
-        padding: 5px 10px;
-        border-radius: 50px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        margin-top: 5px;
-        white-space: nowrap;
-    }
-
-    .target-status.approved {
-        background-color: rgba(40, 167, 69, 0.15);
-        color: #28a745;
-    }
-
-    .target-status.pending {
-        background-color: rgba(255, 193, 7, 0.15);
-        color: #ffc107;
-    }
-
-    .target-status.missing {
-        background-color: rgba(220, 53, 69, 0.15);
-        color: #dc3545;
-    }
-
-    .target-status i {
-        margin-right: 5px;
-    }
-
     /* Target Button Groups */
     .target-actions {
         display: flex;
@@ -406,6 +375,100 @@
             padding: 6px 10px;
         }
     }
+
+    /* Modal Styling */
+    .modal-lg {
+        max-width: 900px;
+    }
+
+    .modal-header.bg-primary {
+        background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue)) !important;
+    }
+
+    .progress {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        border-radius: 10px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    /* Card styling enhancements */
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-width: 2px;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .card.border-primary:hover {
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+    }
+
+    .card.border-success:hover {
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+    }
+
+    .card.border-info:hover {
+        box-shadow: 0 4px 15px rgba(23, 162, 184, 0.2);
+    }
+
+    /* Enhanced badge styling */
+    .badge {
+        font-size: 0.85em;
+        padding: 0.5em 0.75em;
+        border-radius: 0.375rem;
+    }
+
+    /* Chart container styling */
+    #targetChart {
+        max-height: 300px;
+    }
+
+    /* Table enhancements */
+    .table thead th {
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        padding: 1rem 0.75rem;
+    }
+
+    /* Link styling for "Lihat detail" */
+    .lihat-target {
+        color: var(--pln-blue);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .lihat-target:hover {
+        color: var(--pln-dark-blue);
+        text-decoration: underline;
+    }
+
+    /* Badge improvements */
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.4em 0.8em;
+    }
 </style>
 @endsection
 
@@ -479,7 +542,7 @@
     <!-- Dashboard Stats dengan card yang lebih modern -->
     <div class="dashboard-grid">
         <!-- Total Indikator -->
-        <div class="grid-span-3">
+        <div class="grid-span-4">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-tasks"></i>
@@ -490,56 +553,32 @@
             </div>
         </div>
 
-        <!-- Target Disetujui -->
-        <div class="grid-span-3">
+        <!-- Target Sudah Diatur -->
+        <div class="grid-span-4">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-check-circle"></i>
                 </div>
-                <div class="stat-title">Target Disetujui</div>
+                <div class="stat-title">Target Sudah Diatur</div>
                 <div class="stat-value">
                     @php
-                        $totalApproved = 0;
+                        $totalSet = 0;
                         foreach($pilars as $pilar) {
                             foreach($pilar->indikators as $indikator) {
-                                if(isset($indikator->target_data) && $indikator->target_data->disetujui) {
-                                    $totalApproved++;
+                                if(isset($indikator->target_data)) {
+                                    $totalSet++;
                                 }
                             }
                         }
-                        echo $totalApproved;
+                        echo $totalSet;
                     @endphp
                 </div>
-                <div class="stat-description">Indikator dengan target disetujui</div>
-            </div>
-        </div>
-
-        <!-- Menunggu Persetujuan -->
-        <div class="grid-span-3">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-title">Menunggu Persetujuan</div>
-                <div class="stat-value">
-                    @php
-                        $totalPending = 0;
-                        foreach($pilars as $pilar) {
-                            foreach($pilar->indikators as $indikator) {
-                                if(isset($indikator->target_data) && !$indikator->target_data->disetujui) {
-                                    $totalPending++;
-                                }
-                            }
-                        }
-                        echo $totalPending;
-                    @endphp
-                </div>
-                <div class="stat-description">Indikator menunggu persetujuan</div>
+                <div class="stat-description">Indikator dengan target yang sudah diatur</div>
             </div>
         </div>
 
         <!-- Belum Diatur -->
-        <div class="grid-span-3">
+        <div class="grid-span-4">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -583,12 +622,11 @@
                             <tr>
                                 <th width="5%">No</th>
                                 <th width="10%">Kode</th>
-                                <th width="25%">Indikator</th>
+                                <th width="30%">Indikator</th>
                                 <th width="8%">Bobot</th>
                                 <th width="15%">Target Tahunan</th>
-                                <th width="15%">Target Bulanan</th>
-                                <th width="10%">Status</th>
-                                <th width="15%">Aksi</th>
+                                <th width="20%">Target Bulanan</th>
+                                <th width="12%">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -630,12 +668,13 @@
                                                 <a href="#"
                                                     class="lihat-target"
                                                     data-kode="{{ $indikator->kode }}"
+                                                    data-nama="{{ $indikator->nama }}"
+                                                    data-tahunan="{{ $indikator->target_data->target_tahunan }}"
                                                     data-bulanan='@json($indikator->target_data->target_bulanan)'
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#monthlyModal">
                                                     Lihat detail
                                                 </a>
-
                                             </div>
 
                                         @else
@@ -650,23 +689,6 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if(isset($indikator->target_data))
-                                            @if($indikator->target_data->disetujui)
-                                                <div class="target-status approved">
-                                                    <i class="fas fa-check-circle"></i> Disetujui
-                                                </div>
-                                            @else
-                                                <div class="target-status pending">
-                                                    <i class="fas fa-clock"></i> Menunggu
-                                                </div>
-                                            @endif
-                                        @else
-                                            <div class="target-status missing">
-                                                <i class="fas fa-exclamation-circle"></i> Belum Ada
-                                            </div>
-                                        @endif
-                                    </td>
-                                    <td>
                                         @if(!$tahunPenilaian->is_locked)
                                             <div class="target-actions">
                                                 @if(isset($indikator->target_data))
@@ -674,18 +696,6 @@
                                                        class="btn btn-sm btn-info">
                                                         <i class="fas fa-edit"></i> Edit
                                                     </a>
-
-                                                    @if(!$indikator->target_data->disetujui)
-                                                        <a href="{{ route('targetKinerja.approve', $indikator->target_data->id) }}"
-                                                           class="btn btn-sm btn-success">
-                                                            <i class="fas fa-check"></i> Setujui
-                                                        </a>
-                                                    @else
-                                                        <a href="{{ route('targetKinerja.unapprove', $indikator->target_data->id) }}"
-                                                           class="btn btn-sm btn-warning">
-                                                            <i class="fas fa-times"></i> Batal
-                                                        </a>
-                                                    @endif
                                                 @else
                                                     <a href="{{ route('targetKinerja.create', ['indikator_id' => $indikator->id, 'tahun_penilaian_id' => $tahunPenilaian->id]) }}"
                                                        class="btn btn-sm btn-primary">
@@ -702,7 +712,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center">Tidak ada indikator untuk pilar ini</td>
+                                    <td colspan="7" class="text-center">Tidak ada indikator untuk pilar ini</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -714,17 +724,46 @@
     @endif
 </div>
 <div class="modal fade" id="monthlyModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-chart-line me-2"></i>
+          <span id="modal-title-text">Target Bulanan Detail</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <table class="table table-bordered mb-0">
-          <thead><tr><th>Bulan</th><th>Target</th></tr></thead>
-          <tbody id="tbody-target"></tbody>
-        </table>
+
+
+        <!-- Table -->
+        <div class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead class="table-primary">
+              <tr>
+                <th width="33%" class="text-center">
+                  <i class="fas fa-calendar me-1"></i>Bulan
+                </th>
+                <th width="33%" class="text-center">
+                  <i class="fas fa-target me-1"></i>Target Bulanan
+                </th>
+                <th width="34%" class="text-center">
+                  <i class="fas fa-chart-area me-1"></i>Target Kumulatif
+                </th>
+              </tr>
+            </thead>
+            <tbody id="tbody-target">
+              <!-- Data akan diisi oleh JavaScript -->
+            </tbody>
+          </table>
+        </div>
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i>Tutup
+        </button>
       </div>
     </div>
   </div>
@@ -734,24 +773,141 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // tooltip tetap
+  // Initialize tooltips
   document.querySelectorAll('[data-bs-toggle="tooltip"]')
            .forEach(el => new bootstrap.Tooltip(el));
 
-  const modal  = document.getElementById('monthlyModal');
-  const tbody  = modal.querySelector('#tbody-target');
-  const title  = modal.querySelector('.modal-title');
+  const modal = document.getElementById('monthlyModal');
+  const tbody = modal.querySelector('#tbody-target');
+  const modalTitle = modal.querySelector('#modal-title-text');
 
-  document.querySelectorAll('.lihat-target').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const data = JSON.parse(btn.dataset.bulanan);
-      const kode = btn.dataset.kode;
+  // Debug: Check if all elements exist
+  console.log('Modal elements check:');
+  console.log('modal:', modal);
+  console.log('tbody:', tbody);
+  console.log('modalTitle:', modalTitle);
 
-      title.textContent = `Target Bulanan: ${kode}`;
-      tbody.innerHTML = data.map((v, i) => {
-        const bulan = new Date(2025, i).toLocaleString('id-ID', {month:'long'});
-        return `<tr><td>${bulan}</td><td>${Number(v).toFixed(2)}</td></tr>`;
-      }).join('');
+  // Additional check
+  if (!modal) {
+    console.error('Modal #monthlyModal not found!');
+    return;
+  }
+
+  if (!tbody) {
+    console.error('tbody #tbody-target not found!');
+    console.log('Available tbody elements:', document.querySelectorAll('tbody'));
+    return;
+  }
+
+  console.log('All modal elements found successfully');
+
+  // Nama bulan dalam bahasa Indonesia
+  const namaBulan = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+
+  // Function untuk format angka
+  function formatNumber(num) {
+    return Number(num).toFixed(2);
+  }
+
+  // Event listener untuk tombol "Lihat detail"
+  const detailButtons = document.querySelectorAll('.lihat-target');
+  console.log('Found detail buttons:', detailButtons.length);
+
+  if (detailButtons.length === 0) {
+    console.warn('No .lihat-target buttons found! Make sure the PHP data is rendered correctly.');
+  }
+
+  detailButtons.forEach((btn, index) => {
+    console.log(`Button ${index + 1}:`, btn);
+    console.log(`  - data-kode: ${btn.dataset.kode}`);
+    console.log(`  - data-bulanan: ${btn.dataset.bulanan}`);
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      console.log('Button clicked:', btn);
+
+      try {
+        const dataStr = btn.dataset.bulanan;
+        const kode = btn.dataset.kode;
+        const nama = btn.dataset.nama || kode;
+        const targetTahunanRaw = btn.dataset.tahunan || '0';
+
+        console.log('Raw data string:', dataStr);
+        console.log('Kode:', kode);
+        console.log('Target tahunan raw:', targetTahunanRaw);
+
+        // Parse data bulanan
+        let data;
+        try {
+          data = JSON.parse(dataStr);
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError);
+          data = [0,0,0,0,0,0,0,0,0,0,0,0]; // Default 12 bulan dengan nilai 0
+        }
+
+        console.log('Parsed data:', data);
+
+        // Pastikan data adalah array dengan 12 elemen
+        if (!Array.isArray(data)) {
+          data = [0,0,0,0,0,0,0,0,0,0,0,0];
+        }
+
+        // Pastikan ada 12 bulan
+        while (data.length < 12) {
+          data.push(0);
+        }
+
+        // Update modal title
+        modalTitle.textContent = `Target Bulanan: ${nama} (${kode})`;
+
+        // Generate table rows dengan target bulanan dan kumulatif
+        let kumulatif = 0;
+        const tableRows = data.map((target, index) => {
+          kumulatif += Number(target);
+          return `
+            <tr>
+              <td class="text-start">
+                <strong>${namaBulan[index]}</strong>
+              </td>
+              <td class="text-center">
+                <strong>${formatNumber(target)}</strong>
+              </td>
+              <td class="text-center">
+                <strong>${formatNumber(kumulatif)}</strong>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        console.log('Generated table rows:', tableRows);
+
+        // Pastikan tbody ada dan update kontennya
+        if (tbody) {
+          tbody.innerHTML = tableRows;
+          console.log('Table updated successfully');
+        } else {
+          console.error('tbody element not found');
+        }
+
+      } catch (error) {
+        console.error('Error processing data:', error);
+
+        // Fallback: tampilkan pesan error di tabel
+        if (tbody) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="3" class="text-center text-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Error loading data: ${error.message}
+              </td>
+            </tr>
+          `;
+        }
+      }
     });
   });
 });

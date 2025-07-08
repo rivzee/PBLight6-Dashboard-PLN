@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Badge Notifikasi PLN</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-container { max-width: 800px; margin: 0 auto; }
+        .test-badge {
+            position: relative;
+            display: inline-block;
+            background: #0a4d85;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 10px;
+        }
+        .notification-badge {
+            position: absolute !important;
+            top: -8px !important;
+            right: -8px !important;
+            background-color: #ff4757 !important;
+            color: white !important;
+            border-radius: 12px !important;
+            min-width: 20px !important;
+            height: 20px !important;
+            padding: 0 6px !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 2px 8px rgba(255, 71, 87, 0.4) !important;
+            border: 2px solid white !important;
+            z-index: 1000 !important;
+            animation: pulse 2s infinite !important;
+        }
+
+        .realisasi-notifications {
+            background: linear-gradient(135deg, #ff4757, #ff3838) !important;
+        }
+
+        .target-notifications {
+            background: linear-gradient(135deg, #2ed573, #26d060) !important;
+        }
+
+        .mixed-notifications {
+            background: linear-gradient(135deg, #7c4dff, #651fff) !important;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .info {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔔 Test Badge Notifikasi PLN Dashboard</h1>
+
+        <div class="info">
+            <strong>Instruksi:</strong> Badge di bawah ini menunjukkan bagaimana badge notifikasi seharusnya terlihat di dashboard Anda.
+        </div>
+
+        <h3>Test Badge Types:</h3>
+
+        <div class="test-badge">
+            <i class="fas fa-bell"></i> Realisasi Only
+            <span class="notification-badge realisasi-notifications">3</span>
+        </div>
+
+        <div class="test-badge">
+            <i class="fas fa-bell"></i> Target Only
+            <span class="notification-badge target-notifications">2</span>
+        </div>
+
+        <div class="test-badge">
+            <i class="fas fa-bell"></i> Mixed (Realisasi + Target)
+            <span class="notification-badge mixed-notifications">5</span>
+        </div>
+
+        <div class="test-badge">
+            <i class="fas fa-bell"></i> No Notifications
+            <!-- No badge shown -->
+        </div>
+
+        <h3>Debug Information:</h3>
+        <div id="debug-info"></div>
+
+        <h3>Troubleshooting:</h3>
+        <ul>
+            <li><strong>Badge tidak muncul:</strong> Pastikan ada data realisasi yang belum diverifikasi atau target yang belum disetujui</li>
+            <li><strong>Badge muncul tapi salah angka:</strong> Periksa query database untuk menghitung notifikasi</li>
+            <li><strong>Badge tertutup elemen lain:</strong> Periksa z-index CSS</li>
+            <li><strong>User bukan asisten_manager:</strong> Badge hanya muncul untuk role asisten_manager</li>
+        </ul>
+
+        <div class="info">
+            <strong>Untuk mengecek di dashboard asli:</strong><br>
+            1. Buka browser Developer Tools (F12)<br>
+            2. Lihat Console untuk debug information<br>
+            3. Periksa apakah ada error atau warning<br>
+            4. Pastikan role user adalah 'asisten_manager'
+        </div>
+    </div>
+
+    <script>
+        // Simulate debug info
+        document.getElementById('debug-info').innerHTML = `
+            <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace;">
+                <div>✅ Badge elements found: 3</div>
+                <div>✅ Notification button found</div>
+                <div>✅ User role: asisten_manager</div>
+                <div>📊 Realisasi belum diverifikasi: 3</div>
+                <div>📊 Target belum disetujui: 2</div>
+                <div>📈 Total notifikasi: 5</div>
+                <div>🎯 Badge should be visible: YES</div>
+            </div>
+        `;
+    </script>
+</body>
+</html>

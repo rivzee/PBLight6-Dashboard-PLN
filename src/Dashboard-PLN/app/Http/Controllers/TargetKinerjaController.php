@@ -129,10 +129,26 @@ class TargetKinerjaController extends Controller
         }
 
         $targetTahunan = $request->target_tahunan;
-        $perBulan = $targetTahunan / 12;
+
+        // Ambil target bulanan dari input user (dalam format kumulatif) atau bagi rata jika tidak ada
+        $targetBulananInput = $request->target_bulanan ?? [];
         $targetBulanan = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $targetBulanan[$i] = round($perBulan * $i, 2);
+
+        // Jika ada input target bulanan dari user, konversi dari kumulatif ke bulanan
+        if (!empty($targetBulananInput) && array_sum($targetBulananInput) > 0) {
+            // Konversi dari kumulatif ke bulanan (nilai per bulan)
+            $targetBulanan[0] = round(floatval($targetBulananInput[0] ?? 0), 2);
+            for ($i = 1; $i < 12; $i++) {
+                $nilaiKumulatif = floatval($targetBulananInput[$i] ?? 0);
+                $nilaiKumulatifSebelum = floatval($targetBulananInput[$i-1] ?? 0);
+                $targetBulanan[$i] = round($nilaiKumulatif - $nilaiKumulatifSebelum, 2);
+            }
+        } else {
+            // Jika tidak ada input, bagi rata target tahunan ke 12 bulan
+            $perBulan = $targetTahunan / 12;
+            for ($i = 0; $i < 12; $i++) {
+                $targetBulanan[$i] = round($perBulan, 2);
+            }
         }
 
         TargetKPI::create([
@@ -142,7 +158,9 @@ class TargetKinerjaController extends Controller
             'target_tahunan' => $targetTahunan,
             'target_bulanan' => $targetBulanan,
             'keterangan' => $request->keterangan,
-            'disetujui' => false,
+            'disetujui' => true, // Langsung disetujui tanpa perlu approval
+            'disetujui_oleh' => $user->id,
+            'disetujui_pada' => now(),
         ]);
 
         $indikator->update(['target' => $targetTahunan]);
@@ -181,21 +199,32 @@ class TargetKinerjaController extends Controller
             return redirect()->route('targetKinerja.index')->with('error', 'Tidak memiliki akses.');
         }
 
-        if ($target->disetujui && !$user->isMasterAdmin()) {
-            return redirect()->route('targetKinerja.index', ['tahun_penilaian_id' => $target->tahun_penilaian_id])
-                ->with('error', 'Target sudah disetujui.');
-        }
-
         $request->validate([
             'target_tahunan' => 'required|numeric|min:0',
             'keterangan' => 'nullable|string',
         ]);
 
         $targetTahunan = $request->target_tahunan;
-        $perBulan = $targetTahunan / 12;
+
+        // Ambil target bulanan dari input user (dalam format kumulatif) atau bagi rata jika tidak ada
+        $targetBulananInput = $request->target_bulanan ?? [];
         $targetBulanan = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $targetBulanan[$i] = round($perBulan * $i, 2);
+
+        // Jika ada input target bulanan dari user, konversi dari kumulatif ke bulanan
+        if (!empty($targetBulananInput) && array_sum($targetBulananInput) > 0) {
+            // Konversi dari kumulatif ke bulanan (nilai per bulan)
+            $targetBulanan[0] = round(floatval($targetBulananInput[0] ?? 0), 2);
+            for ($i = 1; $i < 12; $i++) {
+                $nilaiKumulatif = floatval($targetBulananInput[$i] ?? 0);
+                $nilaiKumulatifSebelum = floatval($targetBulananInput[$i-1] ?? 0);
+                $targetBulanan[$i] = round($nilaiKumulatif - $nilaiKumulatifSebelum, 2);
+            }
+        } else {
+            // Jika tidak ada input, bagi rata target tahunan ke 12 bulan
+            $perBulan = $targetTahunan / 12;
+            for ($i = 0; $i < 12; $i++) {
+                $targetBulanan[$i] = round($perBulan, 2);
+            }
         }
 
         $target->update([
@@ -203,6 +232,9 @@ class TargetKinerjaController extends Controller
             'target_bulanan' => $targetBulanan,
             'keterangan' => $request->keterangan,
             'user_id' => $user->id,
+            'disetujui' => true, // Langsung disetujui tanpa perlu approval
+            'disetujui_oleh' => $user->id,
+            'disetujui_pada' => now(),
         ]);
 
         $target->indikator->update(['target' => $targetTahunan]);

@@ -1,0 +1,53 @@
+<!-- Debug Badge Notifikasi -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== DEBUG BADGE NOTIFIKASI ===');
+
+    // Cari semua elemen badge
+    const allBadges = document.querySelectorAll('[class*="notification-badge"]');
+    console.log('Total badge elements found:', allBadges.length);
+
+    allBadges.forEach((badge, i) => {
+        console.log(`Badge ${i+1}:`);
+        console.log('- Class:', badge.className);
+        console.log('- Text:', badge.textContent.trim());
+        console.log('- Display:', window.getComputedStyle(badge).display);
+        console.log('- Visibility:', window.getComputedStyle(badge).visibility);
+        console.log('- Position:', window.getComputedStyle(badge).position);
+        console.log('- Z-index:', window.getComputedStyle(badge).zIndex);
+
+        const rect = badge.getBoundingClientRect();
+        console.log('- Dimensions:', rect.width + 'x' + rect.height);
+        console.log('- Screen position:', rect.left + ',' + rect.top);
+        console.log('---');
+    });
+
+    // Cari notification button
+    const notificationBtn = document.getElementById('notificationBtn');
+    if (notificationBtn) {
+        console.log('✅ Notification button found');
+        const bellIcon = notificationBtn.querySelector('i.fa-bell');
+        if (bellIcon) {
+            console.log('✅ Bell icon found');
+        } else {
+            console.log('❌ Bell icon NOT found');
+        }
+    } else {
+        console.log('❌ Notification button NOT found');
+    }
+
+    // Force badge to show for testing
+    const mainBadge = document.querySelector('#main-notification-badge');
+    if (mainBadge) {
+        console.log('✅ Main badge found, forcing visibility');
+        mainBadge.style.display = 'flex !important';
+        mainBadge.style.visibility = 'visible !important';
+        mainBadge.style.opacity = '1 !important';
+        mainBadge.style.zIndex = '9999';
+        mainBadge.style.backgroundColor = '#ff0000'; // Red for testing
+        mainBadge.style.border = '2px solid yellow'; // Yellow border for testing
+    }
+
+    console.log('=== END DEBUG ===');
+});
+</script>

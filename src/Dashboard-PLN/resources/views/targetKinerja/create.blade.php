@@ -361,7 +361,7 @@
                     <label>Target Bulanan</label>
                     <div class="alert-custom alert-info">
                         <i class="fas fa-info-circle"></i>
-                        <div>Jika target bulanan tidak diisi, maka target tahunan akan dibagi rata ke 12 bulan.</div>
+                        <div>Target bulanan dalam bentuk <strong>kumulatif</strong>. Contoh: jika target tahunan 120, maka Januari=10, Februari=20, Maret=30, dst.</div>
                     </div>
 
                     <div class="monthly-grid">
@@ -373,7 +373,7 @@
                                            name="target_bulanan[{{ $i-1 }}]"
                                            id="bulan_{{ $i-1 }}"
                                            step="0.01"
-                                           value="{{ old('target_bulanan.'.$i-1, round($indikator->target/12, 2)) }}">
+                                           value="{{ old('target_bulanan.'.$i-1, round(($indikator->target/12) * $i, 2)) }}">
                                 </div>
                             </div>
                         @endfor
@@ -437,10 +437,12 @@
         const targetTahunan = parseFloat(this.value) || 0;
         const targetBulanan = targetTahunan / 12;
 
-        // Update semua input target bulanan
+        // Update semua input target bulanan dengan nilai KUMULATIF
         const bulananInputs = document.querySelectorAll('.monthly-target');
-        bulananInputs.forEach(input => {
-            input.value = targetBulanan.toFixed(2);
+        let kumulatif = 0;
+        bulananInputs.forEach((input, index) => {
+            kumulatif += targetBulanan;
+            input.value = kumulatif.toFixed(2);
         });
 
         // Update visualisasi
