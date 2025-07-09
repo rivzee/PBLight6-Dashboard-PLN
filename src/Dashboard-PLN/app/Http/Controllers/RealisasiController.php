@@ -16,78 +16,84 @@ class RealisasiController extends Controller
 
 
 public function index(Request $request)
-{
-    $user = Auth::user();
-    $tahun = $request->input('tahun', Carbon::today()->year);
-    $bulan = $request->input('bulan', Carbon::today()->month);
+    {
+        $user = Auth::user();
+        $tahun = $request->input('tahun', Carbon::today()->year);
+        $bulan = $request->input('bulan', Carbon::today()->month);
 
-    // Ambil semua indikator dengan realisasi pada bulan dan tahun tersebut
-    $indikatorsQuery = Indikator::with([
-        'pilar',
-        'bidang',
-        'targetKPI' => function ($query) use ($tahun) {
-            $query->whereHas('tahunPenilaian', fn($q) => $q->where('tahun', $tahun));
-        },
-        'realisasis' => function ($query) use ($tahun, $bulan) {
-            $query->where('tahun', $tahun)->where('bulan', $bulan)->where('periode_tipe', 'bulanan');
-        }
-    ]);
+        $indikatorsQuery = Indikator::with([
+            'pilar',
+            'bidang',
+            'targetKPI' => function ($query) use ($tahun) {
+                $query->whereHas('tahunPenilaian', fn($q) => $q->where('tahun', $tahun));
+            },
+            'realisasis' => function ($query) use ($tahun, $bulan) {
+                $query->where('tahun', $tahun)->where('bulan', $bulan)->where('periode_tipe', 'bulanan');
+            }
+        ]);
 
-    if ($user->isAdmin()) {
-        $bidang = $user->getBidang();
-        if (!$bidang) {
-            return redirect()->route('dashboard')->with('error', 'Bidang tidak ditemukan.');
+        if ($user->isAdmin()) {
+            $bidang = $user->getBidang();
+            if (!$bidang) {
+                return redirect()->route('dashboard')->with('error', 'Bidang tidak ditemukan.');
+            }
+            $indikatorsQuery->where('bidang_id', $bidang->id);
+        } elseif (!$user->isMasterAdmin()) {
+            return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses.');
         }
-        $indikatorsQuery->where('bidang_id', $bidang->id);
-    } elseif (!$user->isMasterAdmin()) {
-        return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses.');
+
+        $indikators = $indikatorsQuery->orderBy('kode')->get();
+
+        $grouped = [];
+
+        foreach ($indikators as $indikator) {
+            $realisasi = $indikator->realisasis->first();
+
+            $targetKPI = $indikator->targetKPI
+                ->where('tahunPenilaian.tahun', $tahun)
+                ->first();
+
+            $target_bulanan = 0;
+            if ($targetKPI && is_array($targetKPI->target_bulanan)) {
+                $target_bulanan = $targetKPI->target_bulanan[$bulan - 1] ?? 0;
+            }
+
+            $persentase = 0;
+            if ($realisasi && $target_bulanan > 0) {
+                $persentase = ($realisasi->nilai / $target_bulanan) * 100;
+            }
+
+            $indikator->firstRealisasi = $realisasi;
+            $indikator->persentase = min($persentase, 110);
+            $indikator->target_nilai = $target_bulanan;
+
+            if ($realisasi && $target_bulanan > 0) {
+                $indikator->jenis_polaritas = Realisasi::getJenisPolaritas($indikator->kode);
+                $indikator->nilai_polaritas = round($realisasi->hitungPolaritas($target_bulanan), 2);
+            } else {
+                $indikator->jenis_polaritas = '-';
+                $indikator->nilai_polaritas = 0;
+            }
+
+            if ($user->isMasterAdmin()) {
+                $key = $indikator->pilar->kode ?? 'Tanpa Pilar';
+                $grouped[$key]['nama'] = $indikator->pilar->nama ?? 'Tanpa Nama';
+            } else {
+                $key = $indikator->bidang->kode ?? 'Tanpa Bidang';
+                $grouped[$key]['nama'] = $indikator->bidang->nama ?? 'Tanpa Nama';
+            }
+
+            $grouped[$key]['indikators'][] = $indikator;
+        }
+
+        return view('realisasi.index', [
+            'grouped' => $grouped,
+            'tahun' => $tahun,
+            'bulan' => $bulan,
+            'isMaster' => $user->isMasterAdmin(),
+        ]);
     }
 
-    $indikators = $indikatorsQuery->orderBy('kode')->get();
-
-    $grouped = [];
-
-    foreach ($indikators as $indikator) {
-        $realisasi = $indikator->realisasis->first(); // realisasi untuk bulan dan tahun tersebut
-
-        $targetKPI = $indikator->targetKPI
-            ->where('tahunPenilaian.tahun', $tahun)
-            ->first();
-
-        // Ambil target bulanan spesifik untuk bulan yang dipilih (index bulan - 1)
-        $target_bulanan = 0;
-        if ($targetKPI && is_array($targetKPI->target_bulanan)) {
-            $target_bulanan = $targetKPI->target_bulanan[$bulan - 1] ?? 0;
-        }
-
-        $persentase = 0;
-        if ($realisasi && $target_bulanan > 0) {
-            $persentase = ($realisasi->nilai / $target_bulanan) * 100;
-        }
-
-        $indikator->firstRealisasi = $realisasi;
-        $indikator->persentase = min($persentase, 110);
-        $indikator->target_nilai = $target_bulanan;
-
-        // Grouping
-        if ($user->isMasterAdmin()) {
-            $key = $indikator->pilar->kode ?? 'Tanpa Pilar';
-            $grouped[$key]['nama'] = $indikator->pilar->nama ?? 'Tanpa Nama';
-        } else {
-            $key = $indikator->bidang->kode ?? 'Tanpa Bidang';
-            $grouped[$key]['nama'] = $indikator->bidang->nama ?? 'Tanpa Nama';
-        }
-
-        $grouped[$key]['indikators'][] = $indikator;
-    }
-
-    return view('realisasi.index', [
-        'grouped' => $grouped,
-        'tahun' => $tahun,
-        'bulan' => $bulan,
-        'isMaster' => $user->isMasterAdmin(),
-    ]);
-}
 
 
 
@@ -167,6 +173,7 @@ public function store(Request $request, Indikator $indikator)
         'bulan' => 'required|integer|min:1|max:12',
         'nilai' => 'required|numeric|min:0',
         'keterangan' => 'nullable|string|max:1000',
+            'polaritas' => 'required|in:Positif,Negatif,Netral',
     ]);
 
     $tahun = $request->tahun;
@@ -209,7 +216,7 @@ public function store(Request $request, Indikator $indikator)
 
     // Buat tanggal untuk akhir bulan (untuk keperluan kompatibilitas)
     $tanggalAkhirBulan = Carbon::create($tahun, $bulan, 1)->endOfMonth();
-
+    
     $realisasi = new Realisasi([
         'indikator_id' => $indikator->id,
         'user_id' => $user->id,
@@ -218,7 +225,7 @@ public function store(Request $request, Indikator $indikator)
         'bulan' => $bulan,
         'periode_tipe' => 'bulanan',
         'nilai' => $request->nilai,
-        'persentase' => $targetBulanan > 0 ? ($request->nilai / $targetBulanan) * 100 : 0,
+        'persentase' => $targetBulanan > 0 ? min(($request->nilai / $targetBulanan) * 100, 110) : 0,
         'keterangan' => $request->keterangan,
         'diverifikasi' => false,
     ]);
@@ -327,7 +334,7 @@ public function store(Request $request, Indikator $indikator)
             'nilai' => $validated['nilai'],
             'keterangan' => $validated['keterangan'] ?? $realisasi->keterangan,
             'user_id' => $user->id,
-            'persentase' => $targetBulanan > 0 ? ($validated['nilai'] / $targetBulanan) * 100 : 0,
+            'persentase' => $targetBulanan > 0 ? min(($request->nilai / $targetBulanan) * 100, 110) : 0,
         ]);
 
         // Hitung ulang dan update polaritas

@@ -270,6 +270,23 @@
                     <input type="hidden" name="tahun" value="{{ $tahun }}">
                 </div>
 
+                <!-- Polaritas -->
+                <div class="form-group mb-4">
+                    <label for="polaritas">Jenis Polaritas <span class="text-danger">*</span></label>
+                    <select name="polaritas" id="polaritas" class="form-control @error('polaritas') is-invalid @enderror" required>
+                        <option value="">-- Pilih Polaritas --</option>
+                        <option value="Positif" {{ old('polaritas') == 'Positif' ? 'selected' : '' }}>Positif</option>
+                        <option value="Negatif" {{ old('polaritas') == 'Negatif' ? 'selected' : '' }}>Negatif</option>
+                        <option value="Netral" {{ old('polaritas') == 'Netral' ? 'selected' : '' }}>Netral</option>
+                    </select>
+                    @error('polaritas')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                    <small class="form-text text-muted">
+                        <i class="fas fa-adjust me-1"></i> Pilih jenis polaritas indikator ini.
+                    </small>
+                </div>
+
 
                 <!-- Nilai -->
                 <div class="form-group mb-4">
@@ -320,7 +337,6 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Menangani submit form untuk mencegah multiple submission
     const form = document.getElementById('formRealisasi');
     const submitBtn = document.getElementById('btnSubmit');
     const nilaiInput = document.getElementById('nilai');
@@ -328,54 +344,78 @@ document.addEventListener('DOMContentLoaded', function() {
     const targetValue = document.getElementById('targetValue');
     const targetVisual = document.getElementById('targetVisualContainer');
     const targetBulanan = {{ $targetBulanan }};
+    const polaritasSelect = document.getElementById('polaritas');
+    const arrowContainer = document.getElementById('arrowContainer');
+    const arrowSymbol = document.getElementById('arrowSymbol');
 
-    // Update progress bar saat nilai berubah
+    function updateArrow(nilai, target, polaritas) {
+        let result = 0;
+        let arrow = "→";
+
+        if (polaritas === "Positif") {
+            result = (nilai / target) * 100;
+            arrow = result >= 100 ? "↑" : "↓";
+        } else if (polaritas === "Negatif") {
+            result = (2 - (nilai / target)) * 100;
+            arrow = nilai <= target ? "↑" : "↓";
+        } else if (polaritas === "Netral") {
+            let deviation = Math.abs(nilai - target) / target;
+            arrow = deviation <= 0.05 ? "→" : "↓";
+        }
+
+        arrowSymbol.textContent = arrow;
+        arrowContainer.style.display = "block";
+    }
+
+    // Trigger saat nilai diinput
     nilaiInput.addEventListener('input', function() {
         const nilai = parseFloat(this.value) || 0;
         const percentage = (nilai / targetBulanan) * 100;
 
-        // Update visual jika input valid
         if (nilai >= 0) {
             targetVisual.style.display = 'block';
-
-            // Update progress bar width berdasarkan persentase (maksimal 100%)
             const progressWidth = Math.min(percentage, 100);
             targetProgress.style.width = progressWidth + '%';
-
-            // Update text dengan persentase biasa
             targetValue.textContent = percentage.toFixed(1) + '%';
 
-            // Update warna progress bar berdasarkan ketentuan NKO
             if (nilai <= 0) {
-                // Belum dilakukan proses pengukuran = Abu-abu
                 targetProgress.style.background = '#6c757d';
             } else if (percentage >= 100) {
-                // Tercapai (≥100%) = Hijau
                 targetProgress.style.background = '#28a745';
             } else if (percentage >= 95) {
-                // Hampir Tercapai (95-99%) = Kuning
                 targetProgress.style.background = '#ffc107';
             } else {
-                // Perlu Peningkatan (<95%) = Merah
                 targetProgress.style.background = '#dc3545';
             }
         }
+
+        const selectedPolaritas = polaritasSelect.value;
+        if (selectedPolaritas) {
+            updateArrow(nilai, targetBulanan, selectedPolaritas);
+        }
     });
 
-    // Trigger event untuk render progress bar jika ada nilai awal
+    // Trigger saat polaritas diganti
+    polaritasSelect.addEventListener('change', function() {
+        const nilai = parseFloat(nilaiInput.value) || 0;
+        const selectedPolaritas = this.value;
+        if (selectedPolaritas && nilai >= 0) {
+            updateArrow(nilai, targetBulanan, selectedPolaritas);
+        }
+    });
+
+    // Auto-trigger jika sudah ada nilai di awal
     if (nilaiInput.value) {
         nilaiInput.dispatchEvent(new Event('input'));
     }
 
     form.addEventListener('submit', function(e) {
-        // Disable the submit button
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
-
-        // Continue with form submission
         return true;
     });
 });
+
 </script>
 @endsection
     

@@ -358,7 +358,7 @@
                                     }
 
                                     $persentaseAsli = $target > 0 ? ($nilaiRealisasi / $target) * 100 : 0;
-                                    $persentase = min($persentaseAsli, 110);
+                                    $persentase = min(max($persentaseAsli, 0), 110); // nilai minimum 0 dan maksimum 110
 
                                     // Hitung nilai berdasarkan polaritas
                                     $nilaiIndikator = 0;
@@ -381,18 +381,20 @@
                                         $nilaiAkhir = $nilaiIndikator * $bobot;
 
                                         // Tentukan keterangan berdasarkan nilai indikator
-                                        if ($nilaiIndikator >= 1) {
-                                            $keterangan = 'Baik';
-                                            $keteranganClass = 'bg-success';
-                                        } elseif ($nilaiIndikator >= 0.95) {
+                                        // Tentukan keterangan berdasarkan persentase capaian
+                                        if ($persentase < 95) {
+                                            $keterangan = 'Masalah';
+                                            $keteranganClass = 'bg-danger';
+                                        } elseif ($persentase >= 95 && $persentase < 100) {
                                             $keterangan = 'Hati-hati';
                                             $keteranganClass = 'bg-warning';
                                         } else {
-                                            $keterangan = 'Masalah';
-                                            $keteranganClass = 'bg-danger';
+                                            $keterangan = 'Baik';
+                                            $keteranganClass = 'bg-success';
                                         }
+
                                     } else {
-                                        $nilaiAkhir = 0;
+                                        $persentase = 0;
                                     }
 
                                     // Warna progress bar berdasarkan ketentuan NKO (untuk konsistensi visual)

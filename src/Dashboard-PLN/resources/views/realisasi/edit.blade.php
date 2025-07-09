@@ -443,6 +443,34 @@ document.addEventListener('DOMContentLoaded', function() {
     const targetProgress = document.getElementById('targetProgress');
     const targetValue = document.getElementById('targetValue');
     const target = {{ $targetBulanan > 0 ? $targetBulanan : 1 }};
+    const polaritas = "{{ $realisasi->jenis_polaritas }}"; // Ambil dari server
+
+    // Fungsi bantu: atur warna progress bar berdasarkan nilai dan polaritas
+    function setProgressColor(percentage, nilai) {
+        if (nilai <= 0) {
+            targetProgress.style.background = '#6c757d'; // Abu-abu
+        } else {
+            if (polaritas === 'positif') {
+                if (percentage >= 100) {
+                    targetProgress.style.background = '#28a745'; // Hijau
+                } else if (percentage >= 95) {
+                    targetProgress.style.background = '#ffc107'; // Kuning
+                } else {
+                    targetProgress.style.background = '#dc3545'; // Merah
+                }
+            } else if (polaritas === 'negatif') {
+                if (percentage <= 100) {
+                    targetProgress.style.background = '#28a745'; // Hijau
+                } else if (percentage <= 105) {
+                    targetProgress.style.background = '#ffc107'; // Kuning
+                } else {
+                    targetProgress.style.background = '#dc3545'; // Merah
+                }
+            } else {
+                targetProgress.style.background = '#0d6efd'; // Netral = Biru
+            }
+        }
+    }
 
     // Update progress bar saat nilai berubah
     nilaiInput.addEventListener('input', function() {
@@ -452,24 +480,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update visual
         const progressWidth = Math.min(percentage, 100);
         targetProgress.style.width = progressWidth + '%';
-
-        // Update text dengan persentase biasa
         targetValue.textContent = percentage.toFixed(1) + '%';
 
-        // Update warna progress bar berdasarkan ketentuan NKO
-        if (nilai <= 0) {
-            // Belum dilakukan proses pengukuran = Abu-abu
-            targetProgress.style.background = '#6c757d';
-        } else if (percentage >= 100) {
-            // Tercapai (≥100%) = Hijau
-            targetProgress.style.background = '#28a745';
-        } else if (percentage >= 95) {
-            // Hampir Tercapai (95-99%) = Kuning
-            targetProgress.style.background = '#ffc107';
-        } else {
-            // Perlu Peningkatan (<95%) = Merah
-            targetProgress.style.background = '#dc3545';
-        }
+        // Update warna progress bar
+        setProgressColor(percentage, nilai);
     });
 
     // Set tampilan awal progress bar
@@ -480,28 +494,18 @@ document.addEventListener('DOMContentLoaded', function() {
     targetProgress.style.width = initialProgressWidth + '%';
     targetValue.textContent = initialPercentage.toFixed(1) + '%';
 
-    // Set warna awal berdasarkan ketentuan NKO
-    if (initialNilai <= 0) {
-        targetProgress.style.background = '#6c757d';
-    } else if (initialPercentage >= 100) {
-        targetProgress.style.background = '#28a745';
-    } else if (initialPercentage >= 95) {
-        targetProgress.style.background = '#ffc107';
-    } else {
-        targetProgress.style.background = '#dc3545';
-    }
+    // Warna awal
+    setProgressColor(initialPercentage, initialNilai);
 
-    // Jika form dan submit button ada
+    // Submit form loading
     if (form && submitBtn) {
         form.addEventListener('submit', function(e) {
-            // Disable the submit button
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
-
-            // Continue with form submission
             return true;
         });
     }
 });
 </script>
+
 @endsection
