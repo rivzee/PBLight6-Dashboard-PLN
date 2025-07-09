@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('nama');     // Nama indikator
             $table->text('deskripsi')->nullable(); // Deskripsi indikator (opsional)
             $table->decimal('bobot', 5, 2)->default(0); // Bobot dalam persentase (%)
-            $table->decimal('target', 8, 2)->default(100); // Target nilai (default 100%)
             $table->integer('urutan')->default(0); // Urutan untuk menampilkan indikator
             $table->boolean('aktif')->default(true); // Status indikator aktif/tidak
             $table->timestamps();

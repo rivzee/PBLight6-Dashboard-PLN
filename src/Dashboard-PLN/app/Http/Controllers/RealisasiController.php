@@ -18,20 +18,18 @@ class RealisasiController extends Controller
 public function index(Request $request)
 {
     $user = Auth::user();
-    $tanggal = $request->input('tanggal', Carbon::today()->toDateString());
-    $parsedDate = Carbon::parse($tanggal);
-    $tahun = $parsedDate->year;
-    $bulan = $parsedDate->month;
+    $tahun = $request->input('tahun', Carbon::today()->year);
+    $bulan = $request->input('bulan', Carbon::today()->month);
 
-    // Ambil semua indikator dengan realisasi pada tanggal tersebut
+    // Ambil semua indikator dengan realisasi pada bulan dan tahun tersebut
     $indikatorsQuery = Indikator::with([
         'pilar',
         'bidang',
         'targetKPI' => function ($query) use ($tahun) {
             $query->whereHas('tahunPenilaian', fn($q) => $q->where('tahun', $tahun));
         },
-        'realisasis' => function ($query) use ($tanggal) {
-            $query->whereDate('tanggal', $tanggal);
+        'realisasis' => function ($query) use ($tahun, $bulan) {
+            $query->where('tahun', $tahun)->where('bulan', $bulan)->where('periode_tipe', 'bulanan');
         }
     ]);
 
@@ -50,28 +48,26 @@ public function index(Request $request)
     $grouped = [];
 
     foreach ($indikators as $indikator) {
-        $realisasi = $indikator->realisasis->first(); // realisasi untuk tanggal tersebut
+        $realisasi = $indikator->realisasis->first(); // realisasi untuk bulan dan tahun tersebut
 
         $targetKPI = $indikator->targetKPI
             ->where('tahunPenilaian.tahun', $tahun)
             ->first();
 
-        // Ambil target kumulatif untuk bulan
-        $target_kumulatif = 0;
+        // Ambil target bulanan spesifik untuk bulan yang dipilih (index bulan - 1)
+        $target_bulanan = 0;
         if ($targetKPI && is_array($targetKPI->target_bulanan)) {
-            for ($i = 0; $i < $bulan; $i++) {
-                $target_kumulatif += $targetKPI->target_bulanan[$i] ?? 0;
-            }
+            $target_bulanan = $targetKPI->target_bulanan[$bulan - 1] ?? 0;
         }
 
         $persentase = 0;
-        if ($realisasi && $target_kumulatif > 0) {
-            $persentase = ($realisasi->nilai / $target_kumulatif) * 100;
+        if ($realisasi && $target_bulanan > 0) {
+            $persentase = ($realisasi->nilai / $target_bulanan) * 100;
         }
 
         $indikator->firstRealisasi = $realisasi;
         $indikator->persentase = min($persentase, 110);
-        $indikator->target_nilai = $target_kumulatif;
+        $indikator->target_nilai = $target_bulanan;
 
         // Grouping
         if ($user->isMasterAdmin()) {
@@ -87,7 +83,8 @@ public function index(Request $request)
 
     return view('realisasi.index', [
         'grouped' => $grouped,
-        'tanggal' => $tanggal,
+        'tahun' => $tahun,
+        'bulan' => $bulan,
         'isMaster' => $user->isMasterAdmin(),
     ]);
 }
@@ -114,32 +111,29 @@ public function create($indikatorId)
         abort(403, 'Anda tidak memiliki akses ke fitur ini.');
     }
 
-   // Ambil tanggal dari parameter GET (yang dipilih di halaman index)
-    // Jika tidak ada parameter tanggal, redirect kembali ke index dengan pesan error
-    // Ambil tanggal dari parameter GET (yang dipilih di halaman index)
-    $tanggal = request('tanggal');
+    // Ambil tahun dan bulan dari parameter GET (yang dipilih di halaman index)
+    $tahun = request('tahun');
+    $bulan = request('bulan');
 
-    if (!$tanggal) {
-        return redirect()->route('realisasi.index')->with('error', 'Tanggal harus dipilih terlebih dahulu.');
+    if (!$tahun || !$bulan) {
+        return redirect()->route('realisasi.index')->with('error', 'Tahun dan bulan harus dipilih terlebih dahulu.');
     }
 
-    // Validasi format tanggal
-    try {
-        $parsedDate = \Carbon\Carbon::parse($tanggal);
-        $tahun = $parsedDate->year;
-        $bulan = $parsedDate->month;
-    } catch (\Exception $e) {
-        return redirect()->route('realisasi.index')->with('error', 'Format tanggal tidak valid.');
+    // Validasi tahun dan bulan
+    if (!is_numeric($tahun) || !is_numeric($bulan) || $bulan < 1 || $bulan > 12) {
+        return redirect()->route('realisasi.index')->with('error', 'Tahun atau bulan tidak valid.');
     }
 
-    // Cek apakah sudah ada realisasi untuk tanggal tersebut
+    // Cek apakah sudah ada realisasi untuk bulan dan tahun tersebut
     $existingRealisasi = Realisasi::where('indikator_id', $indikator->id)
-        ->whereDate('tanggal', $tanggal)
+        ->where('tahun', $tahun)
+        ->where('bulan', $bulan)
+        ->where('periode_tipe', 'bulanan')
         ->first();
 
     if ($existingRealisasi) {
-        return redirect()->route('realisasi.index', ['tanggal' => $tanggal])
-            ->with('warning', 'Realisasi untuk tanggal ini sudah ada. Gunakan fitur edit untuk mengubah data.');
+        return redirect()->route('realisasi.index', ['tahun' => $tahun, 'bulan' => $bulan])
+            ->with('warning', 'Realisasi untuk bulan ini sudah ada. Gunakan fitur edit untuk mengubah data.');
     }
 
     // Ambil target KPI untuk tahun ini
@@ -147,14 +141,20 @@ public function create($indikatorId)
         ->whereHas('tahunPenilaian', fn($q) => $q->where('tahun', $tahun))
         ->first();
 
-    // Hitung target kumulatif dari Januari sampai bulan yang dipilih
-    $targetKumulatif = 0;
+    // Ambil target bulanan spesifik untuk bulan yang dipilih
+    $targetBulanan = 0;
     if ($targetKPI && is_array($targetKPI->target_bulanan)) {
-        for ($i = 0; $i < $bulan; $i++) {
-            $targetKumulatif += $targetKPI->target_bulanan[$i] ?? 0;
-        }
+        $targetBulanan = $targetKPI->target_bulanan[$bulan - 1] ?? 0;
     }
-    return view('realisasi.create', compact('indikator', 'tanggal', 'targetKumulatif', 'tahun', 'bulan'));
+
+    // Nama bulan dalam bahasa Indonesia
+    $namaBulan = [
+        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+    ];
+
+    return view('realisasi.create', compact('indikator', 'tahun', 'bulan', 'targetBulanan', 'namaBulan'));
 }
 
 
@@ -163,12 +163,14 @@ public function create($indikatorId)
 public function store(Request $request, Indikator $indikator)
 {
     $request->validate([
-        'tanggal' => 'required|date',
+        'tahun' => 'required|integer|min:2020|max:2030',
+        'bulan' => 'required|integer|min:1|max:12',
         'nilai' => 'required|numeric|min:0',
         'keterangan' => 'nullable|string|max:1000',
     ]);
 
-    $tanggal = \Carbon\Carbon::parse($request->tanggal);
+    $tahun = $request->tahun;
+    $bulan = $request->bulan;
     $user = auth()->user();
 
     // Cek apakah user berwenang menginput indikator ini
@@ -181,23 +183,59 @@ public function store(Request $request, Indikator $indikator)
         abort(403, 'Indikator ini tidak termasuk dalam bidang Anda.');
     }
 
+    // Cek apakah sudah ada realisasi untuk bulan dan tahun tersebut
+    $existingRealisasi = Realisasi::where('indikator_id', $indikator->id)
+        ->where('tahun', $tahun)
+        ->where('bulan', $bulan)
+        ->where('periode_tipe', 'bulanan')
+        ->first();
+
+    if ($existingRealisasi) {
+        return redirect()->route('realisasi.index', ['tahun' => $tahun, 'bulan' => $bulan])
+            ->with('error', 'Realisasi untuk bulan ini sudah ada.');
+    }
+
+    // Ambil target KPI untuk tahun ini
+    $targetKPI = TargetKPI::where('indikator_id', $indikator->id)
+        ->whereHas('tahunPenilaian', function($q) use ($tahun) {
+            $q->where('tahun', $tahun);
+        })->first();
+
+    // Ambil target bulanan spesifik untuk bulan yang dipilih
+    $targetBulanan = 0;
+    if ($targetKPI && is_array($targetKPI->target_bulanan)) {
+        $targetBulanan = $targetKPI->target_bulanan[$bulan - 1] ?? 0;
+    }
+
+    // Buat tanggal untuk akhir bulan (untuk keperluan kompatibilitas)
+    $tanggalAkhirBulan = Carbon::create($tahun, $bulan, 1)->endOfMonth();
 
     $realisasi = new Realisasi([
         'indikator_id' => $indikator->id,
         'user_id' => $user->id,
-        'tanggal' => $tanggal->toDateString(),
-        'tahun' => $tanggal->year,
-        'bulan' => $tanggal->month,
-        'periode_tipe' => 'harian',
+        'tanggal' => $tanggalAkhirBulan->toDateString(), // Tanggal akhir bulan
+        'tahun' => $tahun,
+        'bulan' => $bulan,
+        'periode_tipe' => 'bulanan',
         'nilai' => $request->nilai,
-        'persentase' => $indikator->target > 0 ? ($request->nilai / $indikator->target) * 100 : 0,
+        'persentase' => $targetBulanan > 0 ? ($request->nilai / $targetBulanan) * 100 : 0,
         'keterangan' => $request->keterangan,
         'diverifikasi' => false,
     ]);
 
+    // Hitung dan set polaritas
+    if ($targetBulanan > 0) {
+        $jenisPolaritas = Realisasi::getJenisPolaritas($indikator->kode);
+        $nilaiPolaritas = $realisasi->hitungPolaritas($targetBulanan);
+
+        $realisasi->jenis_polaritas = $jenisPolaritas;
+        $realisasi->nilai_polaritas = round($nilaiPolaritas, 2);
+    }
+
     $realisasi->save();
 
-    return redirect()->route('realisasi.index')->with('success', 'Realisasi berhasil disimpan.');
+    return redirect()->route('realisasi.index', ['tahun' => $tahun, 'bulan' => $bulan])
+        ->with('success', 'Realisasi berhasil disimpan.');
 }
 
 
@@ -217,17 +255,38 @@ public function store(Request $request, Indikator $indikator)
             abort(403, 'Anda tidak memiliki akses ke fitur ini.');
         }
 
-        $tanggal = $request->input('tanggal', now()->toDateString());
+        $tahun = $request->input('tahun', now()->year);
+        $bulan = $request->input('bulan', now()->month);
 
         $realisasi = Realisasi::where('indikator_id', $indikator->id)
-            ->whereDate('tanggal', $tanggal)
+            ->where('tahun', $tahun)
+            ->where('bulan', $bulan)
+            ->where('periode_tipe', 'bulanan')
             ->first();
 
         if (!$realisasi) {
             return redirect()->back()->with('error', 'Data realisasi tidak ditemukan.');
         }
 
-        return view('realisasi.edit', compact('indikator', 'realisasi', 'tanggal'));
+        // Nama bulan dalam bahasa Indonesia
+        $namaBulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        // Ambil target bulanan
+        $targetKPI = TargetKPI::where('indikator_id', $indikator->id)
+            ->whereHas('tahunPenilaian', function($q) use ($tahun) {
+                $q->where('tahun', $tahun);
+            })->first();
+
+        $targetBulanan = 0;
+        if ($targetKPI) {
+            $targetBulanan = $targetKPI->target_bulanan[$bulan - 1] ?? 0;
+        }
+
+        return view('realisasi.edit', compact('indikator', 'realisasi', 'tahun', 'bulan', 'namaBulan', 'targetBulanan'));
     }
 
 
@@ -246,19 +305,97 @@ public function store(Request $request, Indikator $indikator)
             abort(403, 'Anda tidak diizinkan mengedit realisasi ini.');
         }
 
-
         $validated = $request->validate([
-        'nilai' => 'required|numeric|min:0',
+            'nilai' => 'required|numeric|min:0',
+            'keterangan' => 'nullable|string|max:1000',
         ]);
 
+        // Ambil target KPI untuk tahun ini
+        $targetKPI = TargetKPI::where('indikator_id', $indikator->id)
+            ->whereHas('tahunPenilaian', function($q) use ($realisasi) {
+                $q->where('tahun', $realisasi->tahun);
+            })->first();
+
+        // Ambil target bulanan spesifik untuk bulan realisasi
+        $targetBulanan = 0;
+        if ($targetKPI && is_array($targetKPI->target_bulanan)) {
+            $targetBulanan = $targetKPI->target_bulanan[$realisasi->bulan - 1] ?? 0;
+        }
+
+        // Update data realisasi
         $realisasi->update([
             'nilai' => $validated['nilai'],
+            'keterangan' => $validated['keterangan'] ?? $realisasi->keterangan,
             'user_id' => $user->id,
-            'status' => 'draft',
+            'persentase' => $targetBulanan > 0 ? ($validated['nilai'] / $targetBulanan) * 100 : 0,
         ]);
 
-        return redirect()->route('realisasi.index')->with('success', 'Realisasi berhasil diperbarui.');
+        // Hitung ulang dan update polaritas
+        if ($targetBulanan > 0) {
+            $jenisPolaritas = Realisasi::getJenisPolaritas($indikator->kode);
+            $nilaiPolaritas = $realisasi->hitungPolaritas($targetBulanan);
+
+            $realisasi->update([
+                'jenis_polaritas' => $jenisPolaritas,
+                'nilai_polaritas' => round($nilaiPolaritas, 2)
+            ]);
+        }
+
+        return redirect()->route('realisasi.index', ['tahun' => $realisasi->tahun, 'bulan' => $realisasi->bulan])
+            ->with('success', 'Realisasi berhasil diperbarui.');
     }
 
 
+    /**
+     * Delete realisasi bulanan
+     */
+    public function destroy($id)
+    {
+        $realisasi = Realisasi::with('indikator')->findOrFail($id);
+        $indikator = $realisasi->indikator;
+        $user = Auth::user();
+
+        // Cek akses user
+        if ($user->isAdmin()) {
+            $bidang = $user->getBidang();
+            if (!$bidang || $indikator->bidang_id !== $bidang->id) {
+                abort(403, 'Anda tidak diizinkan menghapus realisasi ini.');
+            }
+        } elseif (!$user->isMasterAdmin()) {
+            abort(403, 'Anda tidak diizinkan menghapus realisasi ini.');
+        }
+
+        $tahun = $realisasi->tahun;
+        $bulan = $realisasi->bulan;
+
+        $realisasi->delete();
+
+        return redirect()->route('realisasi.index', ['tahun' => $tahun, 'bulan' => $bulan])
+            ->with('success', 'Realisasi berhasil dihapus.');
+    }
+
+    /**
+     * Get daftar bulan untuk dropdown
+     */
+    public static function getDaftarBulan()
+    {
+        return [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+    }
+
+    /**
+     * Get daftar tahun untuk dropdown
+     */
+    public static function getDaftarTahun()
+    {
+        $currentYear = Carbon::now()->year;
+        $years = [];
+        for ($i = $currentYear - 2; $i <= $currentYear + 2; $i++) {
+            $years[$i] = $i;
+        }
+        return $years;
+    }
 }

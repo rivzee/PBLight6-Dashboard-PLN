@@ -639,7 +639,7 @@
     </div>
 
     <!-- Chart Tren NKO -->
-{{-- <div class="grid-span-12">
+<div class="grid-span-12">
     <div class="card chart-card">
         <h3 class="chart-title">
             <i class="fas fa-chart-line"></i> Tren NKO {{ $tahun }}
@@ -649,10 +649,10 @@
             <canvas id="nkoTrendChart" height="300"></canvas>
         </div>
     </div>
-</div> --}}
+</div>
 
 
-<!-- Section: Analisis Tren & Prediksi -->
+{{-- <!-- Section: Analisis Tren & Prediksi -->
 <div class="section-divider">
     <h2><i class="fas fa-chart-line"></i> Tren & Prediksi</h2>
 </div>
@@ -679,7 +679,7 @@
         </div>
     </div>
 </div>
-</div>
+</div> --}}
 
 
 <!-- Section: Analisis Per-Pilar -->
@@ -915,36 +915,36 @@
         });
     }
 
-    // function initNkoTrendChart(data) {
-    //     const ctx = document.getElementById('nkoTrendChart');
-    //     if (!ctx || !data.length) return;
+    function initNkoTrendChart(data) {
+        const ctx = document.getElementById('nkoTrendChart');
+        if (!ctx || !data.length) return;
 
-    //     const labels = data.map(item => item.bulan);
-    //     const values = data.map(item => item.nko);
+        const labels = data.map(item => item.bulan);
+        const values = data.map(item => item.nko);
 
-    //     new Chart(ctx, {
-    //         type: 'line',
-    //         data: {
-    //             labels,
-    //             datasets: [{
-    //                 label: 'NKO',
-    //                 data: values,
-    //                 borderColor: '#4e73df',
-    //                 backgroundColor: 'rgba(78,115,223,0.1)',
-    //                 borderWidth: 2,
-    //                 fill: true,
-    //                 tension: 0.3
-    //             }]
-    //         },
-    //         options: {
-    //             responsive: true,
-    //             scales: {
-    //                 y: { beginAtZero: true, max: 100 },
-    //                 x: { grid: { display: false } }
-    //             }
-    //         }
-    //     });
-    // }
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'NKO',
+                    data: values,
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78,115,223,0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, max: 100 },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
     function initNkoTrendChart(data) {
         const ctx = document.getElementById('nkoTrendChart');
         if (!ctx || !data.length) return;

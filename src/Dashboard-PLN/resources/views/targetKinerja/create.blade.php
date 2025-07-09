@@ -1,28 +1,34 @@
 @extends('layouts.app')
 
 @section('title', 'Tambah Target Kinerja')
-@section('page_title', 'TAMBAH TARGET KINERJA')
 
 @section('styles')
 <style>
-    /* Main Container */
-    .dashboard-content {
-        max-width: 1800px;
-        margin: 0 auto;
-        padding: 0 15px;
+    :root {
+        --pln-blue: #0a4d85;
+        --pln-light-blue: #009cde;
+        --pln-bg: #f5f7fa;
+        --pln-surface: #ffffff;
+        --pln-text: #333333;
+        --pln-border: #e3e6f0;
+        --pln-shadow: rgba(0, 0, 0, 0.1);
+        --pln-accent-bg: #f8f9fc;
+        --pln-text-secondary: #6c757d;
     }
 
-    /* Page Header - Modern UI */
+    .dashboard-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
     .page-header {
         background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
         color: white;
         border-radius: 12px;
-        padding: 20px 25px;
+        padding: 20px;
         margin-bottom: 25px;
         box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
     }
 
     .page-header h2 {
@@ -38,49 +44,28 @@
         opacity: 0.9;
     }
 
-    .page-header-actions {
-        display: flex;
-        gap: 10px;
-    }
-
-    /* Card Styling - Support Dark/Light Mode */
-    .form-card {
+    .card {
         border-radius: 16px;
         box-shadow: 0 8px 20px var(--pln-shadow);
         background-color: var(--pln-surface);
+        border: 1px solid var(--pln-border);
         margin-bottom: 25px;
-        overflow: hidden;
-        color: var(--pln-text);
     }
 
-    .form-card .card-header {
+    .card-header {
         background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
         color: white;
         padding: 15px 20px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        border-radius: 16px 16px 0 0;
         border: none;
     }
 
-    .form-card .card-body {
-        padding: 20px;
-    }
-
-    /* Info Box - Support Dark/Light Mode */
     .info-box {
         background-color: var(--pln-accent-bg);
         border-left: 4px solid var(--pln-light-blue);
         border-radius: 8px;
         padding: 20px;
         margin-bottom: 25px;
-    }
-
-    .info-box h6 {
-        color: var(--pln-blue);
-        margin-bottom: 15px;
-        font-weight: 600;
     }
 
     .info-row {
@@ -99,168 +84,96 @@
         color: var(--pln-text);
     }
 
-    /* Form Styling - Support Dark/Light Mode */
-    .form-group label {
-        font-weight: 600;
-        color: var(--pln-text);
-        margin-bottom: 10px;
-    }
-
-    .form-control {
-        border-radius: 8px;
-        border: 1px solid var(--pln-border);
-        padding: 12px 15px;
-        font-size: 0.875rem;
-        background-color: var(--pln-surface);
-        color: var(--pln-text);
-        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    }
-
-    .form-control:focus {
-        border-color: var(--pln-light-blue);
-        box-shadow: 0 0 0 0.25rem rgba(0, 156, 222, 0.25);
-        background-color: var(--pln-surface);
-        color: var(--pln-text);
-    }
-
-    /* Monthly Target Grid */
     .monthly-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 15px;
         margin-top: 15px;
-    }
-
-    .monthly-input {
-        position: relative;
     }
 
     .monthly-input label {
         display: block;
         font-weight: 500;
-        font-size: 0.8rem;
+        font-size: 0.9rem;
         margin-bottom: 5px;
-        color: var(--pln-text-secondary);
+        color: var(--pln-text);
     }
 
-    /* Action Buttons */
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid var(--pln-border);
+        padding: 10px 15px;
+        font-size: 0.9rem;
+        transition: border-color 0.15s ease-in-out;
+    }
+
+    .form-control:focus {
+        border-color: var(--pln-light-blue);
+        box-shadow: 0 0 0 0.2rem rgba(0, 156, 222, 0.25);
+    }
+
+    .alert-info {
+        background-color: rgba(23, 162, 184, 0.1);
+        border: 1px solid #bee5eb;
+        color: #0c5460;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .btn-primary {
+        background-color: var(--pln-blue);
+        border-color: var(--pln-blue);
+        padding: 10px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--pln-light-blue);
+        border-color: var(--pln-light-blue);
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        padding: 10px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    .input-group-text {
+        background-color: var(--pln-accent-bg);
+        border: 1px solid var(--pln-border);
+        border-left: none;
+        color: var(--pln-text-secondary);
+        font-size: 0.85rem;
+    }
+
     .form-actions {
         margin-top: 30px;
         display: flex;
-        justify-content: center;
         gap: 15px;
-    }
-
-    .btn-action {
-        padding: 10px 25px;
-        border-radius: 50px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
         justify-content: center;
-        transition: all 0.2s;
     }
 
-    .btn-action i {
-        margin-right: 8px;
-    }
-
-    .btn-action:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px var(--pln-shadow);
-    }
-
-    /* Target Graphic - Support Dark/Light Mode */
-    .target-visual {
-        height: 50px;
-        background: var(--pln-accent-bg);
+    .total-display {
+        background-color: #e8f5e8;
+        border: 1px solid #b8e6b8;
         border-radius: 8px;
-        position: relative;
-        margin-bottom: 25px;
-        border: 1px solid var(--pln-border);
-        overflow: hidden;
+        padding: 15px;
+        margin-top: 15px;
+        text-align: center;
     }
 
-    .target-progress {
-        position: absolute;
-        left: 0;
-        top: 0;
-        height: 100%;
-        background: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
-        transition: width 0.5s ease;
-    }
-
-    .target-value {
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-weight: bold;
-        color: var(--pln-text);
-        z-index: 2;
-    }
-
-    /* Alert Styles - Support Dark/Light Mode */
-    .alert-custom {
-        border-radius: 8px;
-        padding: 15px 20px;
-        margin-bottom: 20px;
-        border-left: 4px solid;
-        display: flex;
-        align-items: flex-start;
-    }
-
-    .alert-custom i {
-        margin-right: 10px;
+    .total-display strong {
+        color: var(--pln-blue);
         font-size: 1.1rem;
-        margin-top: 2px;
     }
 
-    .alert-custom.alert-warning {
-        background-color: rgba(255, 193, 7, 0.15);
-        border-color: #ffc107;
-        color: var(--pln-text);
-    }
-
-    .alert-custom.alert-info {
-        background-color: rgba(23, 162, 184, 0.15);
-        border-color: #17a2b8;
-        color: var(--pln-text);
-    }
-
-    /* Text-muted - Support Dark/Light Mode */
-    .text-muted {
-        color: var(--pln-text-secondary) !important;
-    }
-
-    /* Form control help text */
-    .form-text {
-        margin-top: 5px;
-        font-size: 0.8rem;
-    }
-
-    /* Responsive */
     @media (max-width: 768px) {
         .monthly-grid {
             grid-template-columns: repeat(2, 1fr);
-        }
-
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        .page-header-actions {
-            width: 100%;
-            justify-content: flex-start;
-            margin-top: 10px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .monthly-grid {
-            grid-template-columns: 1fr;
         }
 
         .form-actions {
@@ -272,29 +185,25 @@
 
 @section('content')
 <div class="dashboard-content">
-    <!-- Modern Page Header -->
+    <!-- Page Header -->
     <div class="page-header">
         <div>
             <h2><i class="fas fa-plus-circle me-2"></i>Tambah Target Kinerja</h2>
             <div class="page-header-subtitle">
-                Tentukan target tahunan dan bulanan untuk indikator kinerja
+                Tentukan target bulanan untuk indikator kinerja
             </div>
-        </div>
-        <div class="page-header-actions">
-            <a href="{{ route('targetKinerja.index', ['tahun_penilaian_id' => $tahunPenilaian->id]) }}" class="btn btn-light">
-                <i class="fas fa-arrow-left me-1"></i> Kembali
-            </a>
         </div>
     </div>
 
     @include('components.alert')
 
-    <div class="form-card">
+    <div class="card">
         <div class="card-header">
             <h6 class="m-0 font-weight-bold">Form Target Kinerja Baru</h6>
         </div>
         <div class="card-body">
-            <div class="info-box mb-4">
+            <!-- Informasi Indikator -->
+            <div class="info-box">
                 <h6><i class="fas fa-info-circle me-2"></i>Informasi Indikator</h6>
                 <div class="row">
                     <div class="col-md-6">
@@ -310,6 +219,10 @@
                             <div class="info-label">Bobot:</div>
                             <div class="info-value">{{ $indikator->bobot }}%</div>
                         </div>
+                        <div class="info-row">
+                            <div class="info-label">Satuan:</div>
+                            <div class="info-value">{{ $indikator->satuan }}</div>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <div class="info-row">
@@ -321,90 +234,87 @@
                             <div class="info-value">{{ $indikator->bidang->nama }}</div>
                         </div>
                         <div class="info-row">
-                            <div class="info-label">Tahun Penilaian:</div>
+                            <div class="info-label">Tahun:</div>
                             <div class="info-value">{{ $tahunPenilaian->tahun }}</div>
                         </div>
                     </div>
                 </div>
-                @if($indikator->deskripsi)
-                    <div class="info-row mt-2">
-                        <div class="info-label">Deskripsi:</div>
-                        <div class="info-value">{{ $indikator->deskripsi }}</div>
-                    </div>
-                @endif
             </div>
 
-            <form action="{{ route('targetKinerja.store') }}" method="POST">
+            <!-- Form Input Target -->
+            <form action="{{ route('targetKinerja.store') }}" method="POST" id="targetForm">
                 @csrf
                 <input type="hidden" name="indikator_id" value="{{ $indikator->id }}">
                 <input type="hidden" name="tahun_penilaian_id" value="{{ $tahunPenilaian->id }}">
 
+                {{-- <!-- Penjelasan Input Target -->
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Input Target Kumulatif:</strong><br>
+                    • Masukkan target kumulatif untuk setiap bulan<br>
+                    • Target tahunan diambil dari nilai bulan Desember<br>
+                    • Contoh: Jan=100, Feb=250, Mar=400, dst.
+                </div> --}}
+
+                <!-- Input Target Bulanan -->
                 <div class="form-group">
-                    <label for="target_tahunan">Target Tahunan <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control @error('target_tahunan') is-invalid @enderror"
-                           id="target_tahunan" name="target_tahunan" step="0.01"
-                           value="{{ old('target_tahunan', $indikator->target) }}" required>
-                    @error('target_tahunan')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="form-text text-muted">
-                        <i class="fas fa-info-circle me-1"></i> Masukkan target tahunan untuk indikator ini.
-                    </small>
-                </div>
-
-                <div class="target-visual">
-                    <div class="target-progress" id="targetProgress" style="width: 0%"></div>
-                    <div class="target-value" id="targetValue">0.00</div>
-                </div>
-
-                <div class="form-group">
-                    <label>Target Bulanan</label>
-                    <div class="alert-custom alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        <div>Target bulanan dalam bentuk <strong>kumulatif</strong>. Contoh: jika target tahunan 120, maka Januari=10, Februari=20, Maret=30, dst.</div>
-                    </div>
-
+                    <label><strong>Target Kumulatif per Bulan ({{ $indikator->satuan }})</strong> <span class="text-danger">*</span></label>
                     <div class="monthly-grid">
-                        @for($i = 1; $i <= 12; $i++)
+                        @php
+                            $namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                        @endphp
+                        @foreach($namaBulan as $i => $namaBlnIni)
                             <div class="monthly-input">
-                                <label>{{ \Carbon\Carbon::create(null, $i, 1)->locale('id')->monthName }}</label>
+                                <label>{{ $namaBlnIni }} {{ $tahunPenilaian->tahun }}</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control monthly-target"
-                                           name="target_bulanan[{{ $i-1 }}]"
-                                           id="bulan_{{ $i-1 }}"
+                                    <input type="number"
+                                           class="form-control target-input @error('target_bulanan.'.$i) is-invalid @enderror"
+                                           name="target_bulanan[{{ $i }}]"
                                            step="0.01"
-                                           value="{{ old('target_bulanan.'.$i-1, round(($indikator->target/12) * $i, 2)) }}">
+                                           min="0"
+                                           value="{{ old('target_bulanan.'.$i, 0) }}"
+                                           required
+                                           placeholder="0"
+                                           data-month="{{ $i }}">
+                                    <span class="input-group-text">{{ $indikator->satuan }}</span>
                                 </div>
+                                @error('target_bulanan.'.$i)
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                        @endfor
+                        @endforeach
                     </div>
-
                     @error('target_bulanan')
-                        <div class="text-danger small mt-1">{{ $message }}</div>
-                    @enderror
-                    @error('target_bulanan.*')
-                        <div class="text-danger small mt-1">{{ $message }}</div>
+                        <div class="text-danger small mt-2">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="form-group">
-                    <label for="keterangan">Keterangan</label>
+                <!-- Display Total Target -->
+                <div class="total-display">
+                    <i class="fas fa-chart-line me-2"></i>
+                    <strong>Target Tahunan: <span id="targetTahunan">0</span> {{ $indikator->satuan }}</strong>
+                </div>
+
+                {{-- <!-- Keterangan -->
+                <div class="form-group mt-4">
+                    <label for="keterangan">Keterangan (Opsional)</label>
                     <textarea class="form-control @error('keterangan') is-invalid @enderror"
-                              id="keterangan" name="keterangan" rows="3">{{ old('keterangan') }}</textarea>
+                              id="keterangan"
+                              name="keterangan"
+                              rows="3"
+                              placeholder="Masukkan keterangan tambahan jika diperlukan">{{ old('keterangan') }}</textarea>
                     @error('keterangan')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-                    <small class="form-text text-muted">
-                        <i class="fas fa-edit me-1"></i> Tambahkan keterangan jika diperlukan.
-                    </small>
-                </div>
+                </div> --}}
 
+                <!-- Form Actions -->
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary btn-action">
-                        <i class="fas fa-save"></i> Simpan Target
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i> Simpan Target
                     </button>
-                    <a href="{{ route('targetKinerja.index', ['tahun_penilaian_id' => $tahunPenilaian->id]) }}" class="btn btn-secondary btn-action">
-                        <i class="fas fa-times"></i> Batal
+                    <a href="{{ route('targetKinerja.index', ['tahun_penilaian_id' => $tahunPenilaian->id]) }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Kembali
                     </a>
                 </div>
             </form>
@@ -415,48 +325,96 @@
 
 @section('scripts')
 <script>
-    // Fungsi untuk memperbarui visualisasi target
-    function updateTargetVisual() {
-        const targetTahunan = parseFloat(document.getElementById('target_tahunan').value) || 0;
-        const targetProgress = document.getElementById('targetProgress');
-        const targetValue = document.getElementById('targetValue');
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to update target tahunan dan validasi kumulatif
+    function updateTargetTahunan() {
+        const inputs = document.querySelectorAll('.target-input');
+        const desemberInput = inputs[11]; // Desember adalah index 11
+        const targetTahunan = parseFloat(desemberInput.value) || 0;
 
-        // Maksimum untuk visualisasi (100%)
-        const maxVisualization = targetTahunan * 1.2;
+        document.getElementById('targetTahunan').textContent = targetTahunan.toFixed(2);
 
-        // Update progress bar dan nilai
-        targetProgress.style.width = (targetTahunan / maxVisualization * 100) + '%';
-        targetValue.textContent = targetTahunan.toFixed(2);
+        // Update display berdasarkan apakah target tahunan sudah diisi
+        const totalDisplay = document.querySelector('.total-display');
+        if (targetTahunan > 0) {
+            totalDisplay.style.backgroundColor = '#e8f5e8';
+            totalDisplay.style.borderColor = '#b8e6b8';
+        } else {
+            totalDisplay.style.backgroundColor = '#f8f9fc';
+            totalDisplay.style.borderColor = '#e3e6f0';
+        }
     }
 
-    // Inisialisasi visualisasi target
-    updateTargetVisual();
+    // Function to validate kumulatif (nilai harus naik)
+    function validateKumulatif() {
+        const inputs = document.querySelectorAll('.target-input');
+        let previousValue = 0;
+        let allValid = true;
 
-    // Jika target tahunan berubah, update semua target bulanan dan visualisasi
-    document.getElementById('target_tahunan').addEventListener('input', function() {
-        const targetTahunan = parseFloat(this.value) || 0;
-        const targetBulanan = targetTahunan / 12;
+        inputs.forEach((input, index) => {
+            const currentValue = parseFloat(input.value) || 0;
 
-        // Update semua input target bulanan dengan nilai KUMULATIF
-        const bulananInputs = document.querySelectorAll('.monthly-target');
-        let kumulatif = 0;
-        bulananInputs.forEach((input, index) => {
-            kumulatif += targetBulanan;
-            input.value = kumulatif.toFixed(2);
+            if (currentValue > 0) {
+                if (currentValue < previousValue) {
+                    // Nilai tidak boleh turun dari bulan sebelumnya
+                    input.style.borderColor = '#dc3545';
+                    input.style.backgroundColor = '#ffe6e6';
+                    allValid = false;
+                } else {
+                    // Nilai valid
+                    input.style.borderColor = '#28a745';
+                    input.style.backgroundColor = '#f8fff8';
+                }
+                previousValue = currentValue;
+            } else {
+                // Reset styling jika kosong
+                input.style.borderColor = '';
+                input.style.backgroundColor = '';
+            }
         });
 
-        // Update visualisasi
-        updateTargetVisual();
-    });
+        return allValid;
+    }
 
-    // Event listener untuk input bulanan
-    document.querySelectorAll('.monthly-target').forEach(function(input) {
+    // Add event listeners to all target inputs
+    document.querySelectorAll('.target-input').forEach((input, index) => {
         input.addEventListener('input', function() {
-            // Validasi nilai tidak negatif
-            if (parseFloat(this.value) < 0) {
-                this.value = 0;
+            updateTargetTahunan();
+            validateKumulatif();
+        });
+
+        // Auto-fill suggestion untuk memudahkan input kumulatif
+        input.addEventListener('focus', function() {
+            if (index > 0) {
+                const previousInput = document.querySelectorAll('.target-input')[index - 1];
+                const previousValue = parseFloat(previousInput.value) || 0;
+
+                if (previousValue > 0 && !this.value) {
+                    this.placeholder = `Min: ${previousValue.toFixed(2)}`;
+                }
             }
         });
     });
+
+    // Update initial target tahunan
+    updateTargetTahunan();
+
+    // Form validation
+    document.getElementById('targetForm').addEventListener('submit', function(e) {
+        const desemberValue = parseFloat(document.querySelectorAll('.target-input')[11].value) || 0;
+
+        if (desemberValue <= 0) {
+            e.preventDefault();
+            alert('Target bulan Desember harus diisi untuk menentukan target tahunan!');
+            return false;
+        }
+
+        if (!validateKumulatif()) {
+            e.preventDefault();
+            alert('Target kumulatif tidak valid! Nilai target harus selalu naik atau sama dari bulan sebelumnya.');
+            return false;
+        }
+    });
+});
 </script>
 @endsection

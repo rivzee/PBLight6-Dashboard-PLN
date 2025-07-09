@@ -150,8 +150,9 @@
         top: 50%;
         transform: translateY(-50%);
         font-weight: bold;
-        color: var(--pln-text);
+        color: white;
         z-index: 2;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
 
     /* Action Buttons */
@@ -205,9 +206,6 @@
         <div class="page-header">
             <div>
                 <h2><i class="fas fa-plus-circle me-2"></i>Input Realisasi KPI</h2>
-                <div class="page-header-subtitle">
-                    Masukkan data realisasi harian kinerja indikator
-                </div>
             </div>
             <div class="page-header-actions">
                 <a href="{{ route('realisasi.index') }}" class="btn btn-light">
@@ -220,7 +218,7 @@
 
         <div class="form-card">
             <div class="card-header">
-                <h6 class="m-0 font-weight-bold">Form Input Realisasi Harian</h6>
+                <h6 class="m-0 font-weight-bold">Form Input Realisasi</h6>
             </div>
             <div class="card-body">
                 <div class="info-box mb-4">
@@ -234,14 +232,12 @@
                             <div class="info-row">
                                 <div class="info-label">Nama:</div>
                                 <div class="info-value">{{ $indikator->nama }}</div>
-                            </div>
-                            <div class="info-row">
-                                <div class="info-label">Target Kumulatif:</div>
-                                <div class="info-value">
-                                    <strong>{{ number_format($targetKumulatif, 2) }}</strong>
-                                    <small class="text-muted">(Jan - {{ \Carbon\Carbon::create()->month($bulan)->format('M') }} {{ $tahun }})</small>
+                            </div>                                <div class="info-row">
+                                    <div class="info-label">Target:</div>
+                                    <div class="info-value">
+                                        <strong>{{ number_format($targetBulanan, 2) }}</strong>
+                                    </div>
                                 </div>
-                            </div>
                         </div>
                         <div class="col-md-6">
                             <div class="info-row">
@@ -249,19 +245,13 @@
                                 <div class="info-value">{{ $indikator->bidang->nama }}</div>
                             </div>
                             <div class="info-row">
-                                <div class="info-label">Tanggal Input:</div>
+                                <div class="info-label">Periode:</div>
                                 <div class="info-value">
-                                    <strong>{{ \Carbon\Carbon::parse($tanggal)->translatedFormat('d F Y') }}</strong>
+                                    <strong>{{ \Carbon\Carbon::create()->month((int)$bulan)->format('F') }} {{ $tahun }}</strong>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    @if($indikator->deskripsi)
-                        <div class="info-row mt-2">
-                            <div class="info-label">Deskripsi:</div>
-                            <div class="info-value">{{ $indikator->deskripsi }}</div>
-                        </div>
-                    @endif
                 </div>
 
                 <!-- FORM -->
@@ -270,17 +260,14 @@
 
                     <input type="hidden" name="indikator_id" value="{{ $indikator->id }}">
 
-                <!-- Tanggal Realisasi (Otomatis dari halaman index) -->
+                <!-- Bulan dan Tahun Realisasi (Otomatis dari halaman index) -->
                 <div class="form-group mb-4">
-                    <label for="tanggal_display">Tanggal Realisasi</label>
-                    <input type="text" class="form-control" id="tanggal_display" value="{{ \Carbon\Carbon::parse($tanggal)->translatedFormat('d F Y') }}" disabled>
+                    <label for="bulan_tahun_display">Periode</label>
+                    <input type="text" class="form-control" id="bulan_tahun_display" value="{{ \Carbon\Carbon::create()->month((int)$bulan)->format('F') }} {{ $tahun }}" disabled>
 
                     <!-- Input tersembunyi untuk dikirim ke backend -->
-                    <input type="hidden" name="tanggal" value="{{ $tanggal }}">
-
-                    <small class="form-text text-muted">
-                        <i class="fas fa-calendar-alt me-1"></i> Tanggal ini diambil dari halaman sebelumnya.
-                    </small>
+                    <input type="hidden" name="bulan" value="{{ $bulan }}">
+                    <input type="hidden" name="tahun" value="{{ $tahun }}">
                 </div>
 
 
@@ -292,9 +279,6 @@
                     @error('nilai')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-                    <small class="form-text text-muted">
-                        <i class="fas fa-info-circle me-1"></i> Masukkan nilai realisasi pencapaian.
-                    </small>
                 </div>
 
                 <!-- Visual Progress (opsional, bisa aktifkan via JS jika ingin) -->
@@ -302,9 +286,6 @@
                     <div class="target-visual">
                         <div class="target-progress" id="targetProgress" style="width: 0%"></div>
                         <div class="target-value" id="targetValue">0%</div>
-                    </div>
-                    <div class="text-center text-muted small">
-                        <i class="fas fa-info-circle me-1"></i> Persentase pencapaian terhadap target.
                     </div>
                 </div>
 
@@ -346,29 +327,37 @@ document.addEventListener('DOMContentLoaded', function() {
     const targetProgress = document.getElementById('targetProgress');
     const targetValue = document.getElementById('targetValue');
     const targetVisual = document.getElementById('targetVisualContainer');
-    const targetKumulatif = {{ $targetKumulatif }};
+    const targetBulanan = {{ $targetBulanan }};
 
     // Update progress bar saat nilai berubah
     nilaiInput.addEventListener('input', function() {
         const nilai = parseFloat(this.value) || 0;
-        const percentage = Math.min((nilai / targetKumulatif) * 100, 110);
+        const percentage = (nilai / targetBulanan) * 100;
 
         // Update visual jika input valid
         if (nilai >= 0) {
             targetVisual.style.display = 'block';
-            targetProgress.style.width = Math.min(percentage, 100) + '%';
+
+            // Update progress bar width berdasarkan persentase (maksimal 100%)
+            const progressWidth = Math.min(percentage, 100);
+            targetProgress.style.width = progressWidth + '%';
+
+            // Update text dengan persentase biasa
             targetValue.textContent = percentage.toFixed(1) + '%';
 
-            // Warna progress bar berdasarkan persentase dengan aturan baru
-            if (percentage >= 100) {
-                // Diatas 100% = Hijau
-                targetProgress.style.background = 'linear-gradient(90deg, #28a745, #75c94e)';
+            // Update warna progress bar berdasarkan ketentuan NKO
+            if (nilai <= 0) {
+                // Belum dilakukan proses pengukuran = Abu-abu
+                targetProgress.style.background = '#6c757d';
+            } else if (percentage >= 100) {
+                // Tercapai (≥100%) = Hijau
+                targetProgress.style.background = '#28a745';
             } else if (percentage >= 95) {
-                // 95% - 99% = Kuning
-                targetProgress.style.background = 'linear-gradient(90deg, #ffc107, #ffda65)';
+                // Hampir Tercapai (95-99%) = Kuning
+                targetProgress.style.background = '#ffc107';
             } else {
-                // Kurang dari 95% = Merah
-                targetProgress.style.background = 'linear-gradient(90deg, #dc3545, #ef7783)';
+                // Perlu Peningkatan (<95%) = Merah
+                targetProgress.style.background = '#dc3545';
             }
         }
     });
@@ -389,3 +378,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endsection
+    

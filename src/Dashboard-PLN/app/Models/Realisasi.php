@@ -38,6 +38,8 @@ class Realisasi extends Model
         'disetujui_manager', // disetujui oleh Manager
         'disetujui_manager_oleh', // ID user Manager yang menyetujui
         'disetujui_manager_pada', // waktu disetujui oleh Manager
+        'jenis_polaritas', // polaritas positif atau negatif
+        'nilai_polaritas', // hasil perhitungan polaritas
     ];
 
     protected $casts = [
@@ -53,6 +55,7 @@ class Realisasi extends Model
         'disetujui_pic_pada' => 'datetime',
         'disetujui_manager' => 'boolean',
         'disetujui_manager_pada' => 'datetime',
+        'nilai_polaritas' => 'float',
     ];
 
     public function indikator(): BelongsTo
@@ -155,6 +158,54 @@ class Realisasi extends Model
         } else {
             return 'warning';
         }
+    }
+
+    /**
+     * Menentukan jenis polaritas berdasarkan kode indikator
+     */
+    public static function getJenisPolaritas($kodeIndikator)
+    {
+        // Indikator dengan polaritas negatif (semakin rendah semakin baik)
+        $polariatasNegatif = [
+            'A2', // Operating Ratio - semakin rendah semakin baik
+        ];
+
+        return in_array($kodeIndikator, $polariatasNegatif) ? 'negatif' : 'positif';
+    }
+
+    /**
+     * Menghitung nilai polaritas berdasarkan realisasi dan target bulanan
+     * Target yang digunakan adalah target untuk bulan tersebut, bukan kumulatif
+     */
+    public function hitungPolaritas($targetBulanan)
+    {
+        if ($targetBulanan <= 0) {
+            return 0; // Tidak bisa menghitung jika target 0 atau negatif
+        }
+
+        $jenisPolaritas = self::getJenisPolaritas($this->indikator->kode);
+
+        if ($jenisPolaritas === 'positif') {
+            // Polaritas positif: realisasi/target * 100%
+            return ($this->nilai / $targetBulanan) * 100;
+        } else {
+            // Polaritas negatif: (2 - realisasi/target) * 100%
+            return (2 - ($this->nilai / $targetBulanan)) * 100;
+        }
+    }
+
+    /**
+     * Update polaritas berdasarkan target bulanan yang diberikan
+     */
+    public function updatePolaritas($targetBulanan)
+    {
+        $jenisPolaritas = self::getJenisPolaritas($this->indikator->kode);
+        $nilaiPolaritas = $this->hitungPolaritas($targetBulanan);
+
+        $this->update([
+            'jenis_polaritas' => $jenisPolaritas,
+            'nilai_polaritas' => round($nilaiPolaritas, 2)
+        ]);
     }
 
     // Boot method untuk mengisi tahun, bulan, dan periode_tipe otomatis saat saving

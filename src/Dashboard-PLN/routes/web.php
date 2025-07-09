@@ -94,8 +94,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/realisasi/{indikator}/create', [RealisasiController::class, 'create'])->name('realisasi.create');
         Route::post('/realisasi/{indikator}', [RealisasiController::class, 'store'])->name('realisasi.store');
         Route::get('/realisasi/{indikator}/edit', [RealisasiController::class, 'edit'])->name('realisasi.edit');
-    Route::put('/realisasi/{id}', [RealisasiController::class, 'update'])->name('realisasi.update');
-
+        Route::put('/realisasi/{id}', [RealisasiController::class, 'update'])->name('realisasi.update');
+        Route::delete('/realisasi/{id}', [RealisasiController::class, 'destroy'])->name('realisasi.destroy');
     });
 
     // Routes untuk Target Kinerja
@@ -106,6 +106,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/targetKinerja/{targetKinerja}', [TargetKinerjaController::class, 'update'])->name('targetKinerja.update');
     Route::get('/targetKinerja/{targetKinerja}/approve', [TargetKinerjaController::class, 'approve'])->name('targetKinerja.approve');
     Route::get('/targetKinerja/{targetKinerja}/unapprove', [TargetKinerjaController::class, 'unapprove'])->name('targetKinerja.unapprove');
+    Route::post('/targetKinerja/update-weights', [TargetKinerjaController::class, 'updateWeights'])->name('targetKinerja.updateWeights');
 
 
      // Resource controllers untuk fitur CRUD

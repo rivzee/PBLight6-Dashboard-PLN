@@ -14,7 +14,14 @@
 
     /* Page Header - Modern UI */
     .page-header {
-        background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
+        background: linear-gradient(135deg, var(--pln                <div class="text-center text-muted small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <strong>Ketentuan Warna (Visual):</strong>
+                    <span class="badge bg-success">Tercapai (≥100%)</span>
+                    <span class="badge bg-warning">Hampir Tercapai (95-99%)</span>
+                    <span class="badge bg-danger">Perlu Peningkatan (<95%)</span>
+                    <span class="badge bg-secondary">Belum Diukur</span>
+                </div>e), var(--pln-light-blue));
         color: white;
         border-radius: 12px;
         padding: 20px 25px;
@@ -186,8 +193,9 @@
         top: 50%;
         transform: translateY(-50%);
         font-weight: bold;
-        color: var(--pln-text);
+        color: white;
         z-index: 2;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
     }
 
     /* Action Buttons */
@@ -257,8 +265,6 @@
 @endsection
 
 
-@extends('layouts.app')
-
 @section('content')
 <div class="dashboard-content">
     <!-- Modern Page Header -->
@@ -268,9 +274,6 @@
             <div class="page-header-subtitle">
                 Ubah data realisasi kinerja untuk periode:
                 {{ \Carbon\Carbon::create(null, $realisasi->bulan, 1)->locale('id')->monthName }} {{ $realisasi->tahun }}
-                @if($realisasi->periode_tipe == 'mingguan')
-                (Minggu {{ $realisasi->minggu }})
-                @endif
             </div>
         </div>
         <div class="page-header-actions">
@@ -283,7 +286,7 @@
                     <i class="fas fa-clock"></i> Menunggu Verifikasi
                 </div>
             @endif
-            <a href="{{ route('realisasi.index') }}" class="btn btn-light">
+            <a href="{{ route('realisasi.index', ['tahun' => $realisasi->tahun, 'bulan' => $realisasi->bulan]) }}" class="btn btn-light">
                 <i class="fas fa-arrow-left me-1"></i> Kembali
             </a>
         </div>
@@ -318,8 +321,18 @@
                             <div class="info-value">{{ $realisasi->indikator->nama }}</div>
                         </div>
                         <div class="info-row">
-                            <div class="info-label">Target:</div>
-                            <div class="info-value">{{ number_format($realisasi->indikator->target, 2) }}</div>
+                            <div class="info-label">Target Bulanan:</div>
+                            <div class="info-value">{{ number_format($targetBulanan, 2) }} {{ $realisasi->indikator->satuan }}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Jenis Polaritas:</div>
+                            <div class="info-value">
+                                @if($realisasi->jenis_polaritas == 'positif')
+                                    <span class="badge bg-success">Positif</span>
+                                @else
+                                    <span class="badge bg-warning">Negatif</span>
+                                @endif
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -331,14 +344,11 @@
                             <div class="info-label">Periode:</div>
                             <div class="info-value">
                                 {{ \Carbon\Carbon::create(null, $realisasi->bulan, 1)->locale('id')->monthName }} {{ $realisasi->tahun }}
-                                @if($realisasi->periode_tipe == 'mingguan')
-                                (Minggu {{ $realisasi->minggu }})
-                                @endif
                             </div>
                         </div>
                         <div class="info-row">
                             <div class="info-label">Tipe:</div>
-                            <div class="info-value">{{ ucfirst($realisasi->periode_tipe ?? 'Bulanan') }}</div>
+                            <div class="info-value">Bulanan</div>
                         </div>
                     </div>
                 </div>
@@ -363,17 +373,17 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                     <small class="form-text text-muted">
-                        <i class="fas fa-info-circle me-1"></i> Masukkan nilai realisasi pencapaian untuk indikator ini.
+                        <i class="fas fa-info-circle me-1"></i> Masukkan nilai realisasi bulanan untuk indikator ini.
                     </small>
                 </div>
 
                 <div class="target-visual mb-4">
-                    <div class="target-progress" id="targetProgress" style="width: {{ min(($realisasi->nilai / $realisasi->indikator->target) * 100, 100) }}%"></div>
-                    <div class="target-value" id="targetValue">{{ number_format(($realisasi->nilai / $realisasi->indikator->target) * 100, 1) }}%</div>
+                    <div class="target-progress" id="targetProgress" style="width: {{ min(($realisasi->nilai_polaritas ?? 0), 100) }}%"></div>
+                    <div class="target-value" id="targetValue">{{ number_format($realisasi->nilai_polaritas ?? 0, 1) }}%</div>
                 </div>
                 <div class="text-center text-muted small mb-4">
                     <i class="fas fa-info-circle me-1"></i>
-                    Persentase pencapaian terhadap target.
+                    Persentase pencapaian terhadap target bulanan.
                 </div>
 
                 <div class="form-group mb-4">
@@ -407,7 +417,7 @@
                             </a>
                         @endif --}}
 
-                        <a href="{{ route('realisasi.index') }}" class="btn btn-secondary btn-action">
+                        <a href="{{ route('realisasi.index', ['tahun' => $realisasi->tahun, 'bulan' => $realisasi->bulan]) }}" class="btn btn-secondary btn-action">
                             <i class="fas fa-times"></i> Batal
                         </a>
                     </div>
@@ -432,35 +442,53 @@ document.addEventListener('DOMContentLoaded', function() {
     const nilaiInput = document.getElementById('nilai');
     const targetProgress = document.getElementById('targetProgress');
     const targetValue = document.getElementById('targetValue');
-    const target = {{ $realisasi->indikator->target }};
+    const target = {{ $targetBulanan > 0 ? $targetBulanan : 1 }};
 
     // Update progress bar saat nilai berubah
     nilaiInput.addEventListener('input', function() {
         const nilai = parseFloat(this.value) || 0;
-        const percentage = Math.min((nilai / target) * 100, 100);
+        const percentage = (nilai / target) * 100;
 
         // Update visual
-        targetProgress.style.width = percentage + '%';
+        const progressWidth = Math.min(percentage, 100);
+        targetProgress.style.width = progressWidth + '%';
+
+        // Update text dengan persentase biasa
         targetValue.textContent = percentage.toFixed(1) + '%';
 
-        // Warna progress bar berdasarkan persentase
-        if (percentage >= 90) {
-            targetProgress.style.background = 'linear-gradient(90deg, #28a745, #75c94e)';
-        } else if (percentage >= 70) {
-            targetProgress.style.background = 'linear-gradient(90deg, #ffc107, #ffda65)';
+        // Update warna progress bar berdasarkan ketentuan NKO
+        if (nilai <= 0) {
+            // Belum dilakukan proses pengukuran = Abu-abu
+            targetProgress.style.background = '#6c757d';
+        } else if (percentage >= 100) {
+            // Tercapai (≥100%) = Hijau
+            targetProgress.style.background = '#28a745';
+        } else if (percentage >= 95) {
+            // Hampir Tercapai (95-99%) = Kuning
+            targetProgress.style.background = '#ffc107';
         } else {
-            targetProgress.style.background = 'linear-gradient(90deg, #dc3545, #ef7783)';
+            // Perlu Peningkatan (<95%) = Merah
+            targetProgress.style.background = '#dc3545';
         }
     });
 
-    // Set warna awal progress bar
-    const initialPercentage = ({{ $realisasi->nilai }} / target) * 100;
-    if (initialPercentage >= 90) {
-        targetProgress.style.background = 'linear-gradient(90deg, #28a745, #75c94e)';
-    } else if (initialPercentage >= 70) {
-        targetProgress.style.background = 'linear-gradient(90deg, #ffc107, #ffda65)';
+    // Set tampilan awal progress bar
+    const initialNilai = {{ $realisasi->nilai }};
+    const initialPercentage = (initialNilai / target) * 100;
+    const initialProgressWidth = Math.min(initialPercentage, 100);
+
+    targetProgress.style.width = initialProgressWidth + '%';
+    targetValue.textContent = initialPercentage.toFixed(1) + '%';
+
+    // Set warna awal berdasarkan ketentuan NKO
+    if (initialNilai <= 0) {
+        targetProgress.style.background = '#6c757d';
+    } else if (initialPercentage >= 100) {
+        targetProgress.style.background = '#28a745';
+    } else if (initialPercentage >= 95) {
+        targetProgress.style.background = '#ffc107';
     } else {
-        targetProgress.style.background = 'linear-gradient(90deg, #dc3545, #ef7783)';
+        targetProgress.style.background = '#dc3545';
     }
 
     // Jika form dan submit button ada

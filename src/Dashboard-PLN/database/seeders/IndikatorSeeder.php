@@ -42,8 +42,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'A1',
                 'nama' => 'EBITDA',
                 'deskripsi' => 'Earnings Before Interest, Taxes, Depreciation, and Amortization',
-                'bobot' => 20,
-                'target' => 100,
+                'bobot' => 8,
                 'urutan' => 1,
             ],
             [
@@ -52,8 +51,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'A2',
                 'nama' => 'Operating Ratio',
                 'deskripsi' => 'Rasio Operasional',
-                'bobot' => 15,
-                'target' => 100,
+                'bobot' => 8,
                 'urutan' => 2,
             ],
             [
@@ -62,8 +60,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'A3',
                 'nama' => 'ROIC',
                 'deskripsi' => 'Return on Invested Capital',
-                'bobot' => 15,
-                'target' => 100,
+                'bobot' => 5,
                 'urutan' => 3,
             ],
 
@@ -74,8 +71,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'A4',
                 'nama' => 'Produksi Listrik',
                 'deskripsi' => 'Jumlah Produksi Listrik',
-                'bobot' => 20,
-                'target' => 100,
+                'bobot' => 9,
                 'urutan' => 4,
             ],
             [
@@ -84,8 +80,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'A5',
                 'nama' => 'EAF',
                 'deskripsi' => 'Equivalent Availability Factor',
-                'bobot' => 15,
-                'target' => 100,
+                'bobot' => 9,
                 'urutan' => 5,
             ],
             [
@@ -95,7 +90,6 @@ class IndikatorSeeder extends Seeder
                 'nama' => 'Efisiensi Thermal',
                 'deskripsi' => 'Efisiensi Energi Thermal',
                 'bobot' => 10,
-                'target' => 100,
                 'urutan' => 6,
             ],
 
@@ -106,8 +100,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'A7',
                 'nama' => 'CSR Index',
                 'deskripsi' => 'Indeks Corporate Social Responsibility',
-                'bobot' => 10,
-                'target' => 100,
+                'bobot' => 4,
                 'urutan' => 7,
             ],
             [
@@ -116,8 +109,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'A8',
                 'nama' => 'Kepuasan Pelanggan',
                 'deskripsi' => 'Indeks Kepuasan Pelanggan',
-                'bobot' => 10,
-                'target' => 100,
+                'bobot' => 4,
                 'urutan' => 8,
             ],
 
@@ -128,8 +120,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'A9',
                 'nama' => 'Perencanaan Strategis',
                 'deskripsi' => 'Implementasi Perencanaan Strategis',
-                'bobot' => 15,
-                'target' => 100,
+                'bobot' => 2,
                 'urutan' => 9,
             ],
         ];
@@ -143,8 +134,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'B1',
                 'nama' => 'Manajemen Risiko',
                 'deskripsi' => 'Indeks Implementasi Manajemen Risiko',
-                'bobot' => 30,
-                'target' => 100,
+                'bobot' => 4,
                 'urutan' => 1,
             ],
 
@@ -155,8 +145,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'B2',
                 'nama' => 'Pendapatan luar PLN',
                 'deskripsi' => 'Persentase Pendapatan dari luar PLN',
-                'bobot' => 40,
-                'target' => 100,
+                'bobot' => 6,
                 'urutan' => 2,
             ],
 
@@ -167,8 +156,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'B3',
                 'nama' => 'Inovasi',
                 'deskripsi' => 'Jumlah Inovasi Bisnis',
-                'bobot' => 30,
-                'target' => 100,
+                'bobot' => 2,
                 'urutan' => 3,
             ],
         ];
@@ -182,8 +170,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'C1',
                 'nama' => 'Digitalisasi',
                 'deskripsi' => 'Implementasi Digitalisasi Bisnis',
-                'bobot' => 100,
-                'target' => 100,
+                'bobot' => 10,
                 'urutan' => 1,
             ],
         ];
@@ -197,8 +184,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'D1',
                 'nama' => 'Capex Realization',
                 'deskripsi' => 'Realisasi Capital Expenditure',
-                'bobot' => 100,
-                'target' => 100,
+                'bobot' => 5,
                 'urutan' => 1,
             ],
         ];
@@ -212,8 +198,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'E1',
                 'nama' => 'Rasio Talent Milenial',
                 'deskripsi' => 'Persentase tenaga kerja milenial terhadap total tenaga kerja di organisasi.',
-                'bobot' => 20,
-                'target' => 100,
+                'bobot' => 2,
                 'urutan' => 1,
             ],
             [
@@ -222,8 +207,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'E2',
                 'nama' => 'Rasio Talent Perempuan',
                 'deskripsi' => 'Persentase tenaga kerja perempuan terhadap total tenaga kerja di organisasi.',
-                'bobot' => 20,
-                'target' => 100,
+                'bobot' => 2,
                 'urutan' => 2,
             ],
             [
@@ -232,8 +216,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'E3',
                 'nama' => 'Rasio Pemenuhan Kualifikasi Organ Pengelola Risiko SH/AP',
                 'deskripsi' => 'Persentase pemenuhan kualifikasi kompetensi oleh anggota Organ Pengelola Risiko Sumber Daya Manusia (SH) dan Administrasi & Personalia (AP).',
-                'bobot' => 20,
-                'target' => 100,
+                'bobot' => 2,
                 'urutan' => 3,
             ],
             [
@@ -242,8 +225,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'E4',
                 'nama' => 'Human Capital Readiness (HCR) & Organizational Capital Readiness (OCR) dan Produktivitas Pegawai',
                 'deskripsi' => 'Indeks kesiapan sumber daya manusia (HCR) dan kesiapan modal organisasi (OCR) serta tingkat produktivitas pegawai dalam organisasi.',
-                'bobot' => 20,
-                'target' => 100,
+                'bobot' => 2,
                 'urutan' => 4,
             ],
              // Bidang K3L (E5)
@@ -253,8 +235,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'E5',
                 'nama' => 'K3 Index',
                 'deskripsi' => 'Indeks Kesehatan dan Keselamatan Kerja',
-                'bobot' => 20,
-                'target' => 100,
+                'bobot' => 2,
                 'urutan' => 5,
             ],
         ];
@@ -269,8 +250,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'F1',
                 'nama' => 'GCG Index',
                 'deskripsi' => 'Indeks Good Corporate Governance',
-                'bobot' => 50,
-                'target' => 100,
+                'bobot' => 4,
                 'urutan' => 1,
             ],
 
@@ -281,8 +261,7 @@ class IndikatorSeeder extends Seeder
                 'kode' => 'F2',
                 'nama' => 'Kepatuhan Regulasi',
                 'deskripsi' => 'Kepatuhan terhadap Regulasi',
-                'bobot' => 50,
-                'target' => 100,
+                'bobot' => 10,
                 'urutan' => 2,
             ],
         ];

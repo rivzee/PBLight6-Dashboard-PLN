@@ -65,9 +65,10 @@
         border-collapse: separate;
         border-spacing: 0;
         color: var(--pln-text);
+        font-size: 0.9rem;
     }
     .data-table th, .data-table td {
-        padding: 15px;
+        padding: 12px 8px;
         border-bottom: 1px solid var(--pln-border);
         vertical-align: middle;
     }
@@ -75,26 +76,98 @@
         background-color: var(--pln-accent-bg);
         font-weight: 600;
         text-transform: uppercase;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         letter-spacing: 0.05em;
+        text-align: center;
+        white-space: nowrap;
     }
     .data-table tbody tr:hover {
         background-color: var(--pln-accent-bg);
     }
-    .progress-wrapper { display: flex; flex-direction: column; gap: 5px; }
+    .data-table tbody tr:nth-child(even) {
+        background-color: rgba(0,0,0,0.02);
+    }
+
+    /* Specific column widths */
+    .data-table th:nth-child(1), .data-table td:nth-child(1) { width: 40px; text-align: center; }
+    .data-table th:nth-child(2), .data-table td:nth-child(2) { width: 80px; text-align: center; }
+    .data-table th:nth-child(3), .data-table td:nth-child(3) { min-width: 200px; }
+    .data-table th:nth-child(4), .data-table td:nth-child(4) { width: 120px; text-align: center; }
+    .data-table th:nth-child(5), .data-table td:nth-child(5) { width: 60px; text-align: center; }
+    .data-table th:nth-child(6), .data-table td:nth-child(6) { width: 80px; text-align: center; }
+    .data-table th:nth-child(7), .data-table td:nth-child(7) { width: 100px; text-align: right; }
+    .data-table th:nth-child(8), .data-table td:nth-child(8) { width: 100px; text-align: right; }
+    .data-table th:nth-child(9), .data-table td:nth-child(9) { width: 120px; text-align: center; }
+    .data-table th:nth-child(10), .data-table td:nth-child(10) { width: 80px; text-align: center; }
+    .data-table th:nth-child(11), .data-table td:nth-child(11) { width: 130px; text-align: center; }
+    .data-table th:nth-child(12), .data-table td:nth-child(12) { width: 120px; text-align: center; }
+    .data-table th:nth-child(13), .data-table td:nth-child(13) { width: 100px; text-align: center; }
+    .progress-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 100px;
+    }
     .progress {
-        height: 8px;
-        border-radius: 4px;
+        height: 6px;
+        border-radius: 3px;
         background-color: var(--pln-accent-bg);
         overflow: hidden;
     }
+    .progress-value {
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-align: center;
+    }
+
+    /* Badge improvements */
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.3em 0.6em;
+        white-space: nowrap;
+    }
+
+    /* Button improvements */
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+        border-radius: 0.2rem;
+    }
+
+    /* Polaritas icon improvements */
+    .polaritas-icon {
+        font-size: 1.1rem;
+        margin-bottom: 0;
+    }
+
+    /* Polaritas icon styling */
+    .polaritas-icon {
+        font-size: 1.2rem;
+        margin-bottom: 2px;
+    }
+
+    /* Badge styling untuk keterangan */
+    .badge.rounded-pill {
+        padding: 0.4em 0.8em;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    /* Nilai calculation styling */
+    .nilai-detail {
+        font-size: 0.7rem;
+        color: #6c757d;
+        margin-top: 2px;
+    }
+
+    /* Icon colors for polaritas */
+    .text-success { color: #28a745 !important; }
+    .text-danger { color: #dc3545 !important; }
+    .text-info { color: #17a2b8 !important; }
     .progress-bar.bg-danger { background-color: #dc3545; }
     .progress-bar.bg-warning { background-color: #ffc107; }
     .progress-bar.bg-success { background-color: #28a745; }
-    .progress-value {
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
+    .progress-bar.bg-secondary { background-color: #6c757d; }
     .status-badge {
         display: inline-flex;
         align-items: center;
@@ -184,10 +257,16 @@
     }
     @media (max-width: 992px) {
         .filter-group { flex-direction: column; }
+        .data-table { font-size: 0.8rem; }
+        .data-table th, .data-table td { padding: 8px 4px; }
     }
     @media (max-width: 768px) {
         .page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
         .page-header-actions { width: 100%; justify-content: flex-start; margin-top: 10px; }
+        .data-table { font-size: 0.75rem; }
+        .data-table th, .data-table td { padding: 6px 3px; }
+        .progress-wrapper { min-width: 80px; }
+        .badge { font-size: 0.6rem; }
     }
 </style>
 @endsection
@@ -198,9 +277,6 @@
     <div class="page-header">
         <div>
             <h2><i class="fas fa-chart-line me-2"></i>Realisasi KPI</h2>
-            <div class="page-header-subtitle">
-                Pengelolaan data realisasi kinerja {{ $isMaster ? 'per pilar' : 'per bidang' }}
-            </div>
         </div>
     </div>
 
@@ -208,26 +284,32 @@
 
     <!-- Filter Form -->
     <div class="filter-card">
-        <h5><i class="fas fa-filter me-2"></i>Filter Data Realisasi</h5>
-        <div class="alert alert-info">
-            <i class="fas fa-info-circle me-2"></i>
-            <strong>Informasi:</strong>
-            <ul class="mb-0 mt-2">
-                <li><strong>Target Kumulatif:</strong> Target yang harus dicapai dari Januari hingga bulan yang dipilih</li>
-                <li><strong>Realisasi Harian:</strong> Data realisasi yang diinput untuk tanggal yang dipilih (bukan kumulatif)</li>
-                <li><strong>Capaian:</strong> Persentase realisasi harian terhadap target kumulatif</li>
-            </ul>
-        </div>
         <form method="GET" action="{{ route('realisasi.index') }}" class="mb-3">
             <div class="row g-3 align-items-center">
                 <div class="col-auto">
-                    <label for="tanggal" class="col-form-label">Pilih Tanggal</label>
+                    <label for="tahun" class="col-form-label">Tahun</label>
                 </div>
                 <div class="col-auto">
-                    <input type="date" name="tanggal" id="tanggal" class="form-control" value="{{ $tanggal }}">
+                    <select name="tahun" id="tahun" class="form-select">
+                        @foreach(\App\Http\Controllers\RealisasiController::getDaftarTahun() as $key => $value)
+                            <option value="{{ $key }}" {{ $key == $tahun ? 'selected' : '' }}>{{ $value }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-primary">Cari</button>
+                    <label for="bulan" class="col-form-label">Bulan</label>
+                </div>
+                <div class="col-auto">
+                    <select name="bulan" id="bulan" class="form-select">
+                        @foreach(\App\Http\Controllers\RealisasiController::getDaftarBulan() as $key => $value)
+                            <option value="{{ $key }}" {{ $key == $bulan ? 'selected' : '' }}>{{ $value }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Cari
+                    </button>
                 </div>
             </div>
         </form>
@@ -238,7 +320,6 @@
         <div class="table-card mt-4">
             <div class="card-header">
                 {{ $isMaster ? 'Pilar' : 'Bidang' }} {{ $kode }} - {{ $group['nama'] }}
-                <small class="float-end">Target Kumulatif s.d {{ \Carbon\Carbon::parse($tanggal)->locale('id')->monthName }} {{ \Carbon\Carbon::parse($tanggal)->year }}</small>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -251,10 +332,14 @@
                                 @if($isMaster)
                                     <th>Bidang</th>
                                 @endif
-                                <th>Target Kumulatif</th>
-                                <th>Realisasi Harian</th>
+                                <th>Polaritas</th>
+                                <th>Bobot (%)</th>
+                                <th>Target</th>
+                                <th>Realisasi</th>
                                 <th>Capaian</th>
+                                <th>Nilai</th>
                                 <th>Status</th>
+                                <th>Keterangan</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -264,19 +349,64 @@
                                     $realisasi = $indikator->firstRealisasi;
                                     $target = $indikator->target_nilai;
                                     $nilaiRealisasi = $realisasi?->nilai ?? 0;
+                                    $bobot = $indikator->bobot ?? 0;
+
+                                    // Ambil polaritas dari data realisasi yang sudah diinput
+                                    $polaritas = 'down'; // default down jika tidak ada data realisasi
+                                    if ($realisasi && $realisasi->jenis_polaritas) {
+                                        $polaritas = $realisasi->jenis_polaritas === 'positif' ? 'up' : 'down';
+                                    }
 
                                     $persentaseAsli = $target > 0 ? ($nilaiRealisasi / $target) * 100 : 0;
                                     $persentase = min($persentaseAsli, 110);
 
-                                    if ($persentase < 95) {
-                                        $progressClass = 'bg-danger';
-                                    } elseif ($persentase >= 95 && $persentase < 100) {
-                                        $progressClass = 'bg-warning';
+                                    // Hitung nilai berdasarkan polaritas
+                                    $nilaiIndikator = 0;
+                                    $keterangan = 'Masalah';
+                                    $keteranganClass = 'bg-danger';
+
+                                    if ($target > 0 && $nilaiRealisasi >= 0) {
+                                        if ($polaritas === 'down') {
+                                            // Semakin rendah semakin baik
+                                            $nilaiIndikator = min(max($nilaiRealisasi / $target, 0), 1.1);
+                                        } elseif ($polaritas === 'up') {
+                                            // Semakin tinggi semakin buruk
+                                            $nilaiIndikator = min(max(2 - ($nilaiRealisasi / $target), 0), 1.1);
+                                        } else { // flat
+                                            // Harus sama dengan target
+                                            $nilaiIndikator = ($nilaiRealisasi == $target) ? 1 : 0;
+                                        }
+
+                                        // Nilai akhir dikalikan bobot
+                                        $nilaiAkhir = $nilaiIndikator * $bobot;
+
+                                        // Tentukan keterangan berdasarkan nilai indikator
+                                        if ($nilaiIndikator >= 1) {
+                                            $keterangan = 'Baik';
+                                            $keteranganClass = 'bg-success';
+                                        } elseif ($nilaiIndikator >= 0.95) {
+                                            $keterangan = 'Hati-hati';
+                                            $keteranganClass = 'bg-warning';
+                                        } else {
+                                            $keterangan = 'Masalah';
+                                            $keteranganClass = 'bg-danger';
+                                        }
                                     } else {
-                                        $progressClass = 'bg-success';
+                                        $nilaiAkhir = 0;
                                     }
 
-                                    $query = ['tanggal' => $tanggal];
+                                    // Warna progress bar berdasarkan ketentuan NKO (untuk konsistensi visual)
+                                    if ($nilaiRealisasi <= 0) {
+                                        $progressClass = 'bg-secondary'; // Abu-abu untuk belum diukur
+                                    } elseif ($persentase >= 100) {
+                                        $progressClass = 'bg-success'; // Hijau untuk tercapai
+                                    } elseif ($persentase >= 95) {
+                                        $progressClass = 'bg-warning'; // Kuning untuk hampir tercapai
+                                    } else {
+                                        $progressClass = 'bg-danger'; // Merah untuk perlu peningkatan
+                                    }
+
+                                    $query = ['tahun' => $tahun, 'bulan' => $bulan];
                                 @endphp
 
                                 <tr>
@@ -286,28 +416,30 @@
                                     @if($isMaster)
                                         <td>{{ $indikator->bidang->nama ?? '-' }}</td>
                                     @endif
-                                    <td>{{ number_format($target, 2) }}</td>
-                                    <td>
-                                        {{ number_format($nilaiRealisasi, 2) }}
-                                        @if($realisasi)
-                                            <div class="small text-success">
-                                                <i class="fas fa-check-circle me-1"></i>
-                                                Data tanggal {{ \Carbon\Carbon::parse($tanggal)->format('d M Y') }}
-                                            </div>
+                                    <td class="text-center">
+                                        @if($polaritas === 'down')
+                                            <i class="fas fa-arrow-down text-success" title="Semakin rendah semakin baik"></i>
+                                        @elseif($polaritas === 'up')
+                                            <i class="fas fa-arrow-up text-danger" title="Semakin tinggi semakin buruk"></i>
                                         @else
-                                            <div class="small text-muted">
-                                                <i class="fas fa-info-circle me-1"></i>
-                                                Belum ada data
-                                            </div>
+                                            <i class="fas fa-arrows-alt-h text-info" title="Harus sama dengan target"></i>
                                         @endif
                                     </td>
+                                    <td class="text-center">
+                                        <strong>{{ $bobot }}%</strong>
+                                    </td>
+                                    <td class="text-right">{{ number_format($target, 2, ',', '.') }}</td>
+                                    <td class="text-right">{{ number_format($nilaiRealisasi, 2, ',', '.') }}</td>
                                     <td>
                                         <div class="progress-wrapper">
                                             <div class="progress">
                                                 <div class="progress-bar {{ $progressClass }}" style="width: {{ min($persentase, 100) }}%;"></div>
                                             </div>
-                                            <div class="progress-value">{{ number_format($persentase, 2) }}%</div>
+                                            <div class="progress-value">{{ number_format($persentase, 1) }}%</div>
                                         </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="font-weight-bold">{{ number_format($nilaiAkhir, 2, ',', '.') }}</div>
                                     </td>
                                     <td>
                                         @if($realisasi)
@@ -316,9 +448,6 @@
                                                     <i class="fas fa-check-circle me-1"></i>
                                                     Terverifikasi
                                                 </span>
-                                                <div class="small text-muted">
-                                                    {{ \Carbon\Carbon::parse($realisasi->updated_at)->format('d M Y H:i') }}
-                                                </div>
                                             @else
                                                 <span class="badge bg-warning text-dark">
                                                     <i class="fas fa-clock me-1"></i>
@@ -331,6 +460,9 @@
                                                 Belum Input
                                             </span>
                                         @endif
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge {{ $keteranganClass }} rounded-pill">{{ $keterangan }}</span>
                                     </td>
                                     <td>
                                         <div class="btn-group">
@@ -359,7 +491,6 @@
             <div class="card-body text-center">
                 <i class="fas fa-info-circle text-muted mb-3" style="font-size: 3rem;"></i>
                 <h5 class="text-muted">Tidak ada data</h5>
-                <p class="text-muted">Belum ada indikator yang tersedia untuk tanggal yang dipilih.</p>
             </div>
         </div>
     @endif

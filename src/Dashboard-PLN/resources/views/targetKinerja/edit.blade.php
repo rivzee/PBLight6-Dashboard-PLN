@@ -160,24 +160,111 @@
         color: #ffc107;
     }
 
-    /* Monthly Target Grid */
-    .monthly-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-        gap: 15px;
+    /* Target Table Styling */
+    .target-table {
         margin-top: 15px;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
-    .monthly-input {
+    .target-table th {
+        padding: 15px 8px;
+        font-weight: 600;
+        text-align: center;
+        font-size: 0.9rem;
+        background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
+        color: white;
+        border: none;
         position: relative;
     }
 
-    .monthly-input label {
-        display: block;
+    .target-table th.bg-warning {
+        background: linear-gradient(135deg, #ffc107, #ffcd39) !important;
+        color: #000 !important;
+        font-weight: 700;
+    }
+
+    .target-table td {
+        padding: 12px 8px;
+        vertical-align: middle;
+        border: 1px solid #dee2e6;
+        background: white;
+    }
+
+    .target-table td.bg-warning {
+        background: #fff3cd !important;
+        border-color: #ffc107 !important;
+    }
+
+    .target-table .monthly-target {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 12px 8px;
+        font-size: 0.95rem;
         font-weight: 500;
-        font-size: 0.8rem;
-        margin-bottom: 5px;
-        color: var(--pln-text-secondary);
+        text-align: center;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+        min-height: 44px;
+        width: 100%;
+        min-width: 120px; /* Lebih lebar untuk angka besar */
+    }
+
+    .target-table .monthly-target:focus {
+        border-color: var(--pln-light-blue);
+        background: white;
+        box-shadow: 0 0 0 0.25rem rgba(0, 156, 222, 0.25);
+        outline: none;
+    }
+
+    .target-table .monthly-target.december-target {
+        background: #fff3cd;
+        border-color: #ffc107;
+        font-weight: 700;
+        color: #000;
+    }
+
+    .target-table .monthly-target.december-target:focus {
+        background: #fff3cd;
+        border-color: #ff9800;
+        box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
+    }
+
+    /* Responsive table */
+    @media (max-width: 1200px) {
+        .target-table th,
+        .target-table td {
+            padding: 10px 6px;
+        }
+
+        .target-table th {
+            font-size: 0.8rem;
+        }
+
+        .target-table .monthly-target {
+            font-size: 0.85rem;
+            padding: 10px 6px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .target-table th,
+        .target-table td {
+            padding: 8px 4px;
+        }
+
+        .target-table th {
+            font-size: 0.75rem;
+        }
+
+        .target-table .monthly-target {
+            font-size: 0.8rem;
+            padding: 8px 4px;
+            min-height: 40px;
+        }
     }
 
     /* Action Buttons */
@@ -415,92 +502,67 @@
                 @method('PUT')
 
                 <div class="form-group">
-                    <label for="target_tahunan">Target Tahunan <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control @error('target_tahunan') is-invalid @enderror"
-                           id="target_tahunan" name="target_tahunan" step="0.01"
-                           value="{{ old('target_tahunan', $target->target_tahunan) }}" required
-                           {{ $target->disetujui && !auth()->user()->isMasterAdmin() ? 'readonly' : '' }}>
-                    @error('target_tahunan')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="form-text text-muted">
-                        <i class="fas fa-info-circle me-1"></i> Masukkan target tahunan untuk indikator ini.
-                    </small>
-                </div>
+                    <label>Target Bulanan <span class="text-danger">*</span></label>
 
-                <div class="target-visual">
-                    <div class="target-progress" id="targetProgress" style="width: 0%"></div>
-                    <div class="target-value" id="targetValue">0.00</div>
-                </div>
+                    @php
+                        $bulanNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+                        $target_bulanan_array = old('target_bulanan', $target->target_bulanan) ?? [];
 
-                <div class="form-group">
-                    <label for="target_bulanan">Target Bulanan</label>
-                    <div class="d-flex align-items-center mb-3">
-                        <button type="button" class="distr-btn" id="distrEqualBtn">
-                            <i class="fas fa-equals"></i> Distribusi Merata
+                        // Pastikan array memiliki 12 elemen
+                        if (is_array($target_bulanan_array)) {
+                            $target_bulanan_values = array_values($target_bulanan_array);
+                        } else {
+                            $target_bulanan_values = [];
+                        }
+
+                        // Isi dengan 0 jika kurang dari 12
+                        for ($i = count($target_bulanan_values); $i < 12; $i++) {
+                            $target_bulanan_values[$i] = 0;
+                        }
+                    @endphp
+
+                    <div class="table-responsive">
+                        <table class="table target-table">
+                            <thead>
+                                <tr>
+                                    @foreach($bulanNames as $index => $bulan)
+                                        <th class="{{ $index == 11 ? 'bg-warning' : '' }}"
+                                            style="min-width: 90px;">
+                                            {{ $bulan }}
+                                        </th>
+                                    @endforeach
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    @foreach($bulanNames as $index => $bulan)
+                                        <td class="{{ $index == 11 ? 'bg-warning' : '' }}">
+                                            <input type="number"
+                                                   class="monthly-target {{ $index == 11 ? 'december-target' : '' }}"
+                                                   id="target_bulanan_{{ $index }}"
+                                                   name="target_bulanan[{{ $index }}]"
+                                                   value="{{ $target_bulanan_values[$index] ?? 0 }}"
+                                                   step="0.001"
+                                                   min="0"
+                                                   {{ $target->disetujui && !auth()->user()->isMasterAdmin() ? 'readonly' : '' }}
+                                                   data-month="{{ $index }}"
+                                                   placeholder="0.000"
+                                                   title="{{ $index == 11 ? 'Target bulan Desember' : 'Target kumulatif bulan ' . $bulan }}">
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {{-- <div class="mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="distributeBtn">
+                            <i class="fas fa-calculator"></i> Distribusi Otomatis
                         </button>
                         <small class="text-muted ms-2">
-                            Klik untuk mendistribusikan target tahunan secara merata ke setiap bulan.
+                            Klik untuk mengisi target bulanan secara otomatis berdasarkan nilai Desember
                         </small>
-                    </div>
-                    <div class="monthly-grid">
-                        @php
-                            $bulanNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-                            $target_bulanan_raw = old('target_bulanan', $target->target_bulanan) ?? [];
-                            $target_bulanan_kumulatif = [];
-
-                            // Konversi data bulanan menjadi kumulatif untuk tampilan di form edit
-                            if (!empty($target_bulanan_raw)) {
-                                if (is_array($target_bulanan_raw)) {
-                                    $values = array_values($target_bulanan_raw);
-
-                                    // Jika data sudah dalam format bulanan (nilai per bulan), konversi ke kumulatif
-                                    $kumulatif = 0;
-                                    for ($i = 0; $i < 12; $i++) {
-                                        $nilaiPerBulan = $values[$i] ?? 0;
-                                        $kumulatif += $nilaiPerBulan;
-                                        $target_bulanan_kumulatif[$i] = round($kumulatif, 2);
-                                    }
-                                }
-                            }
-
-                            // Jika masih kosong, buat kumulatif dari target tahunan yang dibagi rata
-                            if (empty($target_bulanan_kumulatif)) {
-                                $targetPerBulan = $target->target_tahunan / 12;
-                                $kumulatif = 0;
-                                for ($i = 0; $i < 12; $i++) {
-                                    $kumulatif += $targetPerBulan;
-                                    $target_bulanan_kumulatif[$i] = round($kumulatif, 2);
-                                }
-                            }
-                        @endphp
-
-                        @for($i = 0; $i < 12; $i++)
-                            <div class="monthly-input">
-                                <label for="target_bulanan_{{ $i }}">{{ $bulanNames[$i] }}</label>
-                                <input type="number" class="form-control monthly-target"
-                                       id="target_bulanan_{{ $i }}" name="target_bulanan[{{ $i }}]"
-                                       value="{{ $target_bulanan_kumulatif[$i] ?? 0 }}" step="0.01" min="0"
-                                       {{ $target->disetujui && !auth()->user()->isMasterAdmin() ? 'readonly' : '' }}>
-                            </div>
-                        @endfor
-                    </div>
-                    <small class="form-text text-muted mt-2">
-                        <i class="fas fa-info-circle me-1"></i> Target bulanan dalam bentuk <strong>kumulatif</strong>. Contoh: jika target tahunan 120, maka Januari=10, Februari=20, Maret=30, dst.
-                    </small>
-                </div>
-
-                <div class="form-group">
-                    <label for="keterangan">Keterangan</label>
-                    <textarea class="form-control @error('keterangan') is-invalid @enderror"
-                              id="keterangan" name="keterangan" rows="3"
-                              {{ $target->disetujui && !auth()->user()->isMasterAdmin() ? 'readonly' : '' }}>{{ old('keterangan', $target->keterangan) }}</textarea>
-                    @error('keterangan')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="form-text text-muted">
-                        <i class="fas fa-edit me-1"></i> Tambahkan keterangan jika diperlukan.
-                    </small>
+                    </div> --}}
                 </div>
 
                 @if(!$target->disetujui || auth()->user()->isMasterAdmin())
@@ -527,62 +589,128 @@
 
 @section('scripts')
 <script>
-    // Fungsi untuk memperbarui visualisasi target
-    function updateTargetVisual() {
-        const targetTahunan = parseFloat(document.getElementById('target_tahunan').value) || 0;
-        const targetProgress = document.getElementById('targetProgress');
-        const targetValue = document.getElementById('targetValue');
-
-        // Maksimum untuk visualisasi (100%)
-        const maxVisualization = targetTahunan * 1.2;
-
-        // Update progress bar dan nilai
-        targetProgress.style.width = (targetTahunan / maxVisualization * 100) + '%';
-        targetValue.textContent = targetTahunan.toFixed(2);
-    }
-
-    // Inisialisasi visualisasi target
-    updateTargetVisual();
-
-    // Jika target tahunan berubah, update semua target bulanan dan visualisasi
-    document.getElementById('target_tahunan').addEventListener('input', function() {
-        const targetTahunan = parseFloat(this.value) || 0;
-        const targetBulanan = targetTahunan / 12;
-
-        // Update semua input target bulanan dengan nilai KUMULATIF
-        const bulananInputs = document.querySelectorAll('.monthly-target');
-        let kumulatif = 0;
-        bulananInputs.forEach((input, index) => {
-            kumulatif += targetBulanan;
-            input.value = kumulatif.toFixed(2);
-        });
-
-        // Update visualisasi
-        updateTargetVisual();
-    });
-
-    // Event listener untuk input bulanan
-    document.querySelectorAll('.monthly-target').forEach(function(input) {
-        input.addEventListener('input', function() {
-            // Validasi nilai tidak negatif
-            if (parseFloat(this.value) < 0) {
-                this.value = 0;
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fungsi untuk highlight Desember
+        function highlightDecember() {
+            const decemberInput = document.querySelector('.december-target');
+            if (decemberInput) {
+                decemberInput.style.backgroundColor = '#fff3cd';
+                decemberInput.style.fontWeight = 'bold';
+                decemberInput.style.borderColor = '#ffc107';
             }
-        });
-    });
+        }
 
-    // Distribusi merata button
-    document.getElementById('distrEqualBtn').addEventListener('click', function() {
-        const targetTahunan = parseFloat(document.getElementById('target_tahunan').value) || 0;
-        const targetBulanan = targetTahunan / 12;
+        // Fungsi untuk update visual feedback
+        function updateVisualFeedback() {
+            const decemberValue = parseFloat(document.querySelector('.december-target').value) || 0;
 
-        // Update semua input target bulanan dengan nilai KUMULATIF
-        const bulananInputs = document.querySelectorAll('.monthly-target');
-        let kumulatif = 0;
-        bulananInputs.forEach((input, index) => {
-            kumulatif += targetBulanan;
-            input.value = kumulatif.toFixed(2);
+            // Update tooltip untuk Desember
+            const decemberInput = document.querySelector('.december-target');
+            decemberInput.title = `Target Tahunan: ${decemberValue.toFixed(3)}`;
+
+            // Visual feedback untuk semua input
+            document.querySelectorAll('.monthly-target').forEach(function(input, index) {
+                const value = parseFloat(input.value) || 0;
+
+                if (value > 0) {
+                    if (index === 11) {
+                        input.style.backgroundColor = '#fff3cd';
+                        input.style.borderColor = '#ffc107';
+                    } else {
+                        input.style.backgroundColor = '#f8f9fa';
+                        input.style.borderColor = '#28a745';
+                    }
+                } else {
+                    if (index === 11) {
+                        input.style.backgroundColor = '#fff3cd';
+                        input.style.borderColor = '#ffc107';
+                    } else {
+                        input.style.backgroundColor = '#f8f9fa';
+                        input.style.borderColor = '#e9ecef';
+                    }
+                }
+            });
+        }
+
+        // Event listener untuk setiap input bulanan
+        document.querySelectorAll('.monthly-target').forEach(function(input, index) {
+            input.addEventListener('input', function() {
+                // Validasi nilai tidak negatif
+                if (parseFloat(this.value) < 0) {
+                    this.value = 0;
+                }
+
+                updateVisualFeedback();
+
+                // Jika ini adalah input Desember, berikan feedback khusus
+                if (index === 11) {
+                    const value = parseFloat(this.value) || 0;
+                    console.log('Target Tahunan (Desember):', value);
+                }
+            });
+
+            // Highlight saat focus
+            input.addEventListener('focus', function() {
+                this.style.boxShadow = '0 0 0 0.25rem rgba(0, 123, 255, 0.25)';
+            });
+
+            input.addEventListener('blur', function() {
+                this.style.boxShadow = 'none';
+            });
         });
+
+        // Tombol distribusi otomatis
+        document.getElementById('distributeBtn').addEventListener('click', function() {
+            const decemberValue = parseFloat(document.querySelector('.december-target').value) || 0;
+
+            if (decemberValue <= 0) {
+                alert('Silakan masukkan nilai target Desember (target tahunan) terlebih dahulu!');
+                document.querySelector('.december-target').focus();
+                return;
+            }
+
+            // Distribusi nilai secara merata dalam bentuk kumulatif
+            const monthlyValue = decemberValue / 12;
+
+            document.querySelectorAll('.monthly-target').forEach(function(input, index) {
+                // Kecuali Desember, isi dengan nilai kumulatif
+                if (index !== 11) {
+                    const kumulatifValue = monthlyValue * (index + 1);
+                    input.value = kumulatifValue.toFixed(3);
+                }
+            });
+
+            updateVisualFeedback();
+
+            // Tampilkan konfirmasi
+            const confirmMsg = `Target bulanan berhasil didistribusi!\nTarget per bulan: ${monthlyValue.toFixed(3)}\nTarget tahunan (Desember): ${decemberValue.toFixed(3)}`;
+            alert(confirmMsg);
+        });
+
+        // Inisialisasi
+        highlightDecember();
+        updateVisualFeedback();
+
+        // // Pesan bantuan untuk user
+        // const helpMessage = document.createElement('div');
+        // helpMessage.className = 'alert alert-info mt-3';
+        // helpMessage.innerHTML = `
+        //     <i class="fas fa-lightbulb"></i>
+        //     <strong>Tips:</strong>
+        //     <ul class="mb-0 mt-2">
+        //         <li>Isi nilai target <strong>kumulatif</strong> untuk setiap bulan sesuai rencana</li>
+        //         <li>Nilai bulan <strong>Desember</strong> akan menjadi target tahunan secara otomatis</li>
+        //         <li>Gunakan tombol "Distribusi Otomatis" untuk mengisi target bulanan secara merata</li>
+        //         <li>Target tahunan = nilai yang Anda masukkan di kolom Desember</li>
+        //         <li>Contoh: Target per bulan 10, maka input: Jan=10, Feb=20, Mar=30, dst.</li>
+        //     </ul>
+        // `;
+
+        // Tambahkan setelah tabel
+        const tableContainer = document.querySelector('.table-responsive');
+        if (tableContainer) {
+            tableContainer.parentNode.insertBefore(helpMessage, tableContainer.nextSibling);
+        }
     });
 </script>
 @endsection

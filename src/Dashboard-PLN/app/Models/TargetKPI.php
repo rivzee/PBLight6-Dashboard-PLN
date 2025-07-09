@@ -19,6 +19,7 @@ class TargetKPI extends Model
         'user_id',
         'target_tahunan',
         'target_bulanan',
+        'polaritas',
         'keterangan',
         'disetujui',
         'disetujui_oleh',
@@ -99,5 +100,30 @@ class TargetKPI extends Model
         $indikator = $this->indikator ? $this->indikator->nama : 'unknown indikator';
 
         return 'Target KPI ' . $indikator . ' Tahun ' . $tahun;
+    }
+
+    /**
+     * Mendapatkan target tahunan (dari target Desember)
+     */
+    public function getTargetTahunan(): float
+    {
+        if (!$this->target_bulanan || !is_array($this->target_bulanan)) {
+            return 0;
+        }
+
+        // Target tahunan diambil dari target bulan Desember (index 11)
+        return $this->target_bulanan[11] ?? 0;
+    }
+
+    /**
+     * Mendapatkan total target tahunan kumulatif (penjumlahan semua bulan)
+     */
+    public function getTargetTahunanKumulatif(): float
+    {
+        if (!$this->target_bulanan || !is_array($this->target_bulanan)) {
+            return 0;
+        }
+
+        return array_sum($this->target_bulanan);
     }
 }

@@ -328,6 +328,37 @@
         color: var(--pln-blue);
     }
 
+    /* Modal Footer - Compact */
+    .modal-footer {
+        padding: 10px 16px !important;
+        border-top: 1px solid #dee2e6 !important;
+        justify-content: center !important;
+    }
+
+    .modal-footer .btn {
+        padding: 8px 16px !important;
+        font-size: 0.85rem !important;
+    }
+
+    /* Info Alert - Compact */
+    .alert.alert-info {
+        margin-bottom: 0.5rem !important;
+        margin-top: 0.5rem !important;
+        padding: 8px 12px !important;
+    }
+
+    .alert.alert-info small {
+        font-size: 0.75rem !important;
+        line-height: 1.3 !important;
+    }
+
+    /* Table responsive container - Balanced padding */
+    .table-responsive {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+        padding-bottom: 0.75rem !important;
+    }
+
     /* Responsive adjustments */
     @media (max-width: 992px) {
         .dashboard-grid {
@@ -378,11 +409,135 @@
 
     /* Modal Styling */
     .modal-lg {
-        max-width: 900px;
+        max-width: 600px;
     }
 
     .modal-header.bg-primary {
         background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue)) !important;
+        padding: 12px 16px;
+    }
+
+    .modal-header .modal-title {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .modal-body {
+        padding: 12px 16px !important;
+    }
+
+    .modal-content {
+        border-radius: 8px !important;
+    }
+
+    .modal-header {
+        padding: 14px 18px !important;
+        border-bottom: 1px solid #dee2e6 !important;
+    }
+
+    .modal-title {
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        margin: 0 !important;
+    }
+
+    /* Custom Modal Table Styling - Compact but Readable */
+    .modal-table {
+        margin: 0 !important;
+        border-collapse: collapse !important;
+        width: 100% !important;
+        border: none !important;
+        font-size: 0.8rem !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    }
+
+    .modal-table thead th {
+        background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue)) !important;
+        color: white !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+        padding: 6px 8px !important;
+        border: none !important;
+        font-size: 0.75rem !important;
+        line-height: 1.2 !important;
+        margin: 0 !important;
+        vertical-align: middle !important;
+        height: 28px !important;
+    }
+
+    .modal-table tbody tr {
+        margin: 0 !important;
+        border: none !important;
+        height: 26px !important;
+    }
+
+    .modal-table tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.05) !important;
+    }
+
+    .modal-table tbody td {
+        padding: 4px 8px !important;
+        vertical-align: middle !important;
+        border-top: 1px solid #e9ecef !important;
+        font-size: 0.75rem !important;
+        line-height: 1.2 !important;
+        margin: 0 !important;
+        height: 26px !important;
+        text-align: center !important;
+    }
+
+    .modal-table tbody tr:first-child td {
+        border-top: none !important;
+    }
+
+    /* Styling untuk highlight Desember */
+    .modal-table tbody tr.table-warning {
+        background: #fff3cd !important;
+        border-left: 3px solid #ffc107 !important;
+    }
+
+    .modal-table tbody tr.table-warning:hover {
+        background: #ffe8a1 !important;
+    }
+
+    /* Styling untuk total tahunan */
+    .modal-table tbody tr.table-primary {
+        background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue)) !important;
+        color: white !important;
+        font-weight: 600 !important;
+    }
+
+    .modal-table tbody tr.table-primary:hover {
+        background: linear-gradient(135deg, var(--pln-dark-blue), var(--pln-blue)) !important;
+    }
+
+    .modal-table tbody tr.table-primary td {
+        border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+
+    /* Icon styling dalam tabel */
+    .modal-table .fa-star {
+        color: #ffc107 !important;
+        font-size: 0.7rem !important;
+        margin-left: 4px !important;
+    }
+
+    .modal-table .fa-calendar-check {
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-size: 0.7rem !important;
+    }
+
+    /* Responsive modal table */
+    @media (max-width: 768px) {
+        .modal-table thead th,
+        .modal-table tbody td {
+            padding: 3px 6px !important;
+            font-size: 0.7rem !important;
+        }
+
+        .modal-lg {
+            max-width: 95% !important;
+        }
     }
 
     .progress {
@@ -647,7 +802,7 @@
                                     <td>{{ $indikator->bobot }}%</td>
                                     <td>
                                         @if(isset($indikator->target_data))
-                                            <span class="font-weight-bold">{{ number_format($indikator->target_data->target_tahunan, 2) }}</span>
+                                            <span class="font-weight-bold">{{ number_format($indikator->target_data->target_tahunan, 2, ',', '.') }}</span> {{ $indikator->satuan }}
                                         @else
                                             <span class="text-danger">Belum Diatur</span>
                                         @endif
@@ -669,11 +824,11 @@
                                                     class="lihat-target"
                                                     data-kode="{{ $indikator->kode }}"
                                                     data-nama="{{ $indikator->nama }}"
-                                                    data-tahunan="{{ $indikator->target_data->target_tahunan }}"
+                                                    data-satuan="{{ $indikator->satuan }}"
                                                     data-bulanan='@json($indikator->target_data->target_bulanan)'
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#monthlyModal">
-                                                    Lihat detail
+                                                    Lihat detail bulanan
                                                 </a>
                                             </div>
 
@@ -728,27 +883,30 @@
     <div class="modal-content">
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title">
-          <i class="fas fa-chart-line me-2"></i>
+          <i class="fas fa-chart-line me-2" style="font-size: 0.9rem;"></i>
           <span id="modal-title-text">Target Bulanan Detail</span>
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body">
-
+      <div class="modal-body p-0">
+        <!-- Info Card -->
+        <div class="alert alert-info mx-3 mt-2 mb-2" style="background: linear-gradient(135deg, #d1ecf1, #bee5eb); border: none; border-radius: 6px; padding: 8px 12px;">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-info-circle me-2 text-primary" style="font-size: 0.85rem;"></i>
+            <small class="mb-0" style="font-size: 0.75rem;">Target bulanan menunjukkan target yang harus dicapai pada bulan tersebut. <strong>Target tahunan = nilai Desember</strong></small>
+          </div>
+        </div>
 
         <!-- Table -->
-        <div class="table-responsive">
-          <table class="table table-striped table-hover">
-            <thead class="table-primary">
+        <div class="table-responsive px-3 pb-3">
+          <table class="table modal-table">
+            <thead>
               <tr>
-                <th width="33%" class="text-center">
-                  <i class="fas fa-calendar me-1"></i>Bulan
+                <th width="50%">
+                  <i class="fas fa-calendar me-2" style="font-size: 0.7rem;"></i>Bulan
                 </th>
-                <th width="33%" class="text-center">
-                  <i class="fas fa-target me-1"></i>Target Bulanan
-                </th>
-                <th width="34%" class="text-center">
-                  <i class="fas fa-chart-area me-1"></i>Target Kumulatif
+                <th width="50%">
+                  <i class="fas fa-target me-2" style="font-size: 0.7rem;"></i>Target Bulanan
                 </th>
               </tr>
             </thead>
@@ -757,8 +915,6 @@
             </tbody>
           </table>
         </div>
-
-
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -807,9 +963,10 @@ document.addEventListener('DOMContentLoaded', () => {
     'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
   ];
 
-  // Function untuk format angka
+  // Function untuk format angka dengan format Indonesia (koma untuk desimal, titik untuk ribuan)
+  // Tampilan tabel menggunakan 2 angka di belakang koma
   function formatNumber(num) {
-    return Number(num).toFixed(2);
+    return Number(num).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   }
 
   // Event listener untuk tombol "Lihat detail"
@@ -834,11 +991,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataStr = btn.dataset.bulanan;
         const kode = btn.dataset.kode;
         const nama = btn.dataset.nama || kode;
-        const targetTahunanRaw = btn.dataset.tahunan || '0';
+        const satuan = btn.dataset.satuan || '';
 
         console.log('Raw data string:', dataStr);
         console.log('Kode:', kode);
-        console.log('Target tahunan raw:', targetTahunanRaw);
+        console.log('Satuan:', satuan);
 
         // Parse data bulanan
         let data;
@@ -862,32 +1019,44 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Update modal title
-        modalTitle.textContent = `Target Bulanan: ${nama} (${kode})`;
+        modalTitle.textContent = `Target Bulanan: ${nama} (${kode})`;        // Generate table rows dengan target bulanan (bukan kumulatif)
+        const tableRows = data.map((targetBulanan, index) => {
+          // Highlight bulan Desember
+          const isDesember = index === 11;
+          const rowClass = isDesember ? 'table-warning' : '';
 
-        // Generate table rows dengan target bulanan dan kumulatif
-        let kumulatif = 0;
-        const tableRows = data.map((target, index) => {
-          kumulatif += Number(target);
           return `
-            <tr>
-              <td class="text-start">
+            <tr class="${rowClass}">
+              <td>
                 <strong>${namaBulan[index]}</strong>
+                ${isDesember ? '<i class="fas fa-star ms-2" title="Target Tahunan"></i>' : ''}
               </td>
-              <td class="text-center">
-                <strong>${formatNumber(target)}</strong>
-              </td>
-              <td class="text-center">
-                <strong>${formatNumber(kumulatif)}</strong>
+              <td class="text-end">
+                <strong>${formatNumber(targetBulanan)} ${satuan}</strong>
               </td>
             </tr>
           `;
         }).join('');
 
+        // Tambahkan baris total tahunan (dari Desember)
+        const targetTahunan = data[11] || 0; // Target tahunan = nilai Desember
+
+        const summaryRow = `
+          <tr class="table-primary">
+            <td>
+              <strong><i class="fas fa-calendar-check me-2"></i>Target Tahunan</strong>
+            </td>
+            <td class="text-end">
+              <strong>${formatNumber(targetTahunan)} ${satuan}</strong>
+            </td>
+          </tr>
+        `;
+
         console.log('Generated table rows:', tableRows);
 
         // Pastikan tbody ada dan update kontennya
         if (tbody) {
-          tbody.innerHTML = tableRows;
+          tbody.innerHTML = tableRows + summaryRow;
           console.log('Table updated successfully');
         } else {
           console.error('tbody element not found');
@@ -900,7 +1069,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (tbody) {
           tbody.innerHTML = `
             <tr>
-              <td colspan="3" class="text-center text-danger">
+              <td colspan="2" class="text-center text-danger">
                 <i class="fas fa-exclamation-triangle me-2"></i>
                 Error loading data: ${error.message}
               </td>

@@ -219,11 +219,8 @@
         <div>
             <h2><i class="fas fa-chart-bar me-2"></i>Detail Realisasi KPI</h2>
             <div class="page-header-subtitle">
-                Informasi lengkap realisasi untuk periode:
+                Informasi lengkap realisasi bulanan untuk periode:
                 {{ \Carbon\Carbon::create(null, $nilaiKPI->bulan, 1)->locale('id')->monthName }} {{ $nilaiKPI->tahun }}
-                @if($nilaiKPI->periode_tipe == 'mingguan')
-                (Minggu {{ $nilaiKPI->minggu }})
-                @endif
             </div>
         </div>
         <div class="page-header-actions">
@@ -236,7 +233,7 @@
                     <i class="fas fa-clock"></i> Menunggu Verifikasi
                 </div>
             @endif
-            <a href="{{ route('realisasi.index') }}" class="btn btn-light">
+            <a href="{{ route('realisasi.index', ['tahun' => $nilaiKPI->tahun, 'bulan' => $nilaiKPI->bulan]) }}" class="btn btn-light">
                 <i class="fas fa-arrow-left me-1"></i> Kembali
             </a>
         </div>
@@ -276,8 +273,22 @@
                                 <td>{{ $nilaiKPI->indikator->bidang->nama }}</td>
                             </tr>
                             <tr>
-                                <th>Target</th>
-                                <td>{{ number_format($nilaiKPI->indikator->target, 2) }}</td>
+                                <th>Target Bulanan</th>
+                                <td>{{ number_format($realisasi->target ?? 0, 2) }} {{ $nilaiKPI->indikator->satuan }}</td>
+                            </tr>
+                            <tr>
+                                <th>Jenis Polaritas</th>
+                                <td>
+                                    @if($realisasi->jenis_polaritas == 'positif')
+                                        <span class="badge bg-success">Positif</span>
+                                    @else
+                                        <span class="badge bg-warning">Negatif</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Nilai Polaritas</th>
+                                <td>{{ number_format($realisasi->nilai_polaritas ?? 0, 2) }}%</td>
                             </tr>
                             @if($nilaiKPI->indikator->deskripsi)
                             <tr>
@@ -297,14 +308,11 @@
                                 <th>Periode</th>
                                 <td>
                                     {{ \Carbon\Carbon::create(null, $nilaiKPI->bulan, 1)->locale('id')->monthName }} {{ $nilaiKPI->tahun }}
-                                    @if($nilaiKPI->periode_tipe == 'mingguan')
-                                    (Minggu {{ $nilaiKPI->minggu }})
-                                    @endif
                                 </td>
                             </tr>
                             <tr>
-                                <th>Realisasi</th>
-                                <td>{{ number_format($nilaiKPI->nilai, 2) }}</td>
+                                <th>Realisasi Bulanan</th>
+                                <td>{{ number_format($nilaiKPI->nilai, 2) }} {{ $nilaiKPI->indikator->satuan }}</td>
                             </tr>
                             <tr>
                                 <th>Persentase</th>
@@ -376,7 +384,7 @@
             </div>
 
             <div class="detail-actions">
-                <a href="{{ route('realisasi.edit', $nilaiKPI->id) }}" class="btn btn-warning btn-action">
+                <a href="{{ route('realisasi.edit', ['id' => $nilaiKPI->id, 'tahun' => $nilaiKPI->tahun, 'bulan' => $nilaiKPI->bulan]) }}" class="btn btn-warning btn-action">
                     <i class="fas fa-edit"></i> Edit Realisasi
                 </a>
                 @if(auth()->user()->isMasterAdmin() && !$nilaiKPI->diverifikasi)
@@ -389,7 +397,7 @@
                         <i class="fas fa-times-circle"></i> Batalkan Verifikasi
                     </a>
                 @endif
-                <a href="{{ route('realisasi.index') }}" class="btn btn-secondary btn-action">
+                <a href="{{ route('realisasi.index', ['tahun' => $nilaiKPI->tahun, 'bulan' => $nilaiKPI->bulan]) }}" class="btn btn-secondary btn-action">
                     <i class="fas fa-arrow-left"></i> Kembali
                 </a>
             </div>

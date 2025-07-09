@@ -110,8 +110,8 @@ class TargetKinerjaController extends Controller
         $request->validate([
             'indikator_id' => 'required|exists:indikators,id',
             'tahun_penilaian_id' => 'required|exists:tahun_penilaians,id',
-            'target_tahunan' => 'required|numeric|min:0',
-            'keterangan' => 'nullable|string',
+            'target_bulanan' => 'required|array|size:12',
+            'target_bulanan.*' => 'required|numeric|min:0|max:999999.999', // Support 3 decimal places
         ]);
 
         $indikator = Indikator::findOrFail($request->indikator_id);
@@ -128,28 +128,13 @@ class TargetKinerjaController extends Controller
                 ->with('info', 'Target sudah ada.');
         }
 
-        $targetTahunan = $request->target_tahunan;
-
-        // Ambil target bulanan dari input user (dalam format kumulatif) atau bagi rata jika tidak ada
-        $targetBulananInput = $request->target_bulanan ?? [];
         $targetBulanan = [];
-
-        // Jika ada input target bulanan dari user, konversi dari kumulatif ke bulanan
-        if (!empty($targetBulananInput) && array_sum($targetBulananInput) > 0) {
-            // Konversi dari kumulatif ke bulanan (nilai per bulan)
-            $targetBulanan[0] = round(floatval($targetBulananInput[0] ?? 0), 2);
-            for ($i = 1; $i < 12; $i++) {
-                $nilaiKumulatif = floatval($targetBulananInput[$i] ?? 0);
-                $nilaiKumulatifSebelum = floatval($targetBulananInput[$i-1] ?? 0);
-                $targetBulanan[$i] = round($nilaiKumulatif - $nilaiKumulatifSebelum, 2);
-            }
-        } else {
-            // Jika tidak ada input, bagi rata target tahunan ke 12 bulan
-            $perBulan = $targetTahunan / 12;
-            for ($i = 0; $i < 12; $i++) {
-                $targetBulanan[$i] = round($perBulan, 2);
-            }
+        for ($i = 0; $i < 12; $i++) {
+            $targetBulanan[$i] = round(floatval($request->target_bulanan[$i]), 3);
         }
+
+        // Target tahunan diambil dari target bulan Desember (index 11)
+        $targetTahunan = $targetBulanan[11];
 
         TargetKPI::create([
             'indikator_id' => $request->indikator_id,
@@ -157,13 +142,10 @@ class TargetKinerjaController extends Controller
             'user_id' => $user->id,
             'target_tahunan' => $targetTahunan,
             'target_bulanan' => $targetBulanan,
-            'keterangan' => $request->keterangan,
-            'disetujui' => true, // Langsung disetujui tanpa perlu approval
+            'disetujui' => true,
             'disetujui_oleh' => $user->id,
             'disetujui_pada' => now(),
         ]);
-
-        $indikator->update(['target' => $targetTahunan]);
 
         return redirect()->route('targetKinerja.index', ['tahun_penilaian_id' => $request->tahun_penilaian_id])
             ->with('success', 'Target berhasil disimpan.');
@@ -200,44 +182,29 @@ class TargetKinerjaController extends Controller
         }
 
         $request->validate([
-            'target_tahunan' => 'required|numeric|min:0',
-            'keterangan' => 'nullable|string',
+            'target_bulanan' => 'required|array|size:12',
+            'target_bulanan.*' => 'required|numeric|min:0|max:999999.999', // Support 3 decimal places
         ]);
 
-        $targetTahunan = $request->target_tahunan;
-
-        // Ambil target bulanan dari input user (dalam format kumulatif) atau bagi rata jika tidak ada
-        $targetBulananInput = $request->target_bulanan ?? [];
         $targetBulanan = [];
-
-        // Jika ada input target bulanan dari user, konversi dari kumulatif ke bulanan
-        if (!empty($targetBulananInput) && array_sum($targetBulananInput) > 0) {
-            // Konversi dari kumulatif ke bulanan (nilai per bulan)
-            $targetBulanan[0] = round(floatval($targetBulananInput[0] ?? 0), 2);
-            for ($i = 1; $i < 12; $i++) {
-                $nilaiKumulatif = floatval($targetBulananInput[$i] ?? 0);
-                $nilaiKumulatifSebelum = floatval($targetBulananInput[$i-1] ?? 0);
-                $targetBulanan[$i] = round($nilaiKumulatif - $nilaiKumulatifSebelum, 2);
-            }
-        } else {
-            // Jika tidak ada input, bagi rata target tahunan ke 12 bulan
-            $perBulan = $targetTahunan / 12;
-            for ($i = 0; $i < 12; $i++) {
-                $targetBulanan[$i] = round($perBulan, 2);
-            }
+        $totalTahunan = 0;
+        for ($i = 0; $i < 12; $i++) {
+            $nilai = round(floatval($request->target_bulanan[$i]), 3);
+            $targetBulanan[$i] = $nilai;
+            $totalTahunan += $nilai;
         }
+
+        // Target tahunan adalah total dari semua bulan (Jan-Des)
+        $targetTahunan = $totalTahunan;
 
         $target->update([
             'target_tahunan' => $targetTahunan,
             'target_bulanan' => $targetBulanan,
-            'keterangan' => $request->keterangan,
             'user_id' => $user->id,
-            'disetujui' => true, // Langsung disetujui tanpa perlu approval
+            'disetujui' => true,
             'disetujui_oleh' => $user->id,
             'disetujui_pada' => now(),
         ]);
-
-        $target->indikator->update(['target' => $targetTahunan]);
 
         return redirect()->route('targetKinerja.index', ['tahun_penilaian_id' => $target->tahun_penilaian_id])
             ->with('success', 'Target berhasil diperbarui.');
@@ -289,5 +256,72 @@ class TargetKinerjaController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Target berhasil diverifikasi.');
+    }
+
+    /**
+     * Update weights for all indicators
+     */
+    public function updateWeights()
+    {
+        $user = Auth::user();
+        if (!$user->isMasterAdmin()) {
+            return redirect()->route('dashboard')->with('error', 'Hanya Master Admin yang dapat mengubah bobot indikator.');
+        }
+
+        $weights = [
+            'A1' => 8, 'A2' => 8, 'A3' => 5, 'A4' => 9, 'A5' => 9, 'A6' => 10, 'A7' => 4, 'A8' => 4, 'A9' => 2,
+            'B1' => 12, 'B2' => 6, 'B3' => 2, 'C1' => 10, 'D1' => 5, 'E1' => 2, 'E2' => 2, 'E3' => 2, 'E4' => 2, 'E5' => 2,
+            'F1' => 4, 'F2' => 10,
+        ];
+
+        try {
+            foreach ($weights as $kode => $bobot) {
+                $indikator = Indikator::where('kode', $kode)->first();
+                if ($indikator) {
+                    $indikator->update(['bobot' => $bobot]);
+                }
+            }
+
+            return redirect()->route('targetKinerja.index')
+                ->with('success', 'Bobot indikator berhasil diperbarui.');
+        } catch (\Exception $e) {
+            return redirect()->route('targetKinerja.index')
+                ->with('error', 'Terjadi kesalahan saat memperbarui bobot indikator: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get target bulanan untuk bulan tertentu
+     */
+    public function getTargetBulanan($indikatorId, $tahunPenilaianId, $bulan)
+    {
+        $targetKPI = TargetKPI::where('indikator_id', $indikatorId)
+            ->where('tahun_penilaian_id', $tahunPenilaianId)
+            ->first();
+
+        if (!$targetKPI || !$targetKPI->target_bulanan) {
+            return 0;
+        }
+
+        $targetBulanan = $targetKPI->target_bulanan;
+        $bulanIndex = $bulan - 1;
+
+        return isset($targetBulanan[$bulanIndex]) ? $targetBulanan[$bulanIndex] : 0;
+    }
+
+    /**
+     * Get all monthly targets untuk indikator dan tahun tertentu
+     */
+    public function getAllTargetBulanan($indikatorId, $tahunPenilaianId)
+    {
+        $targetKPI = TargetKPI::where('indikator_id', $indikatorId)
+            ->where('tahun_penilaian_id', $tahunPenilaianId)
+            ->first();
+
+        if (!$targetKPI || !$targetKPI->target_bulanan) {
+            return array_fill(0, 12, 0);
+        }
+
+        return $targetKPI->target_bulanan;
     }
 }

@@ -531,11 +531,31 @@
                         </tr>
                         <tr>
                             <th>Nilai</th>
-                            <td>{{ $realisasi->nilai }} {{ $realisasi->indikator->satuan }}</td>
+                            <td>{{ number_format($realisasi->nilai, 2, ',', '.') }} {{ $realisasi->indikator->satuan }}</td>
                         </tr>
                         <tr>
-                            <th>Target</th>
-                            <td>{{ $realisasi->target ?? '-' }} {{ $realisasi->indikator->satuan }}</td>
+                            <th>Target Bulan {{ $realisasi->bulan }}</th>
+                            <td>
+                                @if($targetKPI && isset($targetKPI->target_bulanan[$realisasi->bulan - 1]))
+                                    {{ number_format($targetKPI->target_bulanan[$realisasi->bulan - 1], 2, ',', '.') }} {{ $realisasi->indikator->satuan }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Jenis Polaritas</th>
+                            <td>
+                                @if($realisasi->jenis_polaritas == 'positif')
+                                    <span class="badge bg-success">Positif</span>
+                                @else
+                                    <span class="badge bg-warning">Negatif</span>
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Nilai Polaritas</th>
+                            <td>{{ number_format($realisasi->nilai_polaritas ?? 0, 2) }}%</td>
                         </tr>
                         <tr>
                             <th>Persentase</th>
