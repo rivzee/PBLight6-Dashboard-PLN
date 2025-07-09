@@ -369,31 +369,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Trigger saat nilai diinput
     nilaiInput.addEventListener('input', function() {
-        const nilai = parseFloat(this.value) || 0;
-        const percentage = (nilai / targetBulanan) * 100;
+    const nilai = parseFloat(this.value) || 0;
+    const rawPercentage = (nilai / targetBulanan) * 100;
+    const cappedPercentage = Math.max(0, Math.min(rawPercentage, 110)); // Batasi hanya untuk teks
 
-        if (nilai >= 0) {
-            targetVisual.style.display = 'block';
-            const progressWidth = Math.min(percentage, 100);
-            targetProgress.style.width = progressWidth + '%';
-            targetValue.textContent = percentage.toFixed(1) + '%';
+    if (nilai >= 0) {
+        targetVisual.style.display = 'block';
 
-            if (nilai <= 0) {
-                targetProgress.style.background = '#6c757d';
-            } else if (percentage >= 100) {
-                targetProgress.style.background = '#28a745';
-            } else if (percentage >= 95) {
-                targetProgress.style.background = '#ffc107';
-            } else {
-                targetProgress.style.background = '#dc3545';
-            }
+        // Biarkan progress bar mengikuti rawPercentage (bisa > 100%)
+        const progressWidth = Math.min(rawPercentage, 100); // Jangan lebih dari 100% untuk lebar bar
+        targetProgress.style.width = progressWidth + '%';
+
+        // Teks persentase dibatasi max 110%
+        targetValue.textContent = cappedPercentage.toFixed(1) + '%';
+        targetValue.title = 'Persentase Asli: ' + rawPercentage.toFixed(1) + '%';
+
+        // Warna progress bar
+        if (nilai <= 0) {
+            targetProgress.style.background = '#6c757d';
+        } else if (rawPercentage >= 100) {
+            targetProgress.style.background = '#28a745';
+        } else if (rawPercentage >= 95) {
+            targetProgress.style.background = '#ffc107';
+        } else {
+            targetProgress.style.background = '#dc3545';
         }
+    }
 
-        const selectedPolaritas = polaritasSelect.value;
-        if (selectedPolaritas) {
-            updateArrow(nilai, targetBulanan, selectedPolaritas);
-        }
-    });
+    const selectedPolaritas = polaritasSelect.value;
+    if (selectedPolaritas) {
+        updateArrow(nilai, targetBulanan, selectedPolaritas);
+    }
+});
+
 
     // Trigger saat polaritas diganti
     polaritasSelect.addEventListener('change', function() {

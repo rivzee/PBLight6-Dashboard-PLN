@@ -377,10 +377,11 @@
                     </small>
                 </div>
 
-                <div class="target-visual mb-4">
+                <div class="target-visual mb-4" id="targetVisual">
                     <div class="target-progress" id="targetProgress" style="width: {{ min(($realisasi->nilai_polaritas ?? 0), 100) }}%"></div>
                     <div class="target-value" id="targetValue">{{ number_format($realisasi->nilai_polaritas ?? 0, 1) }}%</div>
                 </div>
+
                 <div class="text-center text-muted small mb-4">
                     <i class="fas fa-info-circle me-1"></i>
                     Persentase pencapaian terhadap target bulanan.
@@ -442,62 +443,63 @@ document.addEventListener('DOMContentLoaded', function() {
     const nilaiInput = document.getElementById('nilai');
     const targetProgress = document.getElementById('targetProgress');
     const targetValue = document.getElementById('targetValue');
+    const targetVisual = document.getElementById('targetVisual');
     const target = {{ $targetBulanan > 0 ? $targetBulanan : 1 }};
-    const polaritas = "{{ $realisasi->jenis_polaritas }}"; // Ambil dari server
+    const polaritas = "{{ $realisasi->jenis_polaritas }}";
 
-    // Fungsi bantu: atur warna progress bar berdasarkan nilai dan polaritas
     function setProgressColor(percentage, nilai) {
         if (nilai <= 0) {
-            targetProgress.style.background = '#6c757d'; // Abu-abu
+            targetProgress.style.background = '#6c757d';
         } else {
             if (polaritas === 'positif') {
                 if (percentage >= 100) {
-                    targetProgress.style.background = '#28a745'; // Hijau
+                    targetProgress.style.background = '#28a745';
                 } else if (percentage >= 95) {
-                    targetProgress.style.background = '#ffc107'; // Kuning
+                    targetProgress.style.background = '#ffc107';
                 } else {
-                    targetProgress.style.background = '#dc3545'; // Merah
+                    targetProgress.style.background = '#dc3545';
                 }
             } else if (polaritas === 'negatif') {
                 if (percentage <= 100) {
-                    targetProgress.style.background = '#28a745'; // Hijau
+                    targetProgress.style.background = '#28a745';
                 } else if (percentage <= 105) {
-                    targetProgress.style.background = '#ffc107'; // Kuning
+                    targetProgress.style.background = '#ffc107';
                 } else {
-                    targetProgress.style.background = '#dc3545'; // Merah
+                    targetProgress.style.background = '#dc3545';
                 }
             } else {
-                targetProgress.style.background = '#0d6efd'; // Netral = Biru
+                targetProgress.style.background = '#0d6efd';
             }
         }
     }
 
-    // Update progress bar saat nilai berubah
     nilaiInput.addEventListener('input', function() {
         const nilai = parseFloat(this.value) || 0;
-        const percentage = (nilai / target) * 100;
+        const rawPercentage = (nilai / target) * 100;
+        const cappedPercentage = Math.max(0, Math.min(rawPercentage, 110));
 
-        // Update visual
-        const progressWidth = Math.min(percentage, 100);
-        targetProgress.style.width = progressWidth + '%';
-        targetValue.textContent = percentage.toFixed(1) + '%';
+        if (nilai >= 0) {
+            targetVisual.style.display = 'block';
+            const progressWidth = Math.min(rawPercentage, 100);
+            targetProgress.style.width = progressWidth + '%';
+            targetValue.textContent = cappedPercentage.toFixed(1) + '%';
+            targetValue.title = 'Persentase Asli: ' + rawPercentage.toFixed(1) + '%';
 
-        // Update warna progress bar
-        setProgressColor(percentage, nilai);
+            setProgressColor(rawPercentage, nilai);
+        }
     });
 
-    // Set tampilan awal progress bar
+    // Tampilan awal
     const initialNilai = {{ $realisasi->nilai }};
     const initialPercentage = (initialNilai / target) * 100;
     const initialProgressWidth = Math.min(initialPercentage, 100);
 
     targetProgress.style.width = initialProgressWidth + '%';
     targetValue.textContent = initialPercentage.toFixed(1) + '%';
-
-    // Warna awal
+    targetValue.title = 'Persentase Asli: ' + initialPercentage.toFixed(1) + '%';
+    targetVisual.style.display = 'block';
     setProgressColor(initialPercentage, initialNilai);
 
-    // Submit form loading
     if (form && submitBtn) {
         form.addEventListener('submit', function(e) {
             submitBtn.disabled = true;
@@ -507,5 +509,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
 @endsection

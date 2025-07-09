@@ -362,6 +362,7 @@
 
                                     // Hitung nilai berdasarkan polaritas
                                     $nilaiIndikator = 0;
+                                    $nilaiAkhir = 0;
                                     $keterangan = 'Masalah';
                                     $keteranganClass = 'bg-danger';
 
