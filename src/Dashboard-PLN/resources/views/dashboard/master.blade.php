@@ -1062,9 +1062,12 @@
         <div class="grid-span-6">
           <div class="card chart-card">
             <h3 class="chart-title"><i class="fas fa-chart-radar"></i> Perbandingan Antar Perspektif</h3>
-            <div class="chart-container medium">
-              <canvas id="radarChart"></canvas>
-            </div>
+<div class="d-flex justify-content-center align-items-center" style="height: 500px;">
+  <div style="width: 500px; height: 500px; position: relative;">
+    <canvas id="radarChart"></canvas>
+  </div>
+</div>
+
           </div>
         </div>
 
@@ -1751,7 +1754,7 @@ function initTrendChart(chartConfig = getChartConfig()) {
           scales: {
             r: {
               beginAtZero: true,
-              max: 100,
+              max: 110,
               ticks: {
                 stepSize: 20,
                 backdropColor: 'transparent',
