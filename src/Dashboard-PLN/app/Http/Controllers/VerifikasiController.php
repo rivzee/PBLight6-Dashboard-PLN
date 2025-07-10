@@ -8,6 +8,7 @@ use App\Models\Realisasi;
 use App\Models\Bidang;
 use App\Models\AktivitasLog;
 use App\Models\TahunPenilaian;
+use App\Models\TargetKPI;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -64,7 +65,13 @@ class VerifikasiController extends Controller
 
         $isPeriodeLocked = $tahunPenilaian ? $tahunPenilaian->is_locked : false;
 
-        return view('verifikasi.show', compact('realisasi', 'isPeriodeLocked'));
+        // Ambil target KPI untuk tahun ini
+        $targetKPI = TargetKPI::where('indikator_id', $realisasi->indikator_id)
+            ->whereHas('tahunPenilaian', function($q) use ($realisasi) {
+                $q->where('tahun', $realisasi->tahun);
+            })->first();
+
+        return view('verifikasi.show', compact('realisasi', 'isPeriodeLocked', 'targetKPI'));
     }
 
     public function update(Request $request, $id)

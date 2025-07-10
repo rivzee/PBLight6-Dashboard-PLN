@@ -57,23 +57,21 @@ class DashboardController extends Controller
         $totalNilaiPilar = 0;
 
         foreach ($pilars as $pilar) {
-            $indikators = $pilar->indikators->filter(function ($indikator) use ($tahun, $bulan) {
-                return $indikator->realisasis()
-                    ->where('tahun', $tahun)
-                    ->where('bulan', $bulan)
-                    ->where('diverifikasi', true)
-                    ->exists();
-            });
-
             $pilarData = ['nama' => $pilar->nama, 'nilai' => 0, 'indikator' => []];
             $totalNilaiIndikator = 0;
+            $jumlahIndikatorDenganData = 0;
+            $totalSemuaIndikator = $pilar->indikators->count();
 
-            foreach ($indikators as $indikator) {
+            // Hitung SEMUA indikator dalam pilar (termasuk yang belum ada input = 0)
+            foreach ($pilar->indikators as $indikator) {
                 $targetKPI = $indikator->targetKPI
                     ->where('tahunPenilaian.tahun', $tahun)
                     ->first();
 
-                $target = $targetKPI?->target_bulanan[$bulan] ?? 0;
+                $target = 0;
+                if ($targetKPI && is_array($targetKPI->target_bulanan) && isset($targetKPI->target_bulanan[$bulan - 1])) {
+                    $target = $targetKPI->target_bulanan[$bulan - 1];
+                }
 
                 $realisasi = $indikator->realisasis
                     ->where('tahun', $tahun)
@@ -81,9 +79,11 @@ class DashboardController extends Controller
                     ->where('diverifikasi', true)
                     ->sum('nilai');
 
-                $persen = ($target > 0 && $realisasi > 0)
-                    ? min(($realisasi / $target) * 100, 110)
-                    : 0;
+                $persen = 0;
+                if ($target > 0 && $realisasi > 0) {
+                    $persen = min(($realisasi / $target) * 100, 110);
+                    $jumlahIndikatorDenganData++;
+                }
 
                 $totalNilaiIndikator += $persen;
 
@@ -93,18 +93,35 @@ class DashboardController extends Controller
                 ];
             }
 
-            $jumlahIndikator = count($pilarData['indikator']);
-            $pilarData['nilai'] = $jumlahIndikator > 0
-                ? round($totalNilaiIndikator / $jumlahIndikator, 2)
+            // Nilai pilar = rata-rata dari SEMUA indikator (termasuk yang belum input = 0)
+            $pilarData['nilai'] = $totalSemuaIndikator > 0
+                ? round($totalNilaiIndikator / $totalSemuaIndikator, 2)
                 : 0;
 
-            $totalNilaiPilar += $pilarData['nilai'];
+            // Tambahkan informasi tambahan untuk debugging
+            $pilarData['jumlah_input'] = $jumlahIndikatorDenganData;
+            $pilarData['total_indikator'] = $totalSemuaIndikator;
+
             $data['pilar'][] = $pilarData;
+            $totalNilaiPilar += $pilarData['nilai'];
         }
 
+        // Hitung NKO berdasarkan rata-rata semua pilar
         $data['nko'] = $jumlahPilar > 0
-            ? round($totalNilaiPilar / $jumlahPilar, 2)
+            ? min(round($totalNilaiPilar / $jumlahPilar, 2), 110)
             : 0;
+
+        // Tentukan status NKO berdasarkan nilai
+        if ($data['nko'] >= 100) {
+            $data['nko_status'] = 'Tercapai';
+            $data['nko_color'] = 'success';
+        } elseif ($data['nko'] >= 95) {
+            $data['nko_status'] = 'Hampir Tercapai';
+            $data['nko_color'] = 'warning';
+        } else {
+            $data['nko_status'] = 'Perlu Peningkatan';
+            $data['nko_color'] = 'danger';
+        }
 
         // === Trend NKO per bulan dari Januari hingga bulan aktif ===
         $nkoTrend = [];
@@ -113,7 +130,7 @@ class DashboardController extends Controller
             $jumlahPilar = $pilars->count();
 
             foreach ($pilars as $pilar) {
-                $jumlahIndikator = count($pilar->indikators);
+                $jumlahIndikator = $pilar->indikators->count();
                 $totalNilaiIndikator = 0;
 
                 foreach ($pilar->indikators as $indikator) {
@@ -121,7 +138,10 @@ class DashboardController extends Controller
                         ->whereHas('tahunPenilaian', fn($q) => $q->where('tahun', $tahun))
                         ->first();
 
-                    $target = $targetKPI?->target_bulanan[$i] ?? 0;
+                    $target = 0;
+                    if ($targetKPI && is_array($targetKPI->target_bulanan) && isset($targetKPI->target_bulanan[$i - 1])) {
+                        $target = $targetKPI->target_bulanan[$i - 1];
+                    }
 
                     $realisasi = Realisasi::where('indikator_id', $indikator->id)
                         ->where('tahun', $tahun)
@@ -129,20 +149,25 @@ class DashboardController extends Controller
                         ->where('diverifikasi', true)
                         ->sum('nilai');
 
-                    $persen = ($target > 0) ? round(($realisasi / $target) * 100, 2) : null;
-                    $totalNilaiIndikator += $persen ?? 0;
+                    $persen = 0;
+                    if ($target > 0 && $realisasi > 0) {
+                        $persen = min(($realisasi / $target) * 100, 110);
+                    }
+                    $totalNilaiIndikator += $persen;
                 }
 
+                // Rata-rata semua indikator dalam pilar (termasuk yang belum ada input = 0)
                 $rataIndikator = $jumlahIndikator > 0
                     ? round($totalNilaiIndikator / $jumlahIndikator, 2)
-                    : null;
+                    : 0;
 
-                $totalNilaiPilar += $rataIndikator ?? 0;
+                $totalNilaiPilar += $rataIndikator;
             }
 
+            // NKO = rata-rata semua pilar, dibatasi maksimal 110
             $nkoBulan = $jumlahPilar > 0
-                ? round($totalNilaiPilar / $jumlahPilar, 2)
-                : null;
+                ? min(round($totalNilaiPilar / $jumlahPilar, 2), 110)
+                : 0;
 
             $nkoTrend[] = [
                 'bulan' => \Carbon\Carbon::create()->month($i)->format('M'),

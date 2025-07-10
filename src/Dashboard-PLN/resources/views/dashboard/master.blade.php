@@ -891,9 +891,67 @@
       </div>
     </div>
   </div>
+  <!-- Informasi Input Progress -->
+  <div class="dashboard-grid mb-4">
+    <div class="grid-span-12">
+      <div class="card">
+        <div class="card-header bg-info text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-info-circle mr-2"></i> Status Input Data Bulan {{ date('F', mktime(0, 0, 0, $bulan, 1)) }} {{ $tahun }}
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            @php
+              $totalIndikator = collect($data['pilar'] ?? [])->sum('total_indikator');
+              $totalInput = collect($data['pilar'] ?? [])->sum('jumlah_input');
+              $persentaseInput = $totalIndikator > 0 ? round(($totalInput / $totalIndikator) * 100, 1) : 0;
+            @endphp
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="text-primary mb-1">{{ $totalInput }}</h4>
+                <p class="text-muted mb-0">Indikator Terinput</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="text-secondary mb-1">{{ $totalIndikator }}</h4>
+                <p class="text-muted mb-0">Total Indikator</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="text-info mb-1">{{ $persentaseInput }}%</h4>
+                <p class="text-muted mb-0">Progress Input</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="text-success mb-1">
+                  @if(isset($data['nko']) && $data['nko'] > 0)
+                    {{ number_format($data['nko'], 1) }}%
+                  @else
+                    0%
+                  @endif
+                </h4>
+                <p class="text-muted mb-0">Rata-rata Kinerja</p>
+              </div>
+            </div>
+          </div>
 
+          @if($persentaseInput < 100)
+            <div class="alert alert-warning mt-3 mb-0">
+              <i class="fas fa-exclamation-triangle mr-2"></i>
+              <strong>Perhatian:</strong> Masih ada {{ $totalIndikator - $totalInput }} indikator yang belum diinput untuk bulan ini.
+              Nilai kinerja pilar dihitung berdasarkan rata-rata dari semua indikator (termasuk yang belum diinput = 0%).
+            </div>
+          @endif
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- Statistik Ringkasan -->
-  <div class="dashboard-grid">
+  {{-- <div class="dashboard-grid">
     <div class="grid-span-3">
       <div class="card stat-card">
         <div class="stat-header">
@@ -945,7 +1003,7 @@
         <p class="stat-description">Pilar dengan Kinerja < 70%</p>
       </div>
     </div>
-  </div>
+  </div> --}}
 
   <!-- Dashboard Overview -->
   <div class="dashboard-grid">

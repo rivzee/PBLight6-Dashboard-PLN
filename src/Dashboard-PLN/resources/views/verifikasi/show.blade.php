@@ -555,7 +555,13 @@
                         </tr>
                         <tr>
                             <th>Nilai Polaritas</th>
-                            <td>{{ number_format($realisasi->nilai_polaritas ?? 0, 2) }}%</td>
+                            <td>
+                                @if($realisasi->jenis_polaritas === 'positif')
+                                    {{ number_format($realisasi->nilai_polaritas ?? 0, 2) }}%
+                                @else
+                                    {{ number_format($realisasi->nilai_polaritas ?? 0, 2) }}
+                                @endif
+                            </td>
                         </tr>
                         <tr>
                             <th>Persentase</th>
