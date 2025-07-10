@@ -1704,12 +1704,12 @@ use Illuminate\Support\Str;
             <span class="menu-text">Data Realisasi</span>
           </a>
         </li>
-        <li>
+        {{-- <li>
           <a href="#" class="{{ request()->routeIs('kpi.index') ? 'active' : '' }}">
             <i class="fas fa-chart-line icon"></i>
             <span class="menu-text">Laporan KPI</span>
           </a>
-        </li>
+        </li> --}}
 
         @endif
 
