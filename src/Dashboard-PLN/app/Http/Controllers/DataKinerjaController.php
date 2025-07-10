@@ -578,14 +578,13 @@ class DataKinerjaController extends Controller
             ->orderBy('bulan')
             ->get();
 
-        // Ambil target tahunan yang disetujui
-        $targetKPI = $indikator->targetKPI
+        // Ambil target KPI yang disetujui
+        $targetKPI = TargetKPI::where('indikator_id', $id)
             ->where('disetujui', true)
-            ->filter(fn($t) => $t->tahunPenilaian && $t->tahunPenilaian->tahun == $tahun)
+            ->whereHas('tahunPenilaian', fn($q) => $q->where('tahun', $tahun))
             ->first();
 
         $targetTahunan = $targetKPI ? $targetKPI->target_tahunan : 0;
-        $targetBulanan = $targetTahunan > 0 ? $targetTahunan / 12 : 0;
 
         // Siapkan data realisasi + hitung persentase
         $realisasi = collect();
@@ -594,16 +593,22 @@ class DataKinerjaController extends Controller
             $real = $realisasiBulanan->firstWhere('bulan', $i);
             $nilai = $real ? $real->nilai : 0;
 
-            // Hitung persentase secara hati-hati agar tidak tinggi di awal bulan
-            if ($targetBulanan > 0) {
-                $persentase = min(100, ($nilai / $targetBulanan) * 100);
+            // Pastikan target_bulanan adalah array dan ada data untuk bulan ini
+            if ($targetKPI && isset($targetKPI->target_bulanan) && is_array($targetKPI->target_bulanan)) {
+                $targetBulan = $targetKPI->target_bulanan[$i - 1] ?? 0;
             } else {
-                $persentase = 0;
+                $targetBulan = 0;
             }
+
+            // Hitung persentase dengan batas maksimal 110% sesuai ketentuan
+            $persentase = ($targetBulan > 0)
+                ? min(($nilai / $targetBulan) * 100, 110) // Maksimal 110%
+                : 0;
 
             $realisasi->push((object)[
                 'bulan' => $i,
                 'nilai' => $nilai,
+                'target_bulanan' => $targetBulan,
                 'persentase' => $persentase
             ]);
         }
@@ -619,11 +624,11 @@ class DataKinerjaController extends Controller
         // Ambil realisasi terbaru yang ada nilainya
         $realisasiTerakhir = $realisasi->sortByDesc('bulan')->firstWhere('nilai', '>', 0);
 
-        // Tentukan status
+        // Tentukan status berdasarkan persentase terbaru
         $statusText = '-';
         $statusClass = 'info-card';
 
-        if ($realisasiTerakhir && $targetBulanan > 0) {
+        if ($realisasiTerakhir) {
             $persen = $realisasiTerakhir->persentase;
 
             if ($persen >= 90) {

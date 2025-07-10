@@ -461,8 +461,8 @@
             </div>
             <div class="indikator-values">
                 <div class="indikator-value-item">
-                    <div class="indikator-value-label">Target</div>
-                    <div class="indikator-value-number">{{ number_format($indikator->target ?? 0) }}</div>
+                    <div class="indikator-value-label">Target Bulanan</div>
+                    <div class="indikator-value-number">{{ number_format($indikator->target_bulanan ?? 0, 2) }}</div>
                 </div>
                 <div class="indikator-value-item">
                     <div class="indikator-value-label">Realisasi</div>

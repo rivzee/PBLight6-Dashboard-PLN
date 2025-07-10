@@ -28,7 +28,7 @@
         <div class="login-form">
             <div class="logo-container">
                 <div class="pln-logo">
-                    <img src="{{ asset('images/logoPLN.jpg') }}" alt="PLN Logo">
+                    <img src="{{ asset('images/logo_pln.png') }}" alt="PLN Logo">
                 </div>
             </div>
 
@@ -73,7 +73,7 @@
     <div class="transition-overlay" id="transitionOverlay">
         <div class="transition-content">
             <div class="transition-logo">
-                <img src="{{ asset('images/logoPLN.jpg') }}" alt="PLN Logo">
+                <img src="{{ asset('images/logo_pln.png') }}" alt="PLN Logo">
             </div>
             <div class="loading-text">Memuat Dashboard PLN...</div>
             <div class="loading-bar"></div>
