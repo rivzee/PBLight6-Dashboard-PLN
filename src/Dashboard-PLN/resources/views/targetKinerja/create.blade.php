@@ -263,26 +263,35 @@
                         @php
                             $namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
                         @endphp
-                        @foreach($namaBulan as $i => $namaBlnIni)
-                            <div class="monthly-input">
-                                <label>{{ $namaBlnIni }} {{ $tahunPenilaian->tahun }}</label>
+                       @foreach($namaBulan as $i => $namaBlnIni)
+                        <div class="monthly-input">
+                            <label>{{ $namaBlnIni }} {{ $tahunPenilaian->tahun }}</label>
+
+                            @if(strtolower($indikator->satuan) === 'waktu' || str_contains(strtolower($indikator->satuan), 'tanggal'))
+                                <input type="date"
+                                    class="form-control target-input @error('target_bulanan.'.$i) is-invalid @enderror"
+                                    name="target_bulanan[{{ $i }}]"
+                                    value="{{ old('target_bulanan.'.$i) }}"
+                                    data-month="{{ $i }}">
+                            @else
                                 <div class="input-group">
-                                    <input type="number"
-                                           class="form-control target-input @error('target_bulanan.'.$i) is-invalid @enderror"
-                                           name="target_bulanan[{{ $i }}]"
-                                           step="0.01"
-                                           min="0"
-                                           value="{{ old('target_bulanan.'.$i, 0) }}"
-                                           required
-                                           placeholder="0"
-                                           data-month="{{ $i }}">
+                                    <input type="text"
+                                        class="form-control target-input @error('target_bulanan.'.$i) is-invalid @enderror"
+                                        name="target_bulanan[{{ $i }}]"
+                                        value="{{ old('target_bulanan.'.$i) }}"
+                                        placeholder="0"
+                                        data-month="{{ $i }}"
+                                        inputmode="decimal">
                                     <span class="input-group-text">{{ $indikator->satuan }}</span>
                                 </div>
-                                @error('target_bulanan.'.$i)
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        @endforeach
+                            @endif
+
+                            @error('target_bulanan.'.$i)
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    @endforeach
+
                     </div>
                     @error('target_bulanan')
                         <div class="text-danger small mt-2">{{ $message }}</div>
@@ -325,96 +334,128 @@
 
 @section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Function to update target tahunan dan validasi kumulatif
+document.addEventListener('DOMContentLoaded', function () {
+    const satuan = "{{ strtolower($indikator->satuan) }}";
+    const isTanggal = satuan.includes('waktu') || satuan.includes('tanggal');
+    const inputs = document.querySelectorAll('.target-input');
+    const totalDisplay = document.querySelector('.total-display');
+
+    function formatRibuan(nilai) {
+        if (!nilai) return '';
+        const angka = parseFloat(nilai.toString().replaceAll('.', '').replace(',', '.'));
+        if (isNaN(angka)) return '';
+        return angka.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function parseToFloat(str) {
+        return parseFloat(str.replaceAll('.', '').replace(',', '.')) || 0;
+    }
+
     function updateTargetTahunan() {
-        const inputs = document.querySelectorAll('.target-input');
-        const desemberInput = inputs[11]; // Desember adalah index 11
-        const targetTahunan = parseFloat(desemberInput.value) || 0;
-
-        document.getElementById('targetTahunan').textContent = targetTahunan.toFixed(2);
-
-        // Update display berdasarkan apakah target tahunan sudah diisi
-        const totalDisplay = document.querySelector('.total-display');
-        if (targetTahunan > 0) {
-            totalDisplay.style.backgroundColor = '#e8f5e8';
-            totalDisplay.style.borderColor = '#b8e6b8';
+        const desemberInput = inputs[11];
+        if (isTanggal) {
+            const tanggal = desemberInput.value;
+            const tampilanTanggal = tanggal
+                ? new Date(tanggal).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                : '-';
+            document.getElementById('targetTahunan').textContent = tampilanTanggal;
+            totalDisplay.style.display = 'block';
         } else {
-            totalDisplay.style.backgroundColor = '#f8f9fc';
-            totalDisplay.style.borderColor = '#e3e6f0';
+            const nilai = parseToFloat(desemberInput.value);
+            document.getElementById('targetTahunan').textContent = nilai.toLocaleString('id-ID', { minimumFractionDigits: 2 });
+            totalDisplay.style.display = 'block';
         }
     }
 
-    // Function to validate kumulatif (nilai harus naik)
     function validateKumulatif() {
-        const inputs = document.querySelectorAll('.target-input');
-        let previousValue = 0;
-        let allValid = true;
+        if (isTanggal) return true;
+        let previous = 0;
+        let valid = true;
 
-        inputs.forEach((input, index) => {
-            const currentValue = parseFloat(input.value) || 0;
-
-            if (currentValue > 0) {
-                if (currentValue < previousValue) {
-                    // Nilai tidak boleh turun dari bulan sebelumnya
+        inputs.forEach(input => {
+            const val = parseToFloat(input.value);
+            if (val > 0) {
+                if (val < previous) {
                     input.style.borderColor = '#dc3545';
                     input.style.backgroundColor = '#ffe6e6';
-                    allValid = false;
+                    valid = false;
                 } else {
-                    // Nilai valid
                     input.style.borderColor = '#28a745';
                     input.style.backgroundColor = '#f8fff8';
                 }
-                previousValue = currentValue;
+                previous = val;
             } else {
-                // Reset styling jika kosong
                 input.style.borderColor = '';
                 input.style.backgroundColor = '';
             }
         });
 
-        return allValid;
+        return valid;
     }
 
-    // Add event listeners to all target inputs
-    document.querySelectorAll('.target-input').forEach((input, index) => {
-        input.addEventListener('input', function() {
+    inputs.forEach((input, index) => {
+        input.addEventListener('input', () => {
             updateTargetTahunan();
             validateKumulatif();
         });
 
-        // Auto-fill suggestion untuk memudahkan input kumulatif
-        input.addEventListener('focus', function() {
-            if (index > 0) {
-                const previousInput = document.querySelectorAll('.target-input')[index - 1];
-                const previousValue = parseFloat(previousInput.value) || 0;
+        input.addEventListener('blur', function () {
+            if (!isTanggal) this.value = formatRibuan(this.value);
+        });
 
-                if (previousValue > 0 && !this.value) {
-                    this.placeholder = `Min: ${previousValue.toFixed(2)}`;
+        input.addEventListener('focus', function () {
+            if (!isTanggal) this.value = this.value.replaceAll('.', '').replace(',', '.');
+
+            if (index > 0) {
+                const previous = parseToFloat(inputs[index - 1].value);
+                if (previous > 0 && !this.value) {
+                    this.placeholder = `Min: ${previous.toLocaleString('id-ID', { minimumFractionDigits: 2 })}`;
                 }
             }
         });
     });
 
-    // Update initial target tahunan
     updateTargetTahunan();
 
-    // Form validation
-    document.getElementById('targetForm').addEventListener('submit', function(e) {
-        const desemberValue = parseFloat(document.querySelectorAll('.target-input')[11].value) || 0;
+    document.getElementById('targetForm').addEventListener('submit', function (e) {
+        const desemberInput = inputs[11];
+        const isAnyFilled = Array.from(inputs).some(input => parseToFloat(input.value) > 0);
 
-        if (desemberValue <= 0) {
+        if (!isAnyFilled) {
             e.preventDefault();
-            alert('Target bulan Desember harus diisi untuk menentukan target tahunan!');
-            return false;
+            alert('Minimal target untuk satu bulan harus diisi!');
+            return;
         }
 
-        if (!validateKumulatif()) {
-            e.preventDefault();
-            alert('Target kumulatif tidak valid! Nilai target harus selalu naik atau sama dari bulan sebelumnya.');
-            return false;
+        if (isTanggal) {
+            if (!desemberInput.value) {
+                e.preventDefault();
+                alert('Target bulan Desember harus diisi sebagai patokan target tahunan!');
+                return;
+            }
+        } else {
+            const desemberValue = parseToFloat(desemberInput.value);
+            if (desemberValue <= 0) {
+                e.preventDefault();
+                alert('Target bulan Desember harus diisi untuk menentukan target tahunan!');
+                return;
+            }
+
+            if (!validateKumulatif()) {
+                e.preventDefault();
+                alert('Target kumulatif tidak valid! Nilai harus meningkat atau sama tiap bulan.');
+                return;
+            }
+
+            // ✅ Format input jadi angka murni sebelum kirim
+            inputs.forEach(input => {
+                input.value = parseToFloat(input.value);
+            });
         }
     });
 });
+
 </script>
+
 @endsection
+

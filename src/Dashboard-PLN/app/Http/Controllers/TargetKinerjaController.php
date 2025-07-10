@@ -111,7 +111,7 @@ class TargetKinerjaController extends Controller
             'indikator_id' => 'required|exists:indikators,id',
             'tahun_penilaian_id' => 'required|exists:tahun_penilaians,id',
             'target_bulanan' => 'required|array|size:12',
-            'target_bulanan.*' => 'required|numeric|min:0|max:999999.999', // Support 3 decimal places
+            'target_bulanan.*' => 'required|numeric|min:0|max:10000000000',
         ]);
 
         $indikator = Indikator::findOrFail($request->indikator_id);
@@ -183,7 +183,7 @@ class TargetKinerjaController extends Controller
 
         $request->validate([
             'target_bulanan' => 'required|array|size:12',
-            'target_bulanan.*' => 'required|numeric|min:0|max:999999.999', // Support 3 decimal places
+            'target_bulanan.*' => 'required|numeric|min:0|max:10000000000',
         ]);
 
         $targetBulanan = [];
