@@ -472,7 +472,7 @@
                                     <td class="text-center">{!! $ikonArah !!}</td>
 
                                     <td class="text-center">
-                                        <strong>{{ $bobot }}%</strong>
+                                        <strong>{{ $bobot }}</strong>
                                     </td>
                                     <td class="text-right">{{ number_format($target, 2, ',', '.') }}</td>
                                     <td class="text-right">{{ number_format($nilaiRealisasi, 2, ',', '.') }}</td>

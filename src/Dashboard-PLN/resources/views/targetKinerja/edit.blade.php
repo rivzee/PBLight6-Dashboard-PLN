@@ -471,7 +471,7 @@
                         </div>
                         <div class="info-row">
                             <div class="info-label">Bobot:</div>
-                            <div class="info-value">{{ $indikator->bobot }}%</div>
+                            <div class="info-value">{{ $indikator->bobot }}</div>
                         </div>
                     </div>
                     <div class="col-md-6">

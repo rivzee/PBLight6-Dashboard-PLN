@@ -291,8 +291,9 @@
                 <!-- Nilai -->
                 <div class="form-group mb-4">
                     <label for="nilai">Nilai Realisasi <span class="text-danger">*</span></label>
-                    <input type="number" step="0.01" class="form-control @error('nilai') is-invalid @enderror"
-                           id="nilai" name="nilai" value="{{ old('nilai') }}" required>
+                    <input type="text" class="form-control @error('nilai') is-invalid @enderror"
+                     id="nilai" name="nilai" value="{{ old('nilai') }}" required >
+
                     @error('nilai')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -381,22 +382,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Trigger saat nilai diinput
     nilaiInput.addEventListener('input', function() {
-    const nilai = parseFloat(this.value) || 0;
+    const rawInput = this.value;
+    const cleanValue = rawInput.replace(/\./g, '').replace(',', '.');
+    const nilai = parseFloat(cleanValue) || 0;
+
     const rawPercentage = (nilai / targetBulanan) * 100;
     const cappedPercentage = Math.max(0, Math.min(rawPercentage, 110)); // Batasi hanya untuk teks
 
     if (nilai >= 0) {
         targetVisual.style.display = 'block';
 
-        // Biarkan progress bar mengikuti rawPercentage (bisa > 100%)
         const progressWidth = Math.min(rawPercentage, 100); // Jangan lebih dari 100% untuk lebar bar
         targetProgress.style.width = progressWidth + '%';
 
-        // Teks persentase dibatasi max 110%
         targetValue.textContent = cappedPercentage.toFixed(1) + '%';
         targetValue.title = 'Persentase Asli: ' + rawPercentage.toFixed(1) + '%';
 
-        // Warna progress bar
         if (nilai <= 0) {
             targetProgress.style.background = '#6c757d';
         } else if (rawPercentage >= 100) {
@@ -429,11 +430,20 @@ document.addEventListener('DOMContentLoaded', function() {
         nilaiInput.dispatchEvent(new Event('input'));
     }
 
-    form.addEventListener('submit', function(e) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
-        return true;
-    });
+    // Form submit - gabung jadi satu fungsi
+form.addEventListener('submit', function(e) {
+    // Bersihkan nilai agar jadi angka valid
+    const rawInput = nilaiInput.value;
+    const cleaned = rawInput.replace(/\./g, '').replace(',', '.');
+    nilaiInput.value = cleaned;
+
+    // Tombol loading
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
+
+    return true;
+});
+
 });
 
 </script>

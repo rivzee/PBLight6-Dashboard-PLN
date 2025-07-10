@@ -366,9 +366,11 @@
 
                 <div class="form-group mb-4">
                     <label for="nilai">Nilai Realisasi <span class="text-danger">*</span></label>
-                    <input type="number" step="0.01" class="form-control @error('nilai') is-invalid @enderror"
-                           id="nilai" name="nilai" value="{{ old('nilai', $realisasi->nilai) }}" required
-                           {{ $realisasi->diverifikasi && !auth()->user()->isMasterAdmin() ? 'readonly' : '' }}>
+                   <input type="text" class="form-control @error('nilai') is-invalid @enderror"
+                        id="nilai" name="nilai"
+                        value="{{ old('nilai', $realisasi->nilai) }}"
+                        {{ $realisasi->diverifikasi && !auth()->user()->isMasterAdmin() ? 'readonly' : '' }} required>
+
                     @error('nilai')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -446,6 +448,11 @@
 
 @section('scripts')
 <script>
+function parseLocalizedNumber(str) {
+    if (!str) return 0;
+    return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
+}
+
 const arrowContainer = document.getElementById('arrowContainer');
 const arrowSymbol = document.getElementById('arrowSymbol');
 
@@ -454,30 +461,23 @@ function updateArrow(nilai, target, polaritas) {
 
     if (polaritas === "positif") {
         result = (nilai / target) * 100;
-        if (result >= 100) {
-            arrowSymbol.innerHTML = '<i class="fas fa-arrow-up text-success"></i>'; // baik
-        } else {
-            arrowSymbol.innerHTML = '<i class="fas fa-arrow-down text-danger"></i>'; // buruk
-        }
+        arrowSymbol.innerHTML = result >= 100
+            ? '<i class="fas fa-arrow-up text-success"></i>' // baik
+            : '<i class="fas fa-arrow-down text-danger"></i>'; // kurang
     } else if (polaritas === "negatif") {
         result = (2 - (nilai / target)) * 100;
-        if (nilai <= target) {
-            arrowSymbol.innerHTML = '<i class="fas fa-arrow-down text-success"></i>'; // baik (lebih kecil = lebih bagus)
-        } else {
-            arrowSymbol.innerHTML = '<i class="fas fa-arrow-up text-danger"></i>'; // buruk
-        }
+        arrowSymbol.innerHTML = nilai <= target
+            ? '<i class="fas fa-arrow-down text-success"></i>' // baik
+            : '<i class="fas fa-arrow-up text-danger"></i>'; // buruk
     } else if (polaritas === "netral") {
         let deviation = Math.abs(nilai - target) / target;
-        if (deviation <= 0.05) {
-            arrowSymbol.innerHTML = '<i class="fas fa-arrows-alt-h text-info"></i>'; // netral
-        } else {
-            arrowSymbol.innerHTML = '<i class="fas fa-arrow-down text-danger"></i>'; // terlalu menyimpang
-        }
+        arrowSymbol.innerHTML = deviation <= 0.05
+            ? '<i class="fas fa-arrows-alt-h text-info"></i>' // netral
+            : '<i class="fas fa-arrow-down text-danger"></i>'; // terlalu menyimpang
     }
 
     arrowContainer.style.display = "block";
 }
-
 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('formEdit');
@@ -489,11 +489,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const target = {{ $targetBulanan > 0 ? $targetBulanan : 1 }};
     const polaritas = "{{ $realisasi->jenis_polaritas }}";
 
-   function setProgressColor(percentage, nilai) {
-    if (nilai <= 0) {
-        targetProgress.style.background = '#6c757d'; // abu-abu jika nol
-    } else {
-        if (percentage > 100) {
+    function setProgressColor(percentage, nilai) {
+        if (nilai <= 0) {
+            targetProgress.style.background = '#6c757d'; // abu-abu
+        } else if (percentage > 100) {
             targetProgress.style.background = '#28a745'; // hijau
         } else if (percentage >= 95) {
             targetProgress.style.background = '#ffc107'; // kuning
@@ -501,11 +500,8 @@ document.addEventListener('DOMContentLoaded', function() {
             targetProgress.style.background = '#dc3545'; // merah
         }
     }
-}
 
-
-    nilaiInput.addEventListener('input', function() {
-        const nilai = parseFloat(this.value) || 0;
+    function updateProgress(nilai) {
         let rawPercentage = 0;
 
         if (polaritas === 'positif') {
@@ -519,47 +515,33 @@ document.addEventListener('DOMContentLoaded', function() {
         const cappedPercentage = Math.max(0, Math.min(rawPercentage, 110));
 
         updateArrow(nilai, target, polaritas);
+        targetProgress.style.width = Math.min(rawPercentage, 100) + '%';
+        targetValue.textContent = cappedPercentage.toFixed(1) + '%';
+        targetValue.title = 'Persentase Asli: ' + rawPercentage.toFixed(1) + '%';
+        targetVisual.style.display = 'block';
+        setProgressColor(rawPercentage, nilai);
+    }
 
-        if (nilai >= 0) {
-            targetVisual.style.display = 'block';
-            const progressWidth = Math.min(rawPercentage, 100);
-            targetProgress.style.width = progressWidth + '%';
-            targetValue.textContent = cappedPercentage.toFixed(1) + '%';
-            targetValue.title = 'Persentase Asli: ' + rawPercentage.toFixed(1) + '%';
-
-            setProgressColor(rawPercentage, nilai);
-        }
+    // Input perubahan nilai realisasi
+    nilaiInput.addEventListener('input', function() {
+        const nilai = parseLocalizedNumber(this.value);
+        updateProgress(nilai);
     });
 
-    // Tampilan awal
-    const initialNilai = {{ $realisasi->nilai }};
-    let initialPercentage = 0;
+    // Tampilan awal saat load
+    const initialNilai = parseLocalizedNumber("{{ $realisasi->nilai }}");
+    updateProgress(initialNilai);
 
-    if (polaritas === 'positif') {
-        initialPercentage = (initialNilai / target) * 100;
-    } else if (polaritas === 'negatif') {
-        initialPercentage = (2 - (initialNilai / target)) * 100;
-    } else if (polaritas === 'netral') {
-        initialPercentage = (Math.abs(initialNilai - target) <= (0.05 * target)) ? 100 : 0;
-    }
+    // Submit form
+    form.addEventListener('submit', function(e) {
+        const rawInput = nilaiInput.value;
+        const cleaned = rawInput.replace(/\./g, '').replace(',', '.');
+        nilaiInput.value = cleaned;
 
-    const initialProgressWidth = Math.min(initialPercentage, 100);
-    updateArrow(initialNilai, target, polaritas);
-
-
-    targetProgress.style.width = initialProgressWidth + '%';
-    targetValue.textContent = initialPercentage.toFixed(1) + '%';
-    targetValue.title = 'Persentase Asli: ' + initialPercentage.toFixed(1) + '%';
-    targetVisual.style.display = 'block';
-    setProgressColor(initialPercentage, initialNilai);
-
-    if (form && submitBtn) {
-        form.addEventListener('submit', function(e) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
-            return true;
-        });
-    }
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
+    });
 });
 </script>
+
 @endsection

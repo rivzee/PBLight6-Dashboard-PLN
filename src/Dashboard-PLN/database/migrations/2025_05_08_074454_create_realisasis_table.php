@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('indikator_id')->constrained('indikators')->onDelete('cascade');
             $table->foreignId('user_id')->nullable()->constrained('users'); // User yang menginput (admin/master admin)
             $table->date('tanggal'); // Inputan harian
-            $table->decimal('nilai', 8, 2); // Nilai realisasi KPI
+            $table->decimal('nilai', 15, 2); // setelah diubah
             $table->decimal('persentase', 5, 2); // Persentase pencapaian
             $table->text('keterangan')->nullable(); // Catatan tambahan
             $table->boolean('diverifikasi')->default(false); // Status verifikasi
