@@ -191,9 +191,9 @@ class DashboardController extends Controller
         $poorPerformers = Realisasi::with('indikator.bidang')
             ->where('tahun', $tahun)
             ->where('bulan', $bulan)
-            ->where('persentase', '<', 70)
+            ->where('persentase', '<', 95)
             ->orderBy('persentase')
-            ->take(5)
+            ->take(10)
             ->get();
 
         $prevMonth = $bulan === 1 ? 12 : $bulan - 1;

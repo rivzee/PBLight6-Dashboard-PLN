@@ -59,9 +59,13 @@
 
   .card-header {
     padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  font-weight: 600;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
   }
 
   [data-theme="light"] .card-header {
@@ -101,6 +105,25 @@
     margin-right: 8px;
     font-size: 0.9em;
   }
+    .card-header i.fas {
+    font-size: 1.2rem;         /* Sesuaikan ukuran ikon agar proporsional */
+    line-height: 1;            /* Hilangkan efek spasi vertikal */
+    display: inline-block;     /* Pastikan tetap inline */
+    vertical-align: middle;    /* Samakan tinggi vertikal dengan teks */
+    margin-right: 0.5rem;      /* Jarak kanan agar tidak terlalu nempel */
+    line-height: 1 !important;
+
+    }
+
+    .card-header h5 {
+    font-size: 1rem;
+    margin-bottom: 0;
+    vertical-align: middle;
+    display: inline-block;
+    line-height: 1.2;
+    }
+
+
 
   /* Stat Card Styling */
   .stat-card {
@@ -200,6 +223,11 @@
   .chart-container.medium {
     height: 300px;
   }
+    .chart-container canvas {
+    display: block;
+    width: 150% ;
+    height: 150% ;
+    }
 
   .chart-container.large {
     height: 400px;
@@ -245,77 +273,68 @@
     color: #4db5ff;
   }
 
-  /* Table Styling */
-  .table-responsive {
-    overflow-x: auto;
-    border-radius: 8px;
-  }
+ /* Table Wrapper */
+.table-responsive {
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  -webkit-overflow-scrolling: touch;
+}
 
-  .data-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-  }
+/* Tabel Umum */
+.data-table, .table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 800px; /* agar tidak kepotong di grid sempit */
+  font-size: 0.9rem;
+}
 
-  .data-table thead th {
-    text-align: left;
-    padding: 12px 15px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    border-bottom: 2px solid var(--pln-border);
-    transition: all 0.5s ease;
-  }
+/* Header Tabel */
+.data-table thead th,
+.table thead th {
+  text-align: left;
+  padding: 12px 15px;
+  font-weight: 600;
+  border-bottom: 2px solid var(--pln-border);
+  transition: all 0.3s ease;
+}
 
-  [data-theme="light"] .data-table thead th {
-    background: #f8f9fa;
-    color: #333333;
-  }
+[data-theme="light"] .data-table thead th,
+[data-theme="light"] .table thead th {
+  background-color: #f8f9fa;
+  color: #333333;
+}
 
-  [data-theme="dark"] .data-table thead th {
-    background: var(--pln-surface-2);
-    color: var(--pln-text);
-  }
+[data-theme="dark"] .data-table thead th,
+[data-theme="dark"] .table thead th {
+  background-color: var(--pln-surface-2);
+  color: var(--pln-text);
+}
 
-  .data-table tbody td {
-    padding: 12px 15px;
-    border-bottom: 1px solid var(--pln-border);
-    font-size: 0.9rem;
-    color: var(--pln-text);
-    vertical-align: middle;
-    transition: all 0.5s ease;
-  }
+/* Isi Tabel */
+.data-table tbody td,
+.table tbody td {
+  padding: 12px 15px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--pln-border);
+  color: var(--pln-text);
+  transition: background 0.3s ease;
+}
 
-  .data-table tbody tr:hover {
-    background: var(--pln-accent-bg);
-  }
+/* Hover Effect */
+.data-table tbody tr:hover,
+.table-hover tbody tr:hover {
+  background-color: var(--pln-accent-bg);
+}
 
-  /* Pengaturan untuk tabel di Bootstrap */
-  .table-hover tbody tr:hover {
-    background-color: var(--pln-accent-bg);
-  }
+/* Thead Light (Opsional Bootstrap Compatibility) */
+.thead-light th {
+  background-color: var(--pln-surface-2);
+  color: var(--pln-text);
+  border-color: var(--pln-border);
+}
 
-  .table thead th {
-    color: var(--pln-text);
-    border-bottom-color: var(--pln-border);
-    transition: all 0.5s ease;
-  }
-
-  .table tbody td {
-    color: var(--pln-text);
-    border-color: var(--pln-border);
-    transition: all 0.5s ease;
-  }
-
-  .table-responsive {
-    margin-bottom: 1rem;
-  }
-
-  .thead-light th {
-    background-color: var(--pln-surface-2);
-    color: var(--pln-text);
-    border-color: var(--pln-border);
-    transition: all 0.5s ease;
-  }
 
   /* Empty State */
   .empty-state {
@@ -939,13 +958,16 @@
             </div>
           </div>
 
-          @if($persentaseInput < 100)
-            <div class="alert alert-warning mt-3 mb-0">
-              <i class="fas fa-exclamation-triangle mr-2"></i>
-              <strong>Perhatian:</strong> Masih ada {{ $totalIndikator - $totalInput }} indikator yang belum diinput untuk bulan ini.
-              Nilai kinerja pilar dihitung berdasarkan rata-rata dari semua indikator (termasuk yang belum diinput = 0%).
+            @if($persentaseInput < 100)
+            <div class="alert alert-warning alert-sm py-2 px-3 mt-3 mb-0 d-flex align-items-center" style="font-size: 0.85rem;">
+                <i class="fas fa-exclamation-triangle me-2" style="font-size: 1rem;"></i>
+                <div>
+                <strong>Perhatian:</strong> Masih ada {{ $totalIndikator - $totalInput }} indikator yang belum diinput untuk bulan ini.
+                Nilai kinerja pilar dihitung berdasarkan rata-rata dari semua indikator (termasuk yang belum diinput = 0%).
+                </div>
             </div>
-          @endif
+            @endif
+
         </div>
       </div>
     </div>
@@ -1005,32 +1027,45 @@
     </div>
   </div> --}}
 
-  <!-- Dashboard Overview -->
-  <div class="dashboard-grid">
+    <!-- Dashboard Overview -->
+    <div class="dashboard-grid">
     <div class="grid-span-6">
-      <div class="card chart-card">
-        <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Gauge NKO</h3>
-        <div class="d-flex flex-column align-items-center justify-content-center">
-          <div style="position: relative; height: 200px; width: 300px;">
+        <div class="card chart-card p-0 overflow-hidden">
+        <!-- Header -->
+        <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
+            <i class="fas fa-chart-pie mr-2"></i>
+            <h5 class="mb-0">Gauge NKO</h5>
+        </div>
+
+        <!-- Gauge Content -->
+        <div class="d-flex flex-column align-items-center justify-content-center py-4">
+            <div style="position: relative; height: 250px; width: 250px;">
             <canvas id="gaugeChart"></canvas>
             <div id="gauge-center-text" style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-              <h3 class="mb-0 fw-bold">{{ $data['nko'] }}%</h3>
-              <p class="mb-0 small text-muted">NKO Score</p>
+                <h3 class="mb-0 fw-bold">{{ $data['nko'] }}%</h3>
+                <p class="mb-0 small text-muted">NKO Score</p>
             </div>
-          </div>
+            </div>
         </div>
-      </div>
+        </div>
     </div>
 
-    <div class="grid-span-6">
-      <div class="card chart-card">
-        <h3 class="chart-title"><i class="fas fa-chart-line"></i> Trend Kinerja {{ $tahun }}</h3>
-        <div class="chart-container medium">
-          <canvas id="trendChart"></canvas>
+        <div class="grid-span-6">
+        <div class="card chart-card p-0 overflow-hidden">
+            <!-- Header -->
+        <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
+            <i class="fas fa-chart-line"></i>
+            <h5 class="mb-0">Trend Kinerja {{ $tahun }}</h5>
+            </div>
+
+            <!-- Chart Content -->
+        <div class="chart-container w-100" style="height: 350px; padding: 1.5rem;">
+            <canvas id="trendChart"></canvas>
+            </div>
         </div>
-      </div>
+        </div>
     </div>
-  </div>
+
 
   <!-- Tab Navigation -->
   <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -1043,13 +1078,13 @@
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="tinggi-tab" data-bs-toggle="tab" data-bs-target="#kinerja-tinggi" type="button" role="tab" aria-controls="kinerja-tinggi" aria-selected="false">
         <i class="fas fa-arrow-up me-2"></i>Kinerja Tinggi
-        <span class="badge badge-success">{{ collect($data['pilar'] ?? [])->where('nilai', '>=', 80)->count() }}</span>
+        <span class="badge badge-success">{{ collect($data['pilar'] ?? [])->where('nilai', '>=', 100)->count() }}</span>
       </button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="rendah-tab" data-bs-toggle="tab" data-bs-target="#kinerja-rendah" type="button" role="tab" aria-controls="kinerja-rendah" aria-selected="false">
         <i class="fas fa-arrow-down me-2"></i>Perlu Perhatian
-        <span class="badge badge-warning">{{ collect($data['pilar'] ?? [])->where('nilai', '<', 70)->count() }}</span>
+        <span class="badge badge-warning">{{ collect($data['pilar'] ?? [])->where('nilai', '<=', 95)->count() }}</span>
       </button>
     </li>
   </ul>
@@ -1059,107 +1094,115 @@
     <!-- Tab Semua Pilar -->
     <div class="tab-pane fade show active" id="semua" role="tabpanel" aria-labelledby="semua-tab">
       <div class="dashboard-grid">
-        <div class="grid-span-6">
-          <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-chart-radar"></i> Perbandingan Antar Perspektif</h3>
-<div class="d-flex justify-content-center align-items-center" style="height: 500px;">
-  <div style="width: 500px; height: 500px; position: relative;">
-    <canvas id="radarChart"></canvas>
-  </div>
-</div>
-
-          </div>
-        </div>
-
-        <div class="grid-span-6">
-          <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-table"></i> Daftar Semua Perspektif</h3>
-            <div class="table-responsive">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Nama Pilar</th>
-                    <th>Nilai (%)</th>
-                    <th>Progress Input</th>
-                    <th>Status</th>
-                    <th>Tindakan</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @forelse($data['pilar'] ?? [] as $index => $pilar)
-                    <tr class="data-row">
-                      <td>{{ $pilar['nama'] ?? 'Tidak dikenal' }}</td>
-                      <td>
-                        @if(($pilar['nilai'] ?? 0) >= 80)
-                          <strong class="text-success">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
-                          <span class="performance-indicator high">
-                            <i class="fas fa-arrow-up"></i> {{ number_format($pilar['nilai'] ?? 0, 1) }}%
-                          </span>
-                        @elseif(($pilar['nilai'] ?? 0) >= 70)
-                          <strong class="text-primary">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
-                          <span class="performance-indicator medium">
-                            <i class="fas fa-minus"></i> {{ number_format($pilar['nilai'] ?? 0, 1) }}%
-                          </span>
-                        @else
-                          <strong class="text-warning">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
-                          <span class="performance-indicator low">
-                            <i class="fas fa-arrow-down"></i> {{ number_format($pilar['nilai'] ?? 0, 1) }}%
-                          </span>
-                        @endif
-                      </td>
-                      <td>
-                        @php
-                          $jumlahInput = $pilar['jumlah_input'] ?? 0;
-                          $totalIndikator = $pilar['total_indikator'] ?? 1;
-                          $persentaseInput = $totalIndikator > 0 ? round(($jumlahInput / $totalIndikator) * 100, 1) : 0;
-                        @endphp
-                        <div class="d-flex align-items-center">
-                          <div class="progress me-2" style="width: 60px; height: 8px;">
-                            <div class="progress-bar bg-info" role="progressbar" style="width: {{ $persentaseInput }}%"></div>
-                          </div>
-                          <small class="text-muted">{{ $jumlahInput }}/{{ $totalIndikator }}</small>
-                        </div>
-                      </td>
-                      <td>
-                        @if(($pilar['nilai'] ?? 0) >= 80)
-                          <span class="badge badge-success">
-                            <i class="fas fa-check-circle mr-1"></i> Kinerja Tinggi
-                          </span>
-                        @elseif(($pilar['nilai'] ?? 0) >= 70)
-                          <span class="badge badge-primary">
-                            <i class="fas fa-info-circle mr-1"></i> Kinerja Baik
-                          </span>
-                        @elseif(($pilar['jumlah_input'] ?? 0) == 0)
-                          <span class="badge badge-secondary">
-                            <i class="fas fa-minus-circle mr-1"></i> Belum Ada Input
-                          </span>
-                        @else
-                          <span class="badge badge-warning">
-                            <i class="fas fa-exclamation-circle mr-1"></i> Perlu Perhatian
-                          </span>
-                        @endif
-                      </td>
-                      <td>
-                        <a href="{{ route('dataKinerja.pilar', $index + 1) }}" class="btn btn-xs btn-primary px-2 py-1" style="font-size: 0.75rem;">
-                        <i class="fas fa-eye mr-1"></i> Detail
-                        </a>
-                      </td>
-                    </tr>
-                  @empty
-                    <tr>
-                      <td colspan="4" class="text-center py-4">
-                        <div class="empty-state">
-                          <i class="fas fa-database text-muted mb-3" style="font-size: 2.5rem;"></i>
-                          <p class="text-muted">Tidak ada data pilar untuk ditampilkan.</p>
-                        </div>
-                      </td>
-                    </tr>
-                  @endforelse
-                </tbody>
-              </table>
+        <!-- Perbandingan Antar Perspektif -->
+            <div class="grid-span-6">
+            <div class="card chart-card p-0 overflow-hidden">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                <i class="fas fa-chart-radar me-2"></i>
+                <h5 class="mb-0">Perbandingan Antar Perspektif</h5>
+                </div>
+                <div class="d-flex justify-content-center align-items-center py-4">
+                <div style="width: 100%; max-width: 500px; height: 500px; position: relative;">
+                    <canvas id="radarChart"></canvas>
+                </div>
+                </div>
             </div>
-          </div>
-        </div>
+            </div>
+
+            <!-- Daftar Semua Perspektif -->
+            <div class="grid-span-6">
+            <div class="card chart-card p-0 overflow-hidden">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                <i class="fas fa-table me-2"></i>
+                <h5 class="mb-0">Daftar Semua Perspektif</h5>
+                </div>
+                <div class="table-responsive p-3">
+                <table class="data-table table">
+                    <thead>
+                    <tr>
+                        <th>Nama Pilar</th>
+                        <th>Nilai (%)</th>
+                        <th>Progress Input</th>
+                        <th>Status</th>
+                        <th>Tindakan</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @forelse($data['pilar'] ?? [] as $index => $pilar)
+                        <tr class="data-row">
+                        <td>{{ $pilar['nama'] ?? 'Tidak dikenal' }}</td>
+                        <td>
+                            @if(($pilar['nilai'] ?? 0) >= 100)
+                            <strong class="text-success">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
+                            <span class="performance-indicator high">
+                                <i class="fas fa-arrow-up"></i> {{ number_format($pilar['nilai'] ?? 0, 1) }}%
+                            </span>
+                            @elseif(($pilar['nilai'] ?? 0) >= 95)
+                            <strong class="text-primary">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
+                            <span class="performance-indicator medium">
+                                <i class="fas fa-minus"></i> {{ number_format($pilar['nilai'] ?? 0, 1) }}%
+                            </span>
+                            @else
+                            <strong class="text-warning">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
+                            <span class="performance-indicator low">
+                                <i class="fas fa-arrow-down"></i> {{ number_format($pilar['nilai'] ?? 0, 1) }}%
+                            </span>
+                            @endif
+                        </td>
+                        <td>
+                            @php
+                            $jumlahInput = $pilar['jumlah_input'] ?? 0;
+                            $totalIndikator = $pilar['total_indikator'] ?? 1;
+                            $persentaseInput = $totalIndikator > 0 ? round(($jumlahInput / $totalIndikator) * 100, 1) : 0;
+                            @endphp
+                            <div class="d-flex align-items-center">
+                            <div class="progress me-2" style="width: 60px; height: 8px;">
+                                <div class="progress-bar bg-info" role="progressbar" style="width: {{ $persentaseInput }}%"></div>
+                            </div>
+                            <small class="text-muted">{{ $jumlahInput }}/{{ $totalIndikator }}</small>
+                            </div>
+                        </td>
+                        <td>
+                            @if(($pilar['nilai'] ?? 0) >= 110)
+                            <span class="badge badge-success">
+                                <i class="fas fa-check-circle mr-1"></i> Kinerja Tinggi
+                            </span>
+                            @elseif(($pilar['nilai'] ?? 0) >= 100)
+                            <span class="badge badge-primary">
+                                <i class="fas fa-info-circle mr-1"></i> Kinerja Baik
+                            </span>
+                            @elseif(($pilar['jumlah_input'] ?? 0) == 0)
+                            <span class="badge badge-secondary">
+                                <i class="fas fa-minus-circle mr-1"></i> Belum Ada Input
+                            </span>
+                            @else
+                            <span class="badge badge-warning">
+                                <i class="fas fa-exclamation-circle mr-1"></i> Perlu Perhatian
+                            </span>
+                            @endif
+                        </td>
+                        <td>
+                            <a href="{{ route('dataKinerja.pilar', $index + 1) }}" class="btn btn-xs btn-primary px-2 py-1" style="font-size: 0.75rem;">
+                            <i class="fas fa-eye mr-1"></i> Detail
+                            </a>
+                        </td>
+                        </tr>
+                    @empty
+                        <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <div class="empty-state">
+                            <i class="fas fa-database text-muted mb-3" style="font-size: 2.5rem;"></i>
+                            <p class="text-muted">Tidak ada data pilar untuk ditampilkan.</p>
+                            </div>
+                        </td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            </div>
+
       </div>
     </div>
 
@@ -1168,7 +1211,7 @@
       <div class="dashboard-grid">
         <div class="grid-span-12">
           <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Pilar dengan Kinerja Tinggi</h3>
+            <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Perspektif dengan Kinerja Tinggi</h3>
             <div class="chart-container medium">
               <canvas id="highPerformanceChart"></canvas>
             </div>
@@ -1176,7 +1219,7 @@
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Nama Pilar</th>
+                    <th>Perspektif</th>
                     <th>Nilai (%)</th>
                     <th>Status</th>
                     <th>Tindakan</th>
@@ -1214,7 +1257,7 @@
                     <td colspan="4" class="text-center py-4">
                       <div class="empty-state">
                         <i class="fas fa-chart-line text-muted mb-3" style="font-size: 2.5rem;"></i>
-                        <p class="text-muted">Tidak ada pilar dengan kinerja tinggi saat ini.</p>
+                        <p class="text-muted">Tidak ada Perspektif dengan kinerja tinggi saat ini.</p>
                       </div>
                     </td>
                   </tr>
@@ -1232,7 +1275,7 @@
       <div class="dashboard-grid">
         <div class="grid-span-12">
           <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-exclamation-triangle"></i> Pilar yang Perlu Perhatian</h3>
+            <h3 class="chart-title"><i class="fas fa-exclamation-triangle"></i> Perspektif yang Perlu Perhatian</h3>
             <div class="chart-container medium">
               <canvas id="lowPerformanceChart"></canvas>
             </div>
@@ -1240,14 +1283,14 @@
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Nama Pilar</th>
+                    <th>Perspektif</th>
                     <th>Nilai (%)</th>
                     <th>Status</th>
                     <th>Tindakan</th>
                   </tr>
                 </thead>
                 <tbody>
-                  @forelse(collect($data['pilar'] ?? [])->where('nilai', '<', 70) as $index => $pilar)
+                  @forelse(collect($data['pilar'] ?? [])->where('nilai', '<', 95) as $index => $pilar)
                   <tr class="data-row">
                     <td>{{ $pilar['nama'] }}</td>
                     <td>
@@ -1935,7 +1978,7 @@ function initTrendChart(chartConfig = getChartConfig()) {
     if (lowPilar.length > 0) {
       const labels = lowPilar.map(pilar => pilar.nama);
       const values = lowPilar.map(pilar => pilar.nilai);
-      const targetValues = lowPilar.map(() => 70); // Target 70%
+      const targetValues = lowPilar.map(() => 95); // Target 70%
 
       // Destroy existing chart if exists
       if (chartInstances.lowPerformanceChart) {
@@ -1976,7 +2019,7 @@ function initTrendChart(chartConfig = getChartConfig()) {
           scales: {
             x: {
               beginAtZero: true,
-              max: 100,
+              max: 110,
               grid: {
                 color: chartConfig.gridColor
               },
