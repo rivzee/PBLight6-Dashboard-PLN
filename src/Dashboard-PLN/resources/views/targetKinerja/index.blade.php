@@ -214,6 +214,30 @@
         background-color: var(--pln-accent-bg);
     }
 
+    /* Satuan Column Styling */
+    .data-table td:nth-child(4) {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .data-table td:nth-child(4) .badge {
+        font-size: 0.7rem;
+        font-weight: 500;
+        padding: 4px 8px;
+        background-color: #6c757d !important;
+        color: white;
+        border: none;
+        white-space: nowrap;
+        min-width: 35px;
+        display: inline-block;
+    }
+
+    /* Satuan header styling */
+    .data-table th:nth-child(4) {
+        text-align: center;
+        font-weight: 700;
+    }
+
     /* Target Button Groups */
     .target-actions {
         display: flex;
@@ -538,6 +562,28 @@
         .modal-lg {
             max-width: 95% !important;
         }
+
+        /* Hide Satuan column on mobile to save space */
+        .data-table th:nth-child(4),
+        .data-table td:nth-child(4) {
+            display: none;
+        }
+
+        /* Adjust column widths for mobile */
+        .data-table th:nth-child(1),
+        .data-table td:nth-child(1) {
+            width: 8% !important;
+        }
+        
+        .data-table th:nth-child(2),
+        .data-table td:nth-child(2) {
+            width: 15% !important;
+        }
+        
+        .data-table th:nth-child(3),
+        .data-table td:nth-child(3) {
+            width: 40% !important;
+        }
     }
 
     .progress {
@@ -777,10 +823,11 @@
                             <tr>
                                 <th width="5%">No</th>
                                 <th width="10%">Kode</th>
-                                <th width="30%">Indikator</th>
+                                <th width="25%">Indikator</th>
+                                <th width="10%">Satuan</th>
                                 <th width="8%">Bobot</th>
-                                <th width="15%">Target Tahunan</th>
-                                <th width="20%">Target Bulanan</th>
+                                <th width="12%">Target Tahunan</th>
+                                <th width="18%">Target Bulanan</th>
                                 <th width="12%">Aksi</th>
                             </tr>
                         </thead>
@@ -799,10 +846,13 @@
                                             <div class="badge bg-warning rounded-pill">Tidak Aktif</div>
                                         @endif
                                     </td>
-                                    <td>{{ $indikator->bobot }}%</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary rounded-pill">{{ $indikator->satuan ?? '-' }}</span>
+                                    </td>
+                                    <td>{{ $indikator->bobot }}</td>
                                     <td>
                                         @if(isset($indikator->target_data))
-                                            <span class="font-weight-bold">{{ number_format($indikator->target_data->target_tahunan, 2, ',', '.') }}</span> {{ $indikator->satuan }}
+                                            <span class="font-weight-bold">{{ number_format($indikator->target_data->target_tahunan, 2, ',', '.') }}</span>
                                         @else
                                             <span class="text-danger">Belum Diatur</span>
                                         @endif
