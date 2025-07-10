@@ -1621,7 +1621,7 @@ use Illuminate\Support\Str;
     <!-- Sidebar yang lebih modern -->
     <div class="sidebar">
       <div class="sidebar-logo">
-        <img src="/images/logoPLN.jpg" alt="Logo PLN" class="logo-pln">
+        <img src="/images/logo_pln.png" alt="Logo PLN" class="logo-pln">
         <div class="logo-text">
           <h1 class="logo-title">PLN</h1>
           <p class="logo-subtitle">Mandau Cipta Tenaga Nusantara</p>
