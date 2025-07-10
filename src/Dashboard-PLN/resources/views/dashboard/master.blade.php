@@ -1036,7 +1036,7 @@
   <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="semua-tab" data-bs-toggle="tab" data-bs-target="#semua" type="button" role="tab" aria-controls="semua" aria-selected="true">
-        <i class="fas fa-table me-2"></i>Semua Pilar
+        <i class="fas fa-table me-2"></i>Semua Perspektif
         <span class="badge badge-secondary">{{ count($data['pilar'] ?? []) }}</span>
       </button>
     </li>
@@ -1061,7 +1061,7 @@
       <div class="dashboard-grid">
         <div class="grid-span-6">
           <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-chart-radar"></i> Perbandingan Antar Pilar</h3>
+            <h3 class="chart-title"><i class="fas fa-chart-radar"></i> Perbandingan Antar Perspektif</h3>
             <div class="chart-container medium">
               <canvas id="radarChart"></canvas>
             </div>
@@ -1070,13 +1070,14 @@
 
         <div class="grid-span-6">
           <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-table"></i> Daftar Semua Pilar</h3>
+            <h3 class="chart-title"><i class="fas fa-table"></i> Daftar Semua Perspektif</h3>
             <div class="table-responsive">
               <table class="data-table">
                 <thead>
                   <tr>
                     <th>Nama Pilar</th>
                     <th>Nilai (%)</th>
+                    <th>Progress Input</th>
                     <th>Status</th>
                     <th>Tindakan</th>
                   </tr>
@@ -1084,33 +1085,50 @@
                 <tbody>
                   @forelse($data['pilar'] ?? [] as $index => $pilar)
                     <tr class="data-row">
-                      <td>{{ $pilar['nama'] }}</td>
+                      <td>{{ $pilar['nama'] ?? 'Tidak dikenal' }}</td>
                       <td>
-                        @if($pilar['nilai'] >= 80)
-                          <strong class="text-success">{{ $pilar['nilai'] }}%</strong>
+                        @if(($pilar['nilai'] ?? 0) >= 80)
+                          <strong class="text-success">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
                           <span class="performance-indicator high">
-                            <i class="fas fa-arrow-up"></i> {{ $pilar['nilai'] }}
+                            <i class="fas fa-arrow-up"></i> {{ number_format($pilar['nilai'] ?? 0, 1) }}%
                           </span>
-                        @elseif($pilar['nilai'] >= 70)
-                          <strong class="text-primary">{{ $pilar['nilai'] }}%</strong>
+                        @elseif(($pilar['nilai'] ?? 0) >= 70)
+                          <strong class="text-primary">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
                           <span class="performance-indicator medium">
-                            <i class="fas fa-minus"></i> {{ $pilar['nilai'] }}
+                            <i class="fas fa-minus"></i> {{ number_format($pilar['nilai'] ?? 0, 1) }}%
                           </span>
                         @else
-                          <strong class="text-warning">{{ $pilar['nilai'] }}%</strong>
+                          <strong class="text-warning">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
                           <span class="performance-indicator low">
-                            <i class="fas fa-arrow-down"></i> {{ $pilar['nilai'] }}
+                            <i class="fas fa-arrow-down"></i> {{ number_format($pilar['nilai'] ?? 0, 1) }}%
                           </span>
                         @endif
                       </td>
                       <td>
-                        @if($pilar['nilai'] >= 80)
+                        @php
+                          $jumlahInput = $pilar['jumlah_input'] ?? 0;
+                          $totalIndikator = $pilar['total_indikator'] ?? 1;
+                          $persentaseInput = $totalIndikator > 0 ? round(($jumlahInput / $totalIndikator) * 100, 1) : 0;
+                        @endphp
+                        <div class="d-flex align-items-center">
+                          <div class="progress me-2" style="width: 60px; height: 8px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: {{ $persentaseInput }}%"></div>
+                          </div>
+                          <small class="text-muted">{{ $jumlahInput }}/{{ $totalIndikator }}</small>
+                        </div>
+                      </td>
+                      <td>
+                        @if(($pilar['nilai'] ?? 0) >= 80)
                           <span class="badge badge-success">
                             <i class="fas fa-check-circle mr-1"></i> Kinerja Tinggi
                           </span>
-                        @elseif($pilar['nilai'] >= 70)
+                        @elseif(($pilar['nilai'] ?? 0) >= 70)
                           <span class="badge badge-primary">
                             <i class="fas fa-info-circle mr-1"></i> Kinerja Baik
+                          </span>
+                        @elseif(($pilar['jumlah_input'] ?? 0) == 0)
+                          <span class="badge badge-secondary">
+                            <i class="fas fa-minus-circle mr-1"></i> Belum Ada Input
                           </span>
                         @else
                           <span class="badge badge-warning">
