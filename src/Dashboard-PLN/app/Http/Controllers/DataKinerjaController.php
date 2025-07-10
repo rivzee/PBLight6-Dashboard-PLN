@@ -54,7 +54,7 @@ class DataKinerjaController extends Controller
         // Hitung persentase bulan aktif
         foreach ($indikators as $indikator) {
             $targetKPI = $indikator->targetKPI->first();
-            
+
             // Pastikan target_bulanan adalah array dan ada data untuk bulan ini
             if ($targetKPI && isset($targetKPI->target_bulanan) && is_array($targetKPI->target_bulanan)) {
                 $targetBulan = $targetKPI->target_bulanan[$bulan - 1] ?? 0;
@@ -151,23 +151,23 @@ class DataKinerjaController extends Controller
         foreach (range(1, 12) as $b) {
             $totalNilaiPilarBulan = 0;
             $jumlahPilarBulan = 0;
-            
+
             foreach ($pilars as $pilar) {
                 $totalNilaiIndikatorBulan = 0;
                 $jumlahIndikatorBulan = 0;
-                
+
                 foreach ($pilar->indikators as $indikator) {
                     $targetKPI = $indikator->targetKPI
                         ->where('tahunPenilaian.tahun', $tahun)
                         ->first();
-                    
+
                     // Pastikan target_bulanan adalah array dan ada data untuk bulan ini
                     if ($targetKPI && isset($targetKPI->target_bulanan) && is_array($targetKPI->target_bulanan)) {
                         $target = $targetKPI->target_bulanan[$b - 1] ?? 0;
                     } else {
                         $target = 0;
                     }
-                    
+
                     $real = $indikator->realisasis
                         ->where('tahun', $tahun)
                         ->where('bulan', $b)
@@ -181,7 +181,7 @@ class DataKinerjaController extends Controller
                     $totalNilaiIndikatorBulan += $persen;
                     $jumlahIndikatorBulan++;
                 }
-                
+
                 if ($jumlahIndikatorBulan > 0) {
                     $nilaiPilarBulan = $totalNilaiIndikatorBulan / $jumlahIndikatorBulan;
                     $totalNilaiPilarBulan += $nilaiPilarBulan;
@@ -271,30 +271,30 @@ class DataKinerjaController extends Controller
                 $b = $index + 1;
                 $totalIndikator = 0;
                 $tercapai = 0;
-                
+
                 foreach ($pilars as $pilar) {
                     foreach ($pilar->indikators as $indikator) {
                         $targetKPI = $indikator->targetKPI
                             ->where('tahunPenilaian.tahun', $tahun)
                             ->first();
-                        
+
                         // Pastikan target_bulanan adalah array dan ada data untuk bulan ini
                         if ($targetKPI && isset($targetKPI->target_bulanan) && is_array($targetKPI->target_bulanan)) {
                             $target = $targetKPI->target_bulanan[$b - 1] ?? 0;
                         } else {
                             $target = 0;
                         }
-                        
+
                         $real = $indikator->realisasis
                             ->where('tahun', $tahun)
                             ->where('bulan', $b)
                             ->where('diverifikasi', true)
                             ->sum('nilai');
-                        
+
                         $persen = ($target > 0)
                             ? min(($real / $target) * 100, 100)
                             : 0;
-                        
+
                         $totalIndikator++;
                         if ($persen >= 100) {
                             $tercapai++;
@@ -390,9 +390,9 @@ class DataKinerjaController extends Controller
 
                 $targetTahunan = $targetKPI?->target_tahunan ?? 0;
                 $nilai = $realisasi?->nilai ?? 0;
-                
+
                 // Hitung persentase berdasarkan target bulanan untuk bulan tertentu
-                $persentase = ($targetBulan > 0) 
+                $persentase = ($targetBulan > 0)
                     ? min(($nilai / $targetBulan) * 100, 110) // Maksimal 110%
                     : 0;
 
@@ -454,10 +454,10 @@ class DataKinerjaController extends Controller
                     }
 
                     $nilai = $realisasi?->nilai ?? 0;
-                    
+
                     // Hitung persentase berdasarkan target bulanan
-                    $persentase = ($targetBulan > 0) 
-                        ? min(($nilai / $targetBulan) * 100, 100) 
+                    $persentase = ($targetBulan > 0)
+                        ? min(($nilai / $targetBulan) * 100, 100)
                         : 0;
 
                     $indikator->persentase = round($persentase, 2);
@@ -500,10 +500,10 @@ class DataKinerjaController extends Controller
                 }
 
                 $nilai = $realisasi?->nilai ?? 0;
-                
+
                 // Hitung persentase berdasarkan target bulanan
-                $persentase = ($targetBulan > 0) 
-                    ? min(($nilai / $targetBulan) * 100, 100) 
+                $persentase = ($targetBulan > 0)
+                    ? min(($nilai / $targetBulan) * 100, 100)
                     : 0;
 
                 $indikator->nilai = $nilai;
