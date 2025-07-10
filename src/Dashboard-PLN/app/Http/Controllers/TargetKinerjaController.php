@@ -195,7 +195,8 @@ class TargetKinerjaController extends Controller
         }
 
         // Target tahunan adalah total dari semua bulan (Jan-Des)
-        $targetTahunan = $totalTahunan;
+        $targetTahunan = $targetBulanan[11]; // gunakan nilai bulan Desember sebagai target tahunan
+
 
         $target->update([
             'target_tahunan' => $targetTahunan,
