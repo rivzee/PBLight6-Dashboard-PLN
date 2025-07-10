@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+
 class DataKinerjaController extends Controller
 {
     /**
@@ -69,10 +70,46 @@ class DataKinerjaController extends Controller
         }
 
         // Hitung NKO Score utama
-        $pilarGroups = $indikators->groupBy(fn($i) => $i->pilar->nama ?? 'Tanpa Pilar');
-        $nilaiNKO = $pilarGroups->count() > 0
-            ? round($pilarGroups->map(fn($group) => $group->avg('persentase'))->avg(), 2)
+       $pilars = Pilar::with(['indikators' => fn($q) => $q->where('aktif', true)])->get();
+
+$totalNilaiPilar = 0;
+$jumlahPilar = $pilars->count();
+
+foreach ($pilars as $pilar) {
+    $totalNilaiIndikator = 0;
+    $jumlahIndikator = $pilar->indikators->count();
+
+    foreach ($pilar->indikators as $indikator) {
+        $targetKPI = $indikator->targetKPI
+            ->where('tahunPenilaian.tahun', $tahun)
+            ->first();
+
+        $target = $targetKPI?->target_bulanan[$bulan - 1] ?? 0;
+
+        $realisasi = $indikator->realisasis
+            ->where('tahun', $tahun)
+            ->where('bulan', $bulan)
+            ->where('diverifikasi', true)
+            ->sum('nilai');
+
+        $persen = ($target > 0 && $realisasi > 0)
+            ? min(($realisasi / $target) * 100, 110)
             : 0;
+
+        $totalNilaiIndikator += $persen;
+    }
+
+    $nilaiPilar = $jumlahIndikator > 0
+        ? round($totalNilaiIndikator / $jumlahIndikator, 2)
+        : 0;
+
+    $totalNilaiPilar += $nilaiPilar;
+}
+
+$nilaiNKO = $jumlahPilar > 0
+    ? min(round($totalNilaiPilar / $jumlahPilar, 2), 110)
+    : 0;
+
 
         $totalIndikator = $indikators->count();
         $totalIndikatorTercapai = $indikators->filter(fn($i) => $i->persentase >= 80)->count();
@@ -170,7 +207,10 @@ class DataKinerjaController extends Controller
             ]);
         }
 
-        $pilarData = $pilarGroups->map(fn($group) => round($group->avg('persentase'), 2));
+        $pilarData = $pilars->mapWithKeys(function ($pilar) {
+            return [$pilar->nama => $pilar->nilai ?? 0];
+        });
+
 
         $bidangData = $indikators->groupBy(fn($i) => $i->bidang->nama ?? 'Tanpa Bidang')
             ->map(fn($group) => round($group->avg('persentase'), 2));
@@ -215,18 +255,18 @@ class DataKinerjaController extends Controller
             }),
         ];
 
-        $pilars = $pilarGroups->map(function ($indikatorList, $pilarNama) {
-            $first = $indikatorList->first();
-            return (object) [
-                'id' => $first->pilar->id ?? 0,
-                'kode' => $first->pilar->kode ?? '-',
-                'nama' => $pilarNama,
-                'deskripsi' => $first->pilar->deskripsi ?? null,
-                'nilai' => round($indikatorList->avg('persentase'), 2),
-                'indikators_count' => $indikatorList->count(),
-                'indikators_tercapai' => $indikatorList->filter(fn($i) => $i->persentase >= 100)->count(),
-            ];
-        })->values();
+        $pilars = $pilars->map(function ($pilar) {
+    return (object) [
+        'id' => $pilar->id,
+        'kode' => $pilar->kode,
+        'nama' => $pilar->nama,
+        'deskripsi' => $pilar->deskripsi,
+        'nilai' => $pilar->nilai ?? 0,
+        'indikators_count' => $pilar->indikators->count(),
+        'indikators_tercapai' => $pilar->indikators->filter(fn($i) => $i->persentase >= 100)->count(),
+    ];
+});
+
 
         $target = $indikators->first()?->targetKPI->first()?->target_tahunan ?? 0;
 
