@@ -15,102 +15,122 @@ class EksporPdfController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
- 
-
         $bidangs = Bidang::all();
         $pilars = Pilar::all();
-
         return view('eksporPdf.index', compact('bidangs', 'pilars'));
     }
 
-public function eksporKeseluruhan(Request $request)
-{
-    $request->validate([
-        'tahun' => 'required|integer|min:2020|max:' . date('Y'),
-        'bulan' => 'required|integer|min:1|max:12',
-    ]);
+    public function eksporKeseluruhan(Request $request)
+    {
+        $request->validate([
+            'tahun' => 'required|integer|min:2020|max:' . date('Y'),
+            'bulan' => 'required|integer|min:1|max:12',
+        ]);
 
-    $tahun = $request->tahun;
-    $bulan = $request->bulan;
-    $tanggal = Carbon::createFromDate($tahun, $bulan, 1);
+        $tahun = $request->tahun;
+        $bulan = $request->bulan;
+        $tanggal = Carbon::createFromDate($tahun, $bulan, 1);
 
-    // Ambil semua data pilar, indikator, realisasi & target
-    $pilars = Pilar::with([
-        'indikators' => function ($q) {
-            $q->orderBy('kode');
-        },
-        'indikators.bidang',
-        'indikators.realisasis' => function ($q) use ($tahun, $bulan) {
-            $q->whereYear('tanggal', $tahun)->whereMonth('tanggal', $bulan);
-        },
-        'indikators.targetKPI.tahunPenilaian'
-    ])->orderBy('urutan')->get();
+        $pilars = Pilar::with([
+            'indikators' => function ($q) {
+                $q->orderBy('kode');
+            },
+            'indikators.bidang',
+            'indikators.realisasis' => function ($q) use ($tahun, $bulan) {
+                $q->whereYear('tanggal', $tahun)->whereMonth('tanggal', $bulan);
+            },
+            'indikators.targetKPI.tahunPenilaian'
+        ])->orderBy('urutan')->get();
 
-    $totalIndikator = 0;
-    $tercapai = 0;
-    $belumTercapai = 0;
+        $totalIndikator = 0;
+        $tercapai = 0;
+        $belumTercapai = 0;
 
-    // Map data menjadi array agar aman untuk Blade/PDF
-    $pilars = $pilars->map(function ($pilar) use ($tahun, &$totalIndikator, &$tercapai, &$belumTercapai) {
-        $indikators = $pilar->indikators->map(function ($indikator) use ($tahun, &$totalIndikator, &$tercapai, &$belumTercapai) {
-            $totalIndikator++;
+        $pilars = $pilars->map(function ($pilar) use ($tahun, $bulan, &$totalIndikator, &$tercapai, &$belumTercapai) {
+            $indikators = $pilar->indikators->map(function ($indikator) use ($tahun, $bulan, &$totalIndikator, &$tercapai, &$belumTercapai) {
+                $totalIndikator++;
 
-            $realisasi = $indikator->realisasis->sortByDesc('tanggal')->first();
-            $targetKPI = $indikator->targetKPI->where('tahunPenilaian.tahun', $tahun)->first();
+                $realisasi = $indikator->realisasis->first();
+                $targetKPI = $indikator->targetKPI->where('tahunPenilaian.tahun', $tahun)->first();
 
-            $target = $targetKPI?->target_tahunan ?? 100;
-            $nilai = $realisasi?->nilai;
+                $targetTahunan = $targetKPI?->target_tahunan ?? 0;
+                $targetBulanan = $targetKPI?->getTargetBulan($bulan) ?? 0;
+                $nilai = $realisasi?->nilai ?? 0;
+                $bobot = $indikator->bobot ?? 0;
+                $jenis = $realisasi?->jenis_polaritas ?? 'netral';
 
-            $persentase = ($nilai !== null && $target > 0)
-                ? round(($nilai / $target) * 100, 2)
-                : 0;
+                // Hitung capaian (%)
+                if ($targetBulanan > 0) {
+                    if ($jenis === 'positif') {
+                        $persentase = ($nilai / $targetBulanan) * 100;
+                    } elseif ($jenis === 'negatif') {
+                        $persentase = (2 - ($nilai / $targetBulanan)) * 100;
+                    } else {
+                        $deviasi = abs($nilai - $targetBulanan) / $targetBulanan;
+                        $persentase = $deviasi <= 0.05 ? 100 : 0;
+                    }
+                } else {
+                    $persentase = 0;
+                }
 
-            $status = match (true) {
-                is_null($nilai) => 'Belum Ada Data',
-                $persentase >= 100 => 'Tercapai',
-                $persentase >= 90 => 'Hampir Tercapai',
-                default => 'Belum Tercapai'
-            };
+                $persentase = min(max($persentase, 0), 110);
 
-            if ($nilai !== null) {
+                // Nilai indikator (max 1.1), dikali bobot
+                if ($jenis === 'positif') {
+                    $nilaiIndikator = min(max($nilai / $targetBulanan, 0), 1.1);
+                } elseif ($jenis === 'negatif') {
+                    $nilaiIndikator = min(max(2 - ($nilai / $targetBulanan), 0), 1.1);
+                } else {
+                    $nilaiIndikator = ($nilai == $targetBulanan) ? 1 : 0;
+                }
+
+                $nilaiAkhir = $nilaiIndikator * $bobot;
+
+                // Keterangan
+                if ($persentase < 95) {
+                    $keterangan = 'Masalah';
+                } elseif ($persentase < 100) {
+                    $keterangan = 'Hati-hati';
+                } else {
+                    $keterangan = 'Baik';
+                }
+
                 if ($persentase >= 100) $tercapai++;
-                else $belumTercapai++;
-            }
+                elseif ($nilai > 0) $belumTercapai++;
 
-            return [
-                'kode' => $indikator->kode,
-                'nama' => $indikator->nama,
-                'bidang_nama' => $indikator->bidang->nama ?? '-',
-                'realisasi_target' => $target,
-                'realisasi_nilai' => $nilai,
-                'realisasi_persentase' => $persentase,
-                'realisasi_status' => $status,
-            ];
+                return [
+                    'kode' => $indikator->kode,
+                    'nama' => $indikator->nama,
+                    'bidang_nama' => $indikator->bidang->nama ?? '-',
+                    'target_tahunan' => $targetTahunan,
+                    'target_bulanan' => $targetBulanan,
+                    'realisasi_nilai' => $nilai,
+                    'bobot' => $bobot,
+                    'jenis_polaritas' => $jenis,
+                    'nilai_polaritas' => round($persentase, 2),
+                    'nilai_akhir' => round($nilaiAkhir, 2),
+                    'keterangan' => $keterangan,
+                ];
+            });
+
+            $pilar->indikators = $indikators;
+            return $pilar;
         });
 
-        $pilar->indikators = $indikators;
-        return $pilar;
-    });
+        $rataRataPencapaian = $totalIndikator > 0 ? round(($tercapai / $totalIndikator) * 100, 2) : 0;
 
-    $rataRataPencapaian = $totalIndikator > 0
-        ? round(($tercapai / $totalIndikator) * 100, 2)
-        : 0;
+        $data = [
+            'title' => 'Laporan KPI Keseluruhan',
+            'subtitle' => 'Periode: ' . $tanggal->translatedFormat('F Y'),
+            'tanggal_cetak' => Carbon::now('Asia/Jakarta')->translatedFormat('d F Y H:i'),
+            'pilars' => $pilars,
+            'totalIndikator' => $totalIndikator,
+            'tercapai' => $tercapai,
+            'belumTercapai' => $belumTercapai,
+            'rataRataPencapaian' => $rataRataPencapaian,
+        ];
 
-    $data = [
-        'title' => 'Laporan KPI Keseluruhan',
-        'subtitle' => 'Periode: ' . $tanggal->translatedFormat('F Y'),
-        'tanggal_cetak' => Carbon::now()->translatedFormat('d F Y H:i'),
-        'pilars' => $pilars,
-        'totalIndikator' => $totalIndikator,
-        'tercapai' => $tercapai,
-        'belumTercapai' => $belumTercapai,
-        'rataRataPencapaian' => $rataRataPencapaian,
-    ];
-
-    $pdf = PDF::loadView('eksporPdf.keseluruhan', $data);
-    return $pdf->download("Laporan_KPI_Keseluruhan_{$tahun}_{$bulan}.pdf");
-}
-
-
+        $pdf = PDF::loadView('eksporPdf.keseluruhan', $data);
+        return $pdf->download("Laporan_KPI_Keseluruhan_{$tahun}_{$bulan}.pdf");
+    }
 }
