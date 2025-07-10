@@ -383,29 +383,46 @@
     .distr-btn i {
         margin-right: 5px;
     }
+ /* ✅ Penambahan untuk target bulanan format grid */
+    .monthly-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+    }
 
-    /* Responsive */
+    .monthly-input {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .monthly-input label {
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
+
+    .target-input {
+        width: 100%;
+    }
+
+  /* Tampilan total target tahunan */
+
+    .total-display {
+        background-color: #e8f5e8;
+        border: 1px solid #b8e6b8;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 15px;
+        text-align: center;
+    }
+
+    .total-display strong {
+        color: var(--pln-blue);
+        font-size: 1.1rem;
+    }
+
     @media (max-width: 768px) {
         .monthly-grid {
             grid-template-columns: repeat(2, 1fr);
-        }
-
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        .page-header-actions {
-            width: 100%;
-            justify-content: flex-start;
-            margin-top: 10px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .monthly-grid {
-            grid-template-columns: 1fr;
         }
 
         .form-actions {
@@ -426,15 +443,6 @@
             </div>
         </div>
         <div class="page-header-actions">
-            @if($target->disetujui)
-                <div class="page-header-badge">
-                    <i class="fas fa-check-circle"></i> Target Disetujui
-                </div>
-            @else
-                <div class="page-header-badge">
-                    <i class="fas fa-clock"></i> Menunggu Persetujuan
-                </div>
-            @endif
             <a href="{{ route('targetKinerja.index', ['tahun_penilaian_id' => $tahunPenilaian->id]) }}" class="btn btn-light">
                 <i class="fas fa-arrow-left me-1"></i> Kembali
             </a>
@@ -446,15 +454,6 @@
     <div class="form-card">
         <div class="card-header">
             <h6 class="m-0 font-weight-bold">Form Edit Target Kinerja</h6>
-            @if($target->disetujui)
-                <span class="status-badge approved">
-                    <i class="fas fa-check-circle"></i> Target Sudah Disetujui
-                </span>
-            @else
-                <span class="status-badge pending">
-                    <i class="fas fa-clock"></i> Menunggu Persetujuan
-                </span>
-            @endif
         </div>
         <div class="card-body">
             <div class="info-box mb-4">
@@ -501,69 +500,61 @@
                 @csrf
                 @method('PUT')
 
-                <div class="form-group">
-                    <label>Target Bulanan <span class="text-danger">*</span></label>
+<!-- Input Target Bulanan -->
+<div class="form-group">
+    <label><strong>Target Kumulatif per Bulan ({{ $indikator->satuan }})</strong> <span class="text-danger">*</span></label>
+    <div class="monthly-grid">
+        @php
+            $namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            $target_bulanan_array = old('target_bulanan', $target->target_bulanan) ?? [];
 
-                    @php
-                        $bulanNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
-                        $target_bulanan_array = old('target_bulanan', $target->target_bulanan) ?? [];
+            if (is_array($target_bulanan_array)) {
+                $target_bulanan_values = array_values($target_bulanan_array);
+            } else {
+                $target_bulanan_values = [];
+            }
 
-                        // Pastikan array memiliki 12 elemen
-                        if (is_array($target_bulanan_array)) {
-                            $target_bulanan_values = array_values($target_bulanan_array);
-                        } else {
-                            $target_bulanan_values = [];
-                        }
+            for ($i = count($target_bulanan_values); $i < 12; $i++) {
+                $target_bulanan_values[$i] = 0;
+            }
+        @endphp
 
-                        // Isi dengan 0 jika kurang dari 12
-                        for ($i = count($target_bulanan_values); $i < 12; $i++) {
-                            $target_bulanan_values[$i] = 0;
-                        }
-                    @endphp
-
-                    <div class="table-responsive">
-                        <table class="table target-table">
-                            <thead>
-                                <tr>
-                                    @foreach($bulanNames as $index => $bulan)
-                                        <th class="{{ $index == 11 ? 'bg-warning' : '' }}"
-                                            style="min-width: 90px;">
-                                            {{ $bulan }}
-                                        </th>
-                                    @endforeach
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    @foreach($bulanNames as $index => $bulan)
-                                        <td class="{{ $index == 11 ? 'bg-warning' : '' }}">
-                                            <input type="number"
-                                                   class="monthly-target {{ $index == 11 ? 'december-target' : '' }}"
-                                                   id="target_bulanan_{{ $index }}"
-                                                   name="target_bulanan[{{ $index }}]"
-                                                   value="{{ $target_bulanan_values[$index] ?? 0 }}"
-                                                   step="0.001"
-                                                   min="0"
-                                                   {{ $target->disetujui && !auth()->user()->isMasterAdmin() ? 'readonly' : '' }}
-                                                   data-month="{{ $index }}"
-                                                   placeholder="0.000"
-                                                   title="{{ $index == 11 ? 'Target bulan Desember' : 'Target kumulatif bulan ' . $bulan }}">
-                                        </td>
-                                    @endforeach
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {{-- <div class="mt-3">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" id="distributeBtn">
-                            <i class="fas fa-calculator"></i> Distribusi Otomatis
-                        </button>
-                        <small class="text-muted ms-2">
-                            Klik untuk mengisi target bulanan secara otomatis berdasarkan nilai Desember
-                        </small>
-                    </div> --}}
+        @foreach($namaBulan as $i => $namaBlnIni)
+            <div class="monthly-input">
+                <label>{{ $namaBlnIni }} {{ $tahunPenilaian->tahun }}</label>
+                <div class="input-group">
+                    <input type="number"
+                           class="form-control target-input @error('target_bulanan.'.$i) is-invalid @enderror"
+                           name="target_bulanan[{{ $i }}]"
+                           step="0.01"
+                           min="0"
+                           value="{{ old('target_bulanan.'.$i, $target_bulanan_values[$i] ?? 0) }}"
+                           {{ $target->disetujui && !auth()->user()->isMasterAdmin() ? 'readonly' : '' }}
+                           required
+                           placeholder="0"
+                           data-month="{{ $i }}">
+                    <span class="input-group-text">{{ $indikator->satuan }}</span>
                 </div>
+                @error('target_bulanan.'.$i)
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        @endforeach
+    </div>
+
+    @error('target_bulanan')
+        <div class="text-danger small mt-2">{{ $message }}</div>
+    @enderror
+</div>
+
+<!-- Display Total Target -->
+<div class="total-display mt-3">
+    <i class="fas fa-chart-line me-2"></i>
+    <strong>Target Tahunan: <span id="targetTahunan">
+        {{ array_sum($target_bulanan_values) }}
+    </span> {{ $indikator->satuan }}</strong>
+</div>
+
 
                 @if(!$target->disetujui || auth()->user()->isMasterAdmin())
                     <div class="form-actions">
