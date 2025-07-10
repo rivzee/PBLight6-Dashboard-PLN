@@ -263,34 +263,31 @@
                         @php
                             $namaBulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
                         @endphp
-                       @foreach($namaBulan as $i => $namaBlnIni)
-                        <div class="monthly-input">
-                            <label>{{ $namaBlnIni }} {{ $tahunPenilaian->tahun }}</label>
-
-                            @if(strtolower($indikator->satuan) === 'waktu' || str_contains(strtolower($indikator->satuan), 'tanggal'))
-                                <input type="date"
-                                    class="form-control target-input @error('target_bulanan.'.$i) is-invalid @enderror"
-                                    name="target_bulanan[{{ $i }}]"
-                                    value="{{ old('target_bulanan.'.$i) }}"
-                                    data-month="{{ $i }}">
-                            @else
+                        @foreach($namaBulan as $i => $namaBlnIni)
+                            <div class="monthly-input">
+                                <label>{{ $namaBlnIni }} {{ $tahunPenilaian->tahun }}</label>
                                 <div class="input-group">
-                                    <input type="text"
-                                        class="form-control target-input @error('target_bulanan.'.$i) is-invalid @enderror"
-                                        name="target_bulanan[{{ $i }}]"
-                                        value="{{ old('target_bulanan.'.$i) }}"
-                                        placeholder="0"
-                                        data-month="{{ $i }}"
-                                        inputmode="decimal">
+                                    <input type="number"
+                                           class="form-control target-input @error('target_bulanan.'.$i) is-invalid @enderror"
+                                           name="target_bulanan[{{ $i }}]"
+                                           step="0.01"
+                                           min="0"
+                                           value="{{ old('target_bulanan.'.$i, 0) }}"
+                                           required
+                                           placeholder="0"
+                                           data-month="{{ $i }}">
                                     <span class="input-group-text">{{ $indikator->satuan }}</span>
                                 </div>
-                            @endif
-
-                            @error('target_bulanan.'.$i)
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                    @endforeach
+                                @error('target_bulanan.'.$i)
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        @endforeach
+                    </div>
+                    @error('target_bulanan')
+                        <div class="text-danger small mt-2">{{ $message }}</div>
+                    @enderror
+                </div>
 
                     </div>
                     @error('target_bulanan')
