@@ -290,6 +290,27 @@
                                 <th>Nilai Polaritas</th>
                                 <td>{{ number_format($realisasi->nilai_polaritas ?? 0, 2) }}%</td>
                             </tr>
+                            <tr>
+                                <th>Arah Pencapaian</th>
+                                <td>
+                                    @php
+                                        $arrow = '→';
+                                        if ($realisasi->jenis_polaritas == 'positif') {
+                                            $arrow = ($nilaiKPI->nilai / $realisasi->target) * 100 >= 100 ? '↑' : '↓';
+                                        } elseif ($realisasi->jenis_polaritas == 'negatif') {
+                                            $arrow = $nilaiKPI->nilai <= $realisasi->target ? '↑' : '↓';
+                                        } elseif ($realisasi->jenis_polaritas == 'netral') {
+                                            $arrow = abs($nilaiKPI->nilai - $realisasi->target) / $realisasi->target <= 0.05 ? '→' : '↓';
+                                        }
+
+                                        $arrowIcon = $arrow == '↑' ? '<i class="fas fa-arrow-up text-success"></i>' :
+                                                    ($arrow == '↓' ? '<i class="fas fa-arrow-down text-danger"></i>' :
+                                                    '<i class="fas fa-arrows-alt-h text-info"></i>');
+                                    @endphp
+                                    {!! $arrowIcon !!}
+                                </td>
+                            </tr>
+
                             @if($nilaiKPI->indikator->deskripsi)
                             <tr>
                                 <th>Deskripsi</th>

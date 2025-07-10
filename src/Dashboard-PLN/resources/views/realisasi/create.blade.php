@@ -273,7 +273,7 @@
                 <!-- Polaritas -->
                 <div class="form-group mb-4">
                     <label for="polaritas">Jenis Polaritas <span class="text-danger">*</span></label>
-                    <select name="polaritas" id="polaritas" class="form-control @error('polaritas') is-invalid @enderror" required>
+                    <select name="polaritas" id="polaritas" class="form-select @error('polaritas') is-invalid @enderror" required>
                         <option value="">-- Pilih Polaritas --</option>
                         <option value="Positif" {{ old('polaritas') == 'Positif' ? 'selected' : '' }}>Positif</option>
                         <option value="Negatif" {{ old('polaritas') == 'Negatif' ? 'selected' : '' }}>Negatif</option>
@@ -297,6 +297,7 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+                
 
                 <!-- Visual Progress (opsional, bisa aktifkan via JS jika ingin) -->
                 <div id="targetVisualContainer" class="mb-4" style="display: none;">
@@ -305,6 +306,15 @@
                         <div class="target-value" id="targetValue">0%</div>
                     </div>
                 </div>
+                <!-- Visual Panah Polaritas -->
+                <div id="arrowContainer" class="mb-3" style="display: none;">
+                    <label class="form-label">Arah Polaritas</label>
+                    <div class="d-flex align-items-center">
+                        <span id="arrowSymbol" style="font-size: 1.8rem; margin-right: 8px;"></span>
+                        <small class="text-muted">Panah menunjukkan arah pencapaian berdasarkan jenis polaritas</small>
+                    </div>
+                </div>
+
 
                 <!-- Keterangan -->
                 <div class="form-group mb-4">
@@ -363,7 +373,9 @@ document.addEventListener('DOMContentLoaded', function() {
             arrow = deviation <= 0.05 ? "→" : "↓";
         }
 
-        arrowSymbol.textContent = arrow;
+        arrowSymbol.innerHTML = arrow === '↑' ? '<i class="fas fa-arrow-up text-success"></i>' :
+                            arrow === '↓' ? '<i class="fas fa-arrow-down text-danger"></i>' :
+                            '<i class="fas fa-arrows-alt-h text-info"></i>';
         arrowContainer.style.display = "block";
     }
 

@@ -381,6 +381,15 @@
                     <div class="target-progress" id="targetProgress" style="width: {{ min(($realisasi->nilai_polaritas ?? 0), 100) }}%"></div>
                     <div class="target-value" id="targetValue">{{ number_format($realisasi->nilai_polaritas ?? 0, 1) }}%</div>
                 </div>
+                <!-- Visual Arah Panah Polaritas -->
+                <div id="arrowContainer" class="mb-4" style="display: none;">
+                    <label class="form-label">Arah Pencapaian</label>
+                    <div class="d-flex align-items-center">
+                        <span id="arrowSymbol" style="font-size: 1.8rem; margin-right: 8px;"></span>
+                        <small class="text-muted">Panah menunjukkan arah berdasarkan jenis polaritas dan nilai realisasi</small>
+                    </div>
+                </div>
+
 
                 <div class="text-center text-muted small mb-4">
                     <i class="fas fa-info-circle me-1"></i>
@@ -437,6 +446,39 @@
 
 @section('scripts')
 <script>
+const arrowContainer = document.getElementById('arrowContainer');
+const arrowSymbol = document.getElementById('arrowSymbol');
+
+function updateArrow(nilai, target, polaritas) {
+    let result = 0;
+
+    if (polaritas === "positif") {
+        result = (nilai / target) * 100;
+        if (result >= 100) {
+            arrowSymbol.innerHTML = '<i class="fas fa-arrow-up text-success"></i>'; // baik
+        } else {
+            arrowSymbol.innerHTML = '<i class="fas fa-arrow-down text-danger"></i>'; // buruk
+        }
+    } else if (polaritas === "negatif") {
+        result = (2 - (nilai / target)) * 100;
+        if (nilai <= target) {
+            arrowSymbol.innerHTML = '<i class="fas fa-arrow-down text-success"></i>'; // baik (lebih kecil = lebih bagus)
+        } else {
+            arrowSymbol.innerHTML = '<i class="fas fa-arrow-up text-danger"></i>'; // buruk
+        }
+    } else if (polaritas === "netral") {
+        let deviation = Math.abs(nilai - target) / target;
+        if (deviation <= 0.05) {
+            arrowSymbol.innerHTML = '<i class="fas fa-arrows-alt-h text-info"></i>'; // netral
+        } else {
+            arrowSymbol.innerHTML = '<i class="fas fa-arrow-down text-danger"></i>'; // terlalu menyimpang
+        }
+    }
+
+    arrowContainer.style.display = "block";
+}
+
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('formEdit');
     const submitBtn = document.getElementById('btnSubmit');
@@ -447,36 +489,36 @@ document.addEventListener('DOMContentLoaded', function() {
     const target = {{ $targetBulanan > 0 ? $targetBulanan : 1 }};
     const polaritas = "{{ $realisasi->jenis_polaritas }}";
 
-    function setProgressColor(percentage, nilai) {
-        if (nilai <= 0) {
-            targetProgress.style.background = '#6c757d';
+   function setProgressColor(percentage, nilai) {
+    if (nilai <= 0) {
+        targetProgress.style.background = '#6c757d'; // abu-abu jika nol
+    } else {
+        if (percentage > 100) {
+            targetProgress.style.background = '#28a745'; // hijau
+        } else if (percentage >= 95) {
+            targetProgress.style.background = '#ffc107'; // kuning
         } else {
-            if (polaritas === 'positif') {
-                if (percentage >= 100) {
-                    targetProgress.style.background = '#28a745';
-                } else if (percentage >= 95) {
-                    targetProgress.style.background = '#ffc107';
-                } else {
-                    targetProgress.style.background = '#dc3545';
-                }
-            } else if (polaritas === 'negatif') {
-                if (percentage <= 100) {
-                    targetProgress.style.background = '#28a745';
-                } else if (percentage <= 105) {
-                    targetProgress.style.background = '#ffc107';
-                } else {
-                    targetProgress.style.background = '#dc3545';
-                }
-            } else {
-                targetProgress.style.background = '#0d6efd';
-            }
+            targetProgress.style.background = '#dc3545'; // merah
         }
     }
+}
+
 
     nilaiInput.addEventListener('input', function() {
         const nilai = parseFloat(this.value) || 0;
-        const rawPercentage = (nilai / target) * 100;
+        let rawPercentage = 0;
+
+        if (polaritas === 'positif') {
+            rawPercentage = (nilai / target) * 100;
+        } else if (polaritas === 'negatif') {
+            rawPercentage = (2 - (nilai / target)) * 100;
+        } else if (polaritas === 'netral') {
+            rawPercentage = (Math.abs(nilai - target) <= (0.05 * target)) ? 100 : 0;
+        }
+
         const cappedPercentage = Math.max(0, Math.min(rawPercentage, 110));
+
+        updateArrow(nilai, target, polaritas);
 
         if (nilai >= 0) {
             targetVisual.style.display = 'block';
@@ -491,8 +533,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Tampilan awal
     const initialNilai = {{ $realisasi->nilai }};
-    const initialPercentage = (initialNilai / target) * 100;
+    let initialPercentage = 0;
+
+    if (polaritas === 'positif') {
+        initialPercentage = (initialNilai / target) * 100;
+    } else if (polaritas === 'negatif') {
+        initialPercentage = (2 - (initialNilai / target)) * 100;
+    } else if (polaritas === 'netral') {
+        initialPercentage = (Math.abs(initialNilai - target) <= (0.05 * target)) ? 100 : 0;
+    }
+
     const initialProgressWidth = Math.min(initialPercentage, 100);
+    updateArrow(initialNilai, target, polaritas);
+
 
     targetProgress.style.width = initialProgressWidth + '%';
     targetValue.textContent = initialPercentage.toFixed(1) + '%';

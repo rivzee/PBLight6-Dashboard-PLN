@@ -352,12 +352,33 @@
                                     $bobot = $indikator->bobot ?? 0;
 
                                     // Ambil polaritas dari data realisasi yang sudah diinput
-                                    $polaritas = 'down'; // default down jika tidak ada data realisasi
+                                    // Default netral jika tidak ada realisasi
+                                    $polaritas = 'netral';
+
                                     if ($realisasi && $realisasi->jenis_polaritas) {
-                                        $polaritas = $realisasi->jenis_polaritas === 'positif' ? 'up' : 'down';
+                                        if ($realisasi->jenis_polaritas === 'positif') {
+                                            $polaritas = 'up'; // naik = bagus
+                                        } elseif ($realisasi->jenis_polaritas === 'negatif') {
+                                            $polaritas = 'down'; // turun = bagus
+                                        } else {
+                                            $polaritas = 'flat'; // netral
+                                        }
                                     }
 
-                                    $persentaseAsli = $target > 0 ? ($nilaiRealisasi / $target) * 100 : 0;
+
+                                    if ($target > 0 && $nilaiRealisasi >= 0) {
+                                        if ($polaritas === 'up') {
+                                            $persentaseAsli = ($nilaiRealisasi / $target) * 100;
+                                        } elseif ($polaritas === 'down') {
+                                            $persentaseAsli = (2 - ($nilaiRealisasi / $target)) * 100;
+                                        } else { // netral
+                                            $deviasi = abs($nilaiRealisasi - $target) / $target;
+                                            $persentaseAsli = $deviasi <= 0.05 ? 100 : 0;
+                                        }
+                                    } else {
+                                        $persentaseAsli = 0;
+                                    }
+
                                     $persentase = min(max($persentaseAsli, 0), 110); // nilai minimum 0 dan maksimum 110
 
                                     // Hitung nilai berdasarkan polaritas
@@ -367,14 +388,13 @@
                                     $keteranganClass = 'bg-danger';
 
                                     if ($target > 0 && $nilaiRealisasi >= 0) {
-                                        if ($polaritas === 'down') {
-                                            // Semakin rendah semakin baik
+                                        if ($polaritas === 'up') {
+                                            // Positif → realisasi / target
                                             $nilaiIndikator = min(max($nilaiRealisasi / $target, 0), 1.1);
-                                        } elseif ($polaritas === 'up') {
-                                            // Semakin tinggi semakin buruk
+                                        } elseif ($polaritas === 'down') {
+                                            // Negatif → (2 - realisasi/target)
                                             $nilaiIndikator = min(max(2 - ($nilaiRealisasi / $target), 0), 1.1);
-                                        } else { // flat
-                                            // Harus sama dengan target
+                                        } else { // flat (netral)
                                             $nilaiIndikator = ($nilaiRealisasi == $target) ? 1 : 0;
                                         }
 
@@ -419,15 +439,38 @@
                                     @if($isMaster)
                                         <td>{{ $indikator->bidang->nama ?? '-' }}</td>
                                     @endif
-                                    <td class="text-center">
-                                        @if($polaritas === 'down')
-                                            <i class="fas fa-arrow-down text-success" title="Semakin rendah semakin baik"></i>
-                                        @elseif($polaritas === 'up')
-                                            <i class="fas fa-arrow-up text-danger" title="Semakin tinggi semakin buruk"></i>
-                                        @else
-                                            <i class="fas fa-arrows-alt-h text-info" title="Harus sama dengan target"></i>
-                                        @endif
-                                    </td>
+                                   @php
+                                        $ikonArah = '<i class="fas fa-arrows-alt-h text-info" title="Capaian stabil/netral"></i>'; // default
+
+                                        if ($realisasi && $target > 0) {
+                                            $persen = ($nilaiRealisasi / $target) * 100;
+                                            $deviasi = abs($nilaiRealisasi - $target) / $target;
+
+                                            if ($realisasi->jenis_polaritas === 'positif') {
+                                                if ($persen >= 100) {
+                                                    $ikonArah = '<i class="fas fa-arrow-up text-success" title="Capaian naik (bagus)"></i>';
+                                                } else {
+                                                    $ikonArah = '<i class="fas fa-arrow-down text-danger" title="Capaian turun (buruk)"></i>';
+                                                }
+                                            } elseif ($realisasi->jenis_polaritas === 'negatif') {
+                                                if ($nilaiRealisasi <= $target) {
+                                                    $ikonArah = '<i class="fas fa-arrow-down text-success" title="Capaian turun (lebih kecil lebih baik)"></i>';
+                                                } else {
+                                                    $ikonArah = '<i class="fas fa-arrow-up text-danger" title="Capaian naik (lebih besar lebih buruk)"></i>';
+                                                }
+                                            } elseif ($realisasi->jenis_polaritas === 'netral') {
+                                                if ($deviasi <= 0.05) {
+                                                    $ikonArah = '<i class="fas fa-arrows-alt-h text-info" title="Capaian stabil (netral)"></i>';
+                                                } else {
+                                                    $ikonArah = '<i class="fas fa-arrow-down text-danger" title="Capaian menyimpang dari target (buruk)"></i>';
+                                                }
+                                            }
+                                        }
+                                    @endphp
+
+
+                                    <td class="text-center">{!! $ikonArah !!}</td>
+
                                     <td class="text-center">
                                         <strong>{{ $bobot }}%</strong>
                                     </td>

@@ -58,6 +58,7 @@ class Realisasi extends Model
         'nilai_polaritas' => 'float',
     ];
 
+    
     public function indikator(): BelongsTo
     {
         return $this->belongsTo(Indikator::class);
@@ -164,35 +165,51 @@ class Realisasi extends Model
      * Menentukan jenis polaritas berdasarkan kode indikator
      */
     public static function getJenisPolaritas($kodeIndikator)
-    {
-        // Indikator dengan polaritas negatif (semakin rendah semakin baik)
-        $polariatasNegatif = [
-            'A2', // Operating Ratio - semakin rendah semakin baik
-        ];
+{
+    $polaritasNegatif = ['A2'];
+    $polaritasNetral = ['C5']; // contoh
 
-        return in_array($kodeIndikator, $polariatasNegatif) ? 'negatif' : 'positif';
+    if (in_array($kodeIndikator, $polaritasNegatif)) {
+        return 'negatif';
+    } elseif (in_array($kodeIndikator, $polaritasNetral)) {
+        return 'netral';
+    } else {
+        return 'positif';
     }
+}
+
 
     /**
      * Menghitung nilai polaritas berdasarkan realisasi dan target bulanan
      * Target yang digunakan adalah target untuk bulan tersebut, bukan kumulatif
      */
     public function hitungPolaritas($targetBulanan)
-    {
-        if ($targetBulanan <= 0) {
-            return 0; // Tidak bisa menghitung jika target 0 atau negatif
-        }
+{
+    if ($targetBulanan <= 0) return 0;
 
-        $jenisPolaritas = self::getJenisPolaritas($this->indikator->kode);
-
-        if ($jenisPolaritas === 'positif') {
-            // Polaritas positif: realisasi/target * 100%
-            return ($this->nilai / $targetBulanan) * 100;
-        } else {
-            // Polaritas negatif: (2 - realisasi/target) * 100%
-            return (2 - ($this->nilai / $targetBulanan)) * 100;
-        }
+    $jenisPolaritas = self::getJenisPolaritas($this->indikator->kode);
+    
+    if ($jenisPolaritas === 'positif') {
+        return ($this->nilai / $targetBulanan) * 100;
+    } elseif ($jenisPolaritas === 'negatif') {
+        return (2 - ($this->nilai / $targetBulanan)) * 100;
+    } elseif ($jenisPolaritas === 'netral') {
+        // Bisa disesuaikan, misal: nilai makin dekat ke target → makin bagus
+        return 100 - abs($this->nilai - $targetBulanan);
     }
+
+    return 0;
+}
+
+public function getArahPanahAttribute()
+{
+    $nilai = $this->nilai_polaritas ?? 0;
+
+    if ($nilai >= 100) return 'up';     // 🔼
+    if ($nilai >= 90) return 'right';   // ➡️
+    return 'down';                      // 🔽
+}
+
 
     /**
      * Update polaritas berdasarkan target bulanan yang diberikan
