@@ -333,7 +333,7 @@
                                     <th>Bidang</th>
                                 @endif
                                 <th>Polaritas</th>
-                                <th>Bobot (%)</th>
+                                <th>Bobot</th>
                                 <th>Target</th>
                                 <th>Realisasi</th>
                                 <th>Capaian</th>
