@@ -1,70 +1,10 @@
 @extends('layouts.app')
 
+@section('styles')
+<link rel="stylesheet" href="{{ asset('css/akun.css') }}">
+@endsection
+
 @section('content')
-<style>
-    .custom-form {
-        max-width: 600px;
-        margin: 2rem auto;
-        padding: 2rem;
-        background-color: #fff;
-        border-radius: 1rem;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    .custom-form h2 {
-        text-align: center;
-        margin-bottom: 1.5rem;
-        color: #333;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-group label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        color: #333;
-    }
-
-    .form-group input,
-    .form-group select {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border: 1px solid #ccc;
-        border-radius: 0.6rem;
-        font-size: 1rem;
-        transition: border-color 0.3s ease;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus {
-        border-color: #0d6efd;
-        outline: none;
-    }
-
-    .form-actions {
-        display: flex;
-        justify-content: flex-end;
-    }
-
-    .form-actions button {
-        background-color: #198754;
-        color: white;
-        padding: 0.75rem 2rem;
-        border: none;
-        border-radius: 0.6rem;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .form-actions button:hover {
-        background-color: #157347;
-    }
-</style>
 
 <div class="custom-form">
     <h2>Edit Akun</h2>

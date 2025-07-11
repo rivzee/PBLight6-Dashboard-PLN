@@ -1,58 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Ekspor Laporan PDF')
-
 @section('styles')
-<style>
-    .form-section {
-        background-color: var(--pln-accent-bg);
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 25px;
-        position: relative;
-        overflow: hidden;
-        border: 1px solid var(--pln-border);
-        box-shadow: 0 8px 20px var(--pln-shadow);
-        transition: all 0.3s ease;
-    }
-
-    .form-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
-    }
-
-    .form-section h4 {
-        color: var(--pln-light-blue);
-        margin-bottom: 20px;
-        font-weight: 600;
-    }
-
-    .form-section .form-group label {
-        font-weight: 500;
-        color: var(--pln-text);
-    }
-
-    .form-section .btn-submit {
-        background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 10px 25px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .form-section .btn-submit:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0, 156, 222, 0.3);
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('css/pdf.css') }}">
 @endsection
+
+
+@section('title', 'Ekspor Laporan PDF')
 
 @section('content')
 <div class="container">
