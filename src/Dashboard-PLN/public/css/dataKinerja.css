@@ -117,7 +117,7 @@
     }
 
     .info-card-label {
-        font-size: 14px;
+        font-size: 10px;
         font-weight: 600;
         color: #6c757d;
         margin-bottom: 5px;
@@ -125,10 +125,12 @@
     }
 
     .info-card-value {
-        font-size: 20px;
+        font-size: 15px;
         font-weight: 700;
         color: #333;
         margin: 0;
+            line-height: 1.2;
+
     }
 
     /* Chart Card */
@@ -596,14 +598,25 @@
     }
 
     /* Chart Container */
-    .chart-container {
-        position: relative;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-    }
+/* Pastikan chart container proporsional */
+.chart-container {
+    position: relative;
+    width: 100%;
+    min-height: 350px;
+    height: 100%;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+#trendChart {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0;
+    min-height: 0;
+    display: block;
+}
 
     .chart-container.large {
         height: 450px;
@@ -1077,8 +1090,11 @@
 
     .filter-group {
         display: flex;
-        flex-direction: column;
+        flex-direction: row; /* Ubah dari column ke row */
+        align-items: center;
+        gap: 16px; /* Jarak antar label dan select */
         min-width: 150px;
+        flex-wrap: wrap;
     }
 
     .filter-label {

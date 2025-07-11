@@ -8,7 +8,56 @@
 
 @section('content')
 <div class="dashboard-content">
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="breadcrumb-custom">
+                <a href="{{ route('dataKinerja.pilar') }}" >
+                    <i class="fas fa-arrow-left"></i> Kembali
+                </a>
+            </div>
+            <h1 class="page-title">Detail Perspektif {{ $pilar->nama }}</h1>
+            <p class="page-subtitle">
+                <i class="fas fa-landmark mr-2"></i>{{ $pilar->nama ?? '-' }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Filter Panel -->
+    <div class="filter-panel">
+        <div class="filter-title">
+            <i class="fas fa-filter"></i> Filter Data
+        </div>
+        <form action="{{ route('dataKinerja.pilar', $pilar->id) }}" method="GET" class="filter-form" id="filterForm">
+            <div class="filter-group">
+                <label class="filter-label">Tahun</label>
+                <select name="tahun" class="filter-select" id="tahunSelect">
+                    @foreach(range(date('Y') + 1, date('Y') - 5) as $year)
+                        <option value="{{ $year }}" {{ $tahun == $year ? 'selected' : '' }}>
+                            {{ $year }}{{ $year == date('Y') ? ' (Tahun Ini)' : '' }}
+                        </option>
+                    @endforeach
+                </select>
+                <label class="filter-label ml-3">Bulan</label>
+                <select name="bulan" class="filter-select" id="bulanSelect">
+                    @foreach(range(1, 12) as $month)
+                        <option value="{{ $month }}" {{ $bulan == $month ? 'selected' : '' }}>
+                            {{ date('F', mktime(0, 0, 0, $month, 1)) }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">
+                    <i class="fas fa-search"></i> Terapkan Filter
+                </button>
+                <button type="button" class="btn-reset" onclick="resetFilter()">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+            </div>
+        </form>
+    </div>
+    {{-- <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
             <a href="{{ route('dataKinerja.pilar') }}" class="btn btn-sm btn-outline-secondary mb-2">
                 <i class="fas fa-arrow-left"></i> Kembali
@@ -32,7 +81,7 @@
                 </button>
             </form>
         </div>
-    </div>
+    </div> --}}
 
     @include('components.alert')
 
@@ -94,48 +143,72 @@
         <h3 class="mb-4"><i class="fas fa-list-alt mr-2"></i> Daftar Indikator</h3>
     </div>
 
-    <div class="indikator-grid">
+    <div class="row">
         @foreach($indikators as $indikator)
-        <div class="indikator-card">
-            <div class="indikator-header">
-                <h3 class="indikator-title">{{ $indikator->nama }}</h3>
-                <span class="indikator-code">{{ $indikator->kode }}</span>
-            </div>
-            <div class="indikator-bidang">
-                <i class="fas fa-building mr-1"></i> {{ $indikator->bidang->nama ?? '-' }}
-            </div>
-            <div class="indikator-progress">
-                <div class="indikator-progress-bar"
-                     style="width: {{ $indikator->persentase ?? 0 }}%;
-                            background-color: {{ ($indikator->persentase ?? 0) >= 90 ? '#1cc88a' :
-                                                 (($indikator->persentase ?? 0) >= 70 ? '#f6c23e' : '#e74a3b') }}">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm indikator-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0 font-weight-bold">{{ $indikator->nama }}</h5>
+                        <span class="badge badge-light px-2 py-1">{{ $indikator->kode }}</span>
+                    </div>
+                    <div class="text-muted mb-2">
+                        <i class="fas fa-building mr-1"></i> {{ $indikator->bidang->nama ?? '-' }}
+                    </div>
+                    <div class="progress mb-3" style="height: 8px;">
+                        <div class="progress-bar"
+                            role="progressbar"
+                            style="width: {{ $indikator->persentase ?? 0 }}%; background-color: {{ ($indikator->persentase ?? 0) >= 90 ? '#1cc88a' : (($indikator->persentase ?? 0) >= 70 ? '#f6c23e' : '#e74a3b') }};"
+                            aria-valuenow="{{ $indikator->persentase ?? 0 }}"
+                            aria-valuemin="0"
+                            aria-valuemax="110">
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between text-center mb-3">
+                        <div>
+                            <div class="small text-muted">Target Bulanan</div>
+                            <div class="font-weight-bold">{{ number_format($indikator->target_bulanan ?? 0, 2) }}</div>
+                        </div>
+                        <div>
+                            <div class="small text-muted">Realisasi</div>
+                            <div class="font-weight-bold">{{ number_format($indikator->nilai_aktual ?? 0, 2) }}</div>
+                        </div>
+                        <div>
+                            <div class="small text-muted">Pencapaian</div>
+                            <div class="font-weight-bold">{{ number_format($indikator->persentase ?? 0, 2) }}%</div>
+                        </div>
+                    </div>
+                    <a href="{{ route('dataKinerja.indikator', $indikator->id) }}" class="btn btn-block btn-primary">
+                        <i class="fas fa-search-plus fa-sm"></i> Detail
+                    </a>
                 </div>
-            </div>
-            <div class="indikator-values">
-                <div class="indikator-value-item">
-                    <div class="indikator-value-label">Target Bulanan</div>
-                    <div class="indikator-value-number">{{ number_format($indikator->target_bulanan ?? 0, 2) }}</div>
-                </div>
-                <div class="indikator-value-item">
-                    <div class="indikator-value-label">Realisasi</div>
-                    <div class="indikator-value-number">{{ number_format($indikator->nilai_aktual ?? 0, 2) }}</div>
-                </div>
-                <div class="indikator-value-item">
-                    <div class="indikator-value-label">Pencapaian</div>
-                    <div class="indikator-value-number">{{ number_format($indikator->persentase ?? 0, 2) }}%</div>
-                </div>
-            </div>
-            <div class="indikator-actions">
-                <a href="{{ route('dataKinerja.indikator', $indikator->id) }}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-search-plus fa-sm"></i> Detail
-                </a>
             </div>
         </div>
         @endforeach
     </div>
 </div>
 @endsection
+{{-- <script>
+function resetFilter() {
+    const currentYear = {{ date('Y') }};
+    const tahunSelect = document.getElementById('tahunSelect');
+    tahunSelect.value = currentYear;
+    document.getElementById('filterForm').submit();
+}
 
+// Auto-submit form on select change untuk UX yang lebih baik
+document.getElementById('tahunSelect').addEventListener('change', function() {
+    const loadingText = document.createElement('small');
+    loadingText.className = 'text-muted ml-2';
+    loadingText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
+    this.parentNode.appendChild(loadingText);
+
+    setTimeout(() => {
+        document.getElementById('filterForm').submit();
+    }, 300);
+});
+</script> --}}
+{{-- @endsection --}}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
 @section('scripts')

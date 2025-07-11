@@ -136,20 +136,20 @@
     </div> --}}
 
     <!-- Trend Chart -->
+    <!-- Trend Chart -->
     <div class="dashboard-grid">
         <div class="grid-span-12">
             <div class="chart-card">
                 <div class="chart-title">
-                    <i class="fas fa-chart-line"></i> Trend Pencapaian Bulanan {{ $tahun }}
+                    <i class="fas fa-chart-line mr-2"></i> Trend Bulanan Tahun {{ $tahun }}
                 </div>
                 <div class="chart-container">
-                    <div class="loading-chart" id="chartLoading">
+                    <div class="loading-chart">
                         <div class="spinner-border text-primary" role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
-                        <p class="mt-3 text-muted">Memuat data trend...</p>
                     </div>
-                    <div id="trendChart" style="display: none;"></div>
+                    <div id="trendChart"></div>
                 </div>
             </div>
         </div>
@@ -273,141 +273,113 @@ document.getElementById('tahunSelect').addEventListener('change', function() {
 
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/apexcharts@latest"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('DOM loaded, initializing chart...');
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chartData = @json($chartData);
+            const chartEl = document.querySelector('#trendChart');
+            let chart = null;
 
-    // Render Chart
-    const chartData = @json($chartData);
-    const loadingElement = document.getElementById('chartLoading');
-    const chartElement = document.getElementById('trendChart');
-
-    console.log('Chart Data:', chartData);
-    console.log('ApexCharts loaded:', typeof ApexCharts !== 'undefined');
-
-    // Short delay to ensure everything is loaded
-    setTimeout(() => {
-        if (chartData && chartData.length > 0 && typeof ApexCharts !== 'undefined') {
-            try {
-                const options = {
-                    series: [{
-                        name: 'Pencapaian (%)',
-                        data: chartData.map(item => parseFloat(item.nilai) || 0)
-                    }],
-                    chart: {
-                        type: 'line',
-                        height: 350,
-                        fontFamily: 'Poppins, sans-serif',
-                        toolbar: { show: true }
-                    },
-                    colors: ['var(--pln-blue, #0a4d85)'],
-                    dataLabels: {
-                        enabled: true,
-                        formatter: val => val.toFixed(1) + '%'
-                    },
-                    stroke: {
-                        curve: 'smooth',
-                        width: 4
-                    },
-                    xaxis: {
-                        categories: chartData.map(item => item.bulan)
-                    },
-                    yaxis: {
-                        min: 0,
-                        max: 110,
-                        labels: {
-                            formatter: val => val.toFixed(0) + '%'
+            function renderChart() {
+                if (chart) {
+                    chart.destroy();
+                }
+                if (chartData && chartData.length > 0 && typeof ApexCharts !== 'undefined' && chartEl) {
+                    const options = {
+                        series: [{
+                            name: 'Pencapaian',
+                            data: chartData.map(item => item.nilai)
+                        }],
+                        chart: {
+                            type: 'line',
+                            height: chartEl.offsetWidth < 600 ? 250 : 350,
+                            fontFamily: 'Poppins, sans-serif',
+                            toolbar: { show: false },
+                            zoom: { enabled: false },
+                            animations: { enabled: true }
                         },
-                        title: {
-                            text: 'Persentase Pencapaian (%)'
-                        }
-                    },
-                    tooltip: {
-                        y: {
-                            formatter: val => val.toFixed(2) + '%'
-                        }
-                    },
-                    grid: {
-                        borderColor: '#e8e8e8',
-                        strokeDashArray: 3
-                    },
-                    markers: {
-                        size: 6,
-                        colors: ['#fff'],
-                        strokeColors: 'var(--pln-blue, #0a4d85)',
-                        strokeWidth: 3
-                    },
-                    fill: {
-                        type: 'gradient',
-                        gradient: {
-                            shade: 'light',
-                            type: 'vertical',
-                            gradientToColors: ['var(--pln-light-blue, #009cde)'],
-                            opacityFrom: 0.8,
-                            opacityTo: 0.1
-                        }
-                    },
-                    annotations: {
-                        yaxis: [
-                            {
-                                y: 70,
-                                borderColor: '#f6c23e',
-                                borderWidth: 2,
-                                strokeDashArray: 5,
-                                label: {
-                                    text: 'Target Minimum (70%)',
-                                    position: 'right'
-                                }
-                            },
-                            {
-                                y: 90,
-                                borderColor: '#1cc88a',
-                                borderWidth: 2,
-                                strokeDashArray: 5,
-                                label: {
-                                    text: 'Target Optimal (90%)',
-                                    position: 'right'
-                                }
+                        responsive: [{
+                            breakpoint: 600,
+                            options: {
+                                chart: { height: 220 },
+                                xaxis: { labels: { rotate: -30, style: { fontSize: '9px' } } }
                             }
-                        ]
-                    }
-                };
-
-                const chart = new ApexCharts(chartElement, options);
-                chart.render().then(() => {
-                    console.log('Chart rendered successfully');
-                    if (loadingElement) loadingElement.style.display = 'none';
-                    if (chartElement) chartElement.style.display = 'block';
-                });
-
-            } catch (error) {
-                console.error('Error creating chart:', error);
-                if (loadingElement) {
-                    loadingElement.innerHTML = `
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
-                            <h5>Error Memuat Chart</h5>
-                            <p>Gagal membuat chart: ${error.message}</p>
-                        </div>
-                    `;
+                        }],
+                        colors: ['#4e73df'],
+                        dataLabels: {
+                            enabled: true,
+                            formatter: val => val.toFixed(1) + '%',
+                            style: { fontSize: chartEl.offsetWidth < 600 ? '10px' : '12px' }
+                        },
+                        stroke: { curve: 'smooth', width: 3 },
+                        xaxis: {
+                            categories: chartData.map(item => item.bulan),
+                            labels: { rotate: -45, style: { fontSize: chartEl.offsetWidth < 600 ? '9px' : '11px' } }
+                        },
+                        yaxis: {
+                            min: 0,
+                            max: 100,
+                            labels: { formatter: val => val.toFixed(0) + '%' }
+                        },
+                        tooltip: {
+                            y: { formatter: val => val.toFixed(2) + '%' }
+                        },
+                        grid: {
+                            borderColor: '#e0e0e0',
+                            strokeDashArray: 4,
+                            xaxis: { lines: { show: true } }
+                        },
+                        markers: {
+                            size: chartEl.offsetWidth < 600 ? 3 : 5,
+                            colors: ['#fff'],
+                            strokeColors: '#4e73df',
+                            strokeWidth: 2,
+                            hover: { size: 7 }
+                        },
+                        fill: {
+                            type: 'gradient',
+                            gradient: {
+                                shade: 'light',
+                                type: 'vertical',
+                                shadeIntensity: 0.3,
+                                opacityFrom: 0.7,
+                                opacityTo: 0.2,
+                                stops: [0, 100]
+                            }
+                        }
+                    };
+                    chart = new ApexCharts(chartEl, options);
+                    chart.render();
+                    document.querySelector('.loading-chart')?.remove();
                 }
             }
-        } else {
-            // Show no data message
-            if (loadingElement) {
-                loadingElement.innerHTML = `
-                    <div class="text-center text-muted py-4">
-                        <i class="fas fa-chart-line fa-3x mb-3"></i>
-                        <h5>Tidak Ada Data Chart</h5>
-                        <p>Data trend untuk tahun {{ $tahun }} tidak tersedia</p>
-                        <small class="text-muted">ApexCharts: ${typeof ApexCharts !== 'undefined' ? 'Loaded' : 'Not loaded'}</small>
-                    </div>
-                `;
-            }
-            console.log('No chart data or ApexCharts not loaded');
-        }
-    }, 500);
-});
-</script>
+
+            renderChart();
+            window.addEventListener('resize', function () {
+                renderChart();
+            });
+
+            // Isi status badge berdasarkan persentase
+            document.querySelectorAll('tbody tr').forEach(function (row) {
+                const percentCell = row.querySelector('.nilai-persentase');
+                const statusCell = row.querySelector('.status-badge');
+                if (percentCell && statusCell) {
+                    const val = parseFloat(percentCell.dataset.persentase || percentCell.textContent.replace('%', '')) || 0;
+                    let label = '';
+                    let className = '';
+                    if (val >= 100) {
+                        label = 'Tercapai';
+                        className = 'badge badge-success';
+                    } else if (val >= 95) {
+                        label = 'Perlu Perhatian';
+                        className = 'badge badge-warning';
+                    } else {
+                        label = 'Tidak Tercapai';
+                        className = 'badge badge-danger';
+                    }
+                    statusCell.innerHTML = `<span class="${className}">${label}</span>`;
+                }
+            });
+        });
+    </script>
 @endsection
