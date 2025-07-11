@@ -135,7 +135,8 @@
                                         }
 
                                         // Nilai akhir dikalikan bobot
-                                        $nilaiAkhir = $nilaiIndikator * $bobot;
+                                        $nilaiAkhir = $realisasi?->nilai_akhir ?? 0;
+
 
                                         // Tentukan keterangan berdasarkan nilai indikator
                                         // Tentukan keterangan berdasarkan persentase capaian

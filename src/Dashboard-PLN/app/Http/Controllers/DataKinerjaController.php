@@ -78,52 +78,41 @@ class DataKinerjaController extends Controller
         }
 
         // Hitung NKO Score utama
-        $pilars = Pilar::with(['indikators' => fn($q) => $q->where('aktif', true)])->get();
+$pilars = Pilar::with([
+    'indikators' => function($q) use ($tahun, $bulan) {
+        $q->where('aktif', true)->with(['realisasis' => function ($r) use ($tahun, $bulan) {
+            $r->where('tahun', $tahun)
+              ->where('bulan', $bulan)
+              ->where('diverifikasi', true);
+        }]);
+    }
+])->get();
+$totalNilai = 0;
+$totalBobot = Indikator::where('aktif', true)->sum('bobot'); // harusnya 76
 
-        $totalNilaiPilar = 0;
-        $jumlahPilar = $pilars->count();
+foreach ($pilars as $pilar) {
+    foreach ($pilar->indikators as $indikator) {
+        $nilaiAkhir = $indikator->realisasis
+            ->filter(fn($r) => $r->tahun == $tahun && $r->bulan == $bulan && $r->diverifikasi)
+            ->sum('nilai_akhir');
 
-        foreach ($pilars as $pilar) {
-            $totalNilaiIndikator = 0;
-            $jumlahIndikator = $pilar->indikators->count();
+        $bobot = $indikator->bobot ?? 0;
 
-            foreach ($pilar->indikators as $indikator) {
-                $targetKPI = $indikator->targetKPI
-                    ->where('tahunPenilaian.tahun', $tahun)
-                    ->first();
+        if ($nilaiAkhir > 0 && $bobot > 0) {
+            Log::info("Indikator {$indikator->kode} - Nilai Akhir: $nilaiAkhir, Bobot: $bobot, Nilai x Bobot: " . ($nilaiAkhir));
 
-                // Pastikan target_bulanan adalah array dan ada data untuk bulan ini
-                if ($targetKPI && isset($targetKPI->target_bulanan) && is_array($targetKPI->target_bulanan)) {
-                    $target = $targetKPI->target_bulanan[$bulan - 1] ?? 0;
-                } else {
-                    $target = 0;
-                }
-
-                $realisasi = $indikator->realisasis
-                    ->where('tahun', $tahun)
-                    ->where('bulan', $bulan)
-                    ->where('diverifikasi', true)
-                    ->sum('nilai');
-
-                $persen = ($target > 0)
-                    ? min(($realisasi / $target) * 100, 110) // Maksimal 110%
-                    : 0;
-
-                $totalNilaiIndikator += $persen;
-            }
-
-            $nilaiPilar = $jumlahIndikator > 0
-                ? round($totalNilaiIndikator / $jumlahIndikator, 2)
-                : 0;
-
-            // Simpan nilai pilar untuk digunakan nanti
-            $pilar->nilai_perhitungan = $nilaiPilar;
-            $totalNilaiPilar += $nilaiPilar;
+            $totalNilai += $nilaiAkhir;
         }
+    }
+}
 
-        $nilaiNKO = $jumlahPilar > 0
-            ? min(round($totalNilaiPilar / $jumlahPilar, 2), 100)
-            : 0;
+$nilaiNKO = $totalBobot > 0 ? round(($totalNilai / $totalBobot) * 100, 2) : 0;
+
+Log::info("Total Nilai (Σ nilai_akhir × bobot): $totalNilai");
+Log::info("Total Bobot (Σ bobot aktif): $totalBobot"); // Harus 76
+Log::info("Nilai NKO: $nilaiNKO");
+
+
 
 
         $totalIndikator = $indikators->count();
@@ -756,56 +745,38 @@ class DataKinerjaController extends Controller
     /**
      * Menghitung NKO (Nilai Kinerja Organisasi)
      */
-    private function hitungNKO($tahun, $bulan = null)
-    {
-        $bulan = $bulan ?? Carbon::now()->month;
-        $pilars = Pilar::all();
-        $totalNilai = 0;
-        $totalBobot = 0;
+    public function hitungNKO(int $tahun, int $bulan): float
+{
+    // Ambil semua indikator aktif dengan realisasi diverifikasi di bulan & tahun tertentu
+    $indikators = self::where('aktif', true)
+        ->with(['realisasis' => function ($q) use ($tahun, $bulan) {
+            $q->where('tahun', $tahun)
+              ->where('bulan', $bulan)
+              ->where('diverifikasi', true);
+        }])
+        ->get();
 
-        // Log untuk debugging
-        Log::info("Calculating NKO for year: {$tahun}, month: {$bulan}");
+    $totalNilaiAkhir = 0;
+    $totalBobot = 0;
 
-        if ($pilars->isEmpty()) {
-            Log::warning("No pillars found when calculating NKO");
-            return 75.0; // Nilai default jika tidak ada pilar
+    foreach ($indikators as $indikator) {
+        $nilaiAkhir = $indikator->realisasis->sum('nilai_akhir');
+        $bobot = $indikator->bobot ?? 0;
+
+        // Jika nilai akhir > 0 dan bobot > 0, tambahkan ke total
+        if ($nilaiAkhir > 0 && $bobot > 0) {
+            $totalNilaiAkhir += $nilaiAkhir;
+            $totalBobot += $bobot;
         }
-
-        foreach ($pilars as $pilar) {
-            // Hitung nilai pilar dengan metode yang sudah ada
-            $nilaiPilar = $pilar->getNilai($tahun, $bulan);
-
-            // Hitung bobot pilar berdasarkan jumlah indikator aktif
-            $bobotPilar = $pilar->indikators()->where('aktif', true)->count();
-
-            // Jika tidak ada indikator aktif, gunakan bobot default 1
-            if ($bobotPilar <= 0) {
-                $bobotPilar = 1;
-            }
-
-            // Log nilai per pilar
-            Log::info("Pilar {$pilar->kode} ({$pilar->nama}): nilai = {$nilaiPilar}, bobot = {$bobotPilar}");
-
-            // Tambahkan ke total (hanya jika nilai pilar > 0)
-            if ($nilaiPilar > 0) {
-                $totalNilai += $nilaiPilar * $bobotPilar;
-                $totalBobot += $bobotPilar;
-            }
-        }
-
-        // Hitung rata-rata tertimbang
-        $nko = $totalBobot > 0 ? round($totalNilai / $totalBobot, 2) : 0;
-
-        // Jika NKO masih 0, gunakan nilai default
-        if ($nko == 0) {
-            Log::warning("NKO calculation resulted in 0, using default value");
-            $nko = 75.0; // Nilai default
-        }
-
-        Log::info("Final NKO value: {$nko}");
-
-        return $nko;
     }
+
+    // Hitung NKO (skala 0-100)
+    if ($totalBobot > 0) {
+        return round(($totalNilaiAkhir / $totalBobot) * 100, 2);
+    }
+
+    return 0;
+}
 
     /**
      * Mendapatkan tren NKO bulanan

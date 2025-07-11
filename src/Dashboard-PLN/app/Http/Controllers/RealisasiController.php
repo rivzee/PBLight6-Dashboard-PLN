@@ -217,18 +217,29 @@ public function store(Request $request, Indikator $indikator)
     // Buat tanggal untuk akhir bulan (untuk keperluan kompatibilitas)
     $tanggalAkhirBulan = Carbon::create($tahun, $bulan, 1)->endOfMonth();
     
-    $realisasi = new Realisasi([
-        'indikator_id' => $indikator->id,
-        'user_id' => $user->id,
-        'tanggal' => $tanggalAkhirBulan->toDateString(), // Tanggal akhir bulan
-        'tahun' => $tahun,
-        'bulan' => $bulan,
-        'periode_tipe' => 'bulanan',
-        'nilai' => $request->nilai,
-        'persentase' => $targetBulanan > 0 ? min(($request->nilai / $targetBulanan) * 100, 110) : 0,
-        'keterangan' => $request->keterangan,
-        'diverifikasi' => false,
-    ]);
+   // Ambil bobot indikator, default 1 jika null
+$bobot = $indikator->bobot ?? 1;
+
+// Hitung persentase pencapaian
+$persentase = $targetBulanan > 0 ? min(($request->nilai / $targetBulanan) * 100, 110) : 0;
+
+// Hitung nilai akhir sesuai rumus
+$nilai_akhir = $bobot * ($persentase / 100);
+
+$realisasi = new Realisasi([
+    'indikator_id' => $indikator->id,
+    'user_id' => $user->id,
+    'tanggal' => $tanggalAkhirBulan->toDateString(),
+    'tahun' => $tahun,
+    'bulan' => $bulan,
+    'periode_tipe' => 'bulanan',
+    'nilai' => $request->nilai,
+    'persentase' => $persentase,
+    'nilai_akhir' => $nilai_akhir,  // Tambahkan nilai_akhir di sini
+    'keterangan' => $request->keterangan,
+    'diverifikasi' => false,
+]);
+
 
     // Hitung dan set polaritas
     if ($targetBulanan > 0) {
@@ -330,12 +341,22 @@ public function store(Request $request, Indikator $indikator)
         }
 
         // Update data realisasi
-        $realisasi->update([
-            'nilai' => $validated['nilai'],
-            'keterangan' => $validated['keterangan'] ?? $realisasi->keterangan,
-            'user_id' => $user->id,
-            'persentase' => $targetBulanan > 0 ? min(($request->nilai / $targetBulanan) * 100, 110) : 0,
-        ]);
+       $bobot = $indikator->bobot ?? 1;
+
+// Hitung persentase pencapaian
+$persentase = $targetBulanan > 0 ? min(($request->nilai / $targetBulanan) * 100, 110) : 0;
+
+// Hitung nilai akhir sesuai rumus
+$nilai_akhir = $bobot * ($persentase / 100);
+
+$realisasi->update([
+    'nilai' => $validated['nilai'],
+    'keterangan' => $validated['keterangan'] ?? $realisasi->keterangan,
+    'user_id' => $user->id,
+    'persentase' => $persentase,
+    'nilai_akhir' => $nilai_akhir,  // Update nilai_akhir juga
+]);
+
 
         // Hitung ulang dan update polaritas
         if ($targetBulanan > 0) {

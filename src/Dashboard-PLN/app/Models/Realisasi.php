@@ -40,6 +40,7 @@ class Realisasi extends Model
         'disetujui_manager_pada', // waktu disetujui oleh Manager
         'jenis_polaritas', // polaritas positif atau negatif
         'nilai_polaritas', // hasil perhitungan polaritas
+        'nilai_akhir', // nilai akhir setelah perhitungan polaritas
     ];
 
     protected $casts = [
