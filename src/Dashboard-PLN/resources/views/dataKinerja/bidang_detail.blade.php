@@ -126,7 +126,7 @@
                             <tr>
                                 <th>Kode</th>
                                 <th>Nama Indikator</th>
-                                <th>Pilar</th>
+                                <th>Perspektif</th>
                                 <th>Target</th>
                                 <th>Realisasi</th>
                                 <th>Pencapaian</th>

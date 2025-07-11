@@ -8,7 +8,6 @@ use App\Models\Indikator;
 use App\Models\TahunPenilaian;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class TargetKPISeeder extends Seeder
@@ -17,36 +16,49 @@ class TargetKPISeeder extends Seeder
     {
         $tahun = now()->year;
 
-        $tahunPenilaian = TahunPenilaian::firstOrCreate(['tahun' => $tahun]);
+        // Pastikan tahun penilaian ada dan aktif
+        $tahunPenilaian = TahunPenilaian::firstOrCreate(
+            ['tahun' => $tahun],
+            ['is_aktif' => true]
+        );
 
+        // Ambil semua indikator
         $indikators = Indikator::all();
-        $admin = \App\Models\User::first(); // Ambil user pertama sebagai pengisi & penyetuju (opsional)
+
+        // Ambil satu user yang dianggap Master Admin
+        $admin = User::where('role', 'asisten_manager')->first() ?? User::first();
 
         foreach ($indikators as $indikator) {
             $targetBulanan = [];
-            $total = 0;
 
-            for ($i = 1; $i <= 12; $i++) {
-                $nilai = rand(80, 120);
-                $targetBulanan[] = $nilai;
-                $total += $nilai;
+            // Buat target bulanan kumulatif
+            $awal = rand(80, 100); // nilai awal bulan Januari
+            $targetBulanan[0] = $awal;
+
+            for ($i = 1; $i < 12; $i++) {
+                $kenaikan = rand(5, 15); // pertambahan tiap bulan
+                $targetBulanan[$i] = $targetBulanan[$i - 1] + $kenaikan;
             }
+
+            // Sesuai controller: target_tahunan = bulan Desember (index ke-11)
+            $targetTahunan = $targetBulanan[11];
 
             TargetKPI::updateOrCreate(
                 [
                     'indikator_id' => $indikator->id,
-                    'tahun_penilaian_id' => $tahunPenilaian->id
+                    'tahun_penilaian_id' => $tahunPenilaian->id,
                 ],
                 [
                     'user_id' => $admin?->id,
-                    'target_tahunan' => $total,
+                    'target_tahunan' => $targetTahunan,
                     'target_bulanan' => $targetBulanan,
-                    'keterangan' => fake()->sentence(),
                     'disetujui' => true,
                     'disetujui_oleh' => $admin?->id,
                     'disetujui_pada' => Carbon::now(),
                 ]
             );
         }
+
+        $this->command->info("✅ Target KPI kumulatif berhasil disiapkan untuk tahun $tahun.");
     }
 }

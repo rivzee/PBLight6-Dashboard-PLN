@@ -9,12 +9,12 @@
 @section('content')
 <div class="dashboard-content">
     <div class="section-divider mb-4">
-        <h2><i class="fas fa-layer-group"></i> Analisis Per-Pilar</h2>
+        <h2><i class="fas fa-layer-group"></i> Analisis Per-Perspektif</h2>
     </div>
 
     @if($pilars->isEmpty())
         <div class="text-center text-muted py-4">
-            <em>Belum ada data pilar untuk periode ini.</em>
+            <em>Belum ada data perspektif untuk periode ini.</em>
         </div>
     @else
         <div class="dashboard-grid">

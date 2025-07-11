@@ -107,9 +107,28 @@ class DashboardController extends Controller
         }
 
         // Hitung NKO berdasarkan rata-rata semua pilar
-        $data['nko'] = $jumlahPilar > 0
-            ? min(round($totalNilaiPilar / $jumlahPilar, 2), 110)
-            : 0;
+        $totalNilaiAkhir = 0;
+$totalBobot = 0;
+
+foreach ($pilars as $pilar) {
+    foreach ($pilar->indikators as $indikator) {
+        $realisasiAkhir = $indikator->realisasis
+            ->where('tahun', $tahun)
+            ->where('bulan', $bulan)
+            ->where('diverifikasi', true)
+            ->sum('nilai_akhir');
+
+        $bobotIndikator = $indikator->bobot ?? 0;
+
+        $totalNilaiAkhir += $realisasiAkhir;
+        $totalBobot += $bobotIndikator;
+    }
+}
+
+$data['nko'] = $totalBobot > 0
+    ? min(round(($totalNilaiAkhir / $totalBobot) * 100, 2), 110)
+    : 0;
+
 
         // Tentukan status NKO berdasarkan nilai
         if ($data['nko'] >= 100) {
@@ -125,55 +144,36 @@ class DashboardController extends Controller
 
         // === Trend NKO per bulan dari Januari hingga bulan aktif ===
         $nkoTrend = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $totalNilaiPilar = 0;
-            $jumlahPilar = $pilars->count();
 
-            foreach ($pilars as $pilar) {
-                $jumlahIndikator = $pilar->indikators->count();
-                $totalNilaiIndikator = 0;
+for ($i = 1; $i <= 12; $i++) {
+    $totalNilaiAkhirBulan = 0;
+    $totalBobotBulan = 0;
 
-                foreach ($pilar->indikators as $indikator) {
-                    $targetKPI = TargetKPI::where('indikator_id', $indikator->id)
-                        ->whereHas('tahunPenilaian', fn($q) => $q->where('tahun', $tahun))
-                        ->first();
+    foreach ($pilars as $pilar) {
+        foreach ($pilar->indikators as $indikator) {
+            $nilaiAkhir = $indikator->realisasis
+                ->where('tahun', $tahun)
+                ->where('bulan', $i)
+                ->where('diverifikasi', true)
+                ->sum('nilai_akhir');
 
-                    $target = 0;
-                    if ($targetKPI && is_array($targetKPI->target_bulanan) && isset($targetKPI->target_bulanan[$i - 1])) {
-                        $target = $targetKPI->target_bulanan[$i - 1];
-                    }
+            $bobot = $indikator->bobot ?? 0;
 
-                    $realisasi = Realisasi::where('indikator_id', $indikator->id)
-                        ->where('tahun', $tahun)
-                        ->where('bulan', $i)
-                        ->where('diverifikasi', true)
-                        ->sum('nilai');
-
-                    $persen = 0;
-                    if ($target > 0 && $realisasi > 0) {
-                        $persen = min(($realisasi / $target) * 100, 110);
-                    }
-                    $totalNilaiIndikator += $persen;
-                }
-
-                // Rata-rata semua indikator dalam pilar (termasuk yang belum ada input = 0)
-                $rataIndikator = $jumlahIndikator > 0
-                    ? round($totalNilaiIndikator / $jumlahIndikator, 2)
-                    : 0;
-
-                $totalNilaiPilar += $rataIndikator;
-            }
-
-            // NKO = rata-rata semua pilar, dibatasi maksimal 110
-            $nkoBulan = $jumlahPilar > 0
-                ? min(round($totalNilaiPilar / $jumlahPilar, 2), 110)
-                : 0;
-
-            $nkoTrend[] = [
-                'bulan' => \Carbon\Carbon::create()->month($i)->format('M'),
-                'nko' => $nkoBulan
-            ];
+            $totalNilaiAkhirBulan += $nilaiAkhir;
+            $totalBobotBulan += $bobot;
         }
+    }
+
+    $nkoBulan = $totalBobotBulan > 0
+        ? min(round(($totalNilaiAkhirBulan / $totalBobotBulan) * 100, 2), 110)
+        : 0;
+
+    $nkoTrend[] = [
+        'bulan' => \Carbon\Carbon::create()->month($i)->format('M'),
+        'nko' => $nkoBulan,
+    ];
+}
+
 
 
 

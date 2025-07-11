@@ -185,7 +185,7 @@
 
 <!-- Section: Analisis Per-Pilar -->
 <div class="section-divider">
-    <h2><i class="fas fa-layer-group"></i> Analisis Per-Pilar</h2>
+    <h2><i class="fas fa-layer-group"></i> Analisis Per-Perspektif</h2>
 </div>
 
 <div class="section-wrapper">
@@ -193,11 +193,11 @@
     </div>
 
     <div class="card pilar-card">
-        <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Nilai Kinerja Per-Pilar</h3>
+        <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Nilai Kinerja Per-Perspektif</h3>
 
         @if($pilars->isEmpty())
             <div class="text-center text-muted py-4">
-                <em>Belum ada data pilar untuk periode ini.</em>
+                <em>Belum ada data perspektif untuk periode ini.</em>
             </div>
         @else
             @foreach($pilars->chunk(3) as $chunk)
