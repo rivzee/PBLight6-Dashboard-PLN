@@ -1069,12 +1069,13 @@
   font-weight: 600;
   border-bottom: 2px solid var(--pln-border);
   transition: all 0.3s ease;
+
 }
 
 [data-theme="light"] .data-table thead th,
 [data-theme="light"] .table thead th {
-  background-color: #f8f9fa;
-  color: #333333;
+  background-color: #005ca9; /* atau sesuai warna PLN */
+  color:white;
 }
 
 [data-theme="dark"] .data-table thead th,

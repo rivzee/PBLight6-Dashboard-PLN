@@ -3,53 +3,278 @@
 @section('title', 'Detail Indikator')
 
 @section('styles')
-<link rel="stylesheet" href="{{ asset('css/dataKinerja.css') }}">
+<style>
+    .dashboard-content {
+        max-width: 1800px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    /* Dashboard Layout */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        grid-gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .grid-span-3 {
+        grid-column: span 3;
+    }
+
+    .grid-span-4 {
+        grid-column: span 4;
+    }
+
+    .grid-span-6 {
+        grid-column: span 6;
+    }
+
+    .grid-span-12 {
+        grid-column: span 12;
+    }
+
+    @media (max-width: 1200px) {
+        .grid-span-3 {
+            grid-column: span 6;
+        }
+        .grid-span-4 {
+            grid-column: span 6;
+        }
+        .grid-span-6 {
+            grid-column: span 12;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+            grid-gap: 15px;
+        }
+        .grid-span-3, .grid-span-4, .grid-span-6 {
+            grid-column: span 1;
+        }
+    }
+
+    /* Card Styling */
+    .info-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #e8e8e8;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    }
+
+    .info-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+    }
+
+    .info-card.primary::before {
+        background: #4e73df;
+    }
+
+    .info-card.success::before {
+        background: #1cc88a;
+    }
+
+    .info-card.info::before {
+        background: #36b9cc;
+    }
+
+    .info-card.warning::before {
+        background: #f6c23e;
+    }
+
+    .info-card-body {
+        display: flex;
+        align-items: center;
+    }
+
+    .info-card-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        margin-right: 20px;
+        flex-shrink: 0;
+    }
+
+    .info-card.primary .info-card-icon {
+        background: #4e73df;
+    }
+
+    .info-card.success .info-card-icon {
+        background: #1cc88a;
+    }
+
+    .info-card.info .info-card-icon {
+        background: #36b9cc;
+    }
+
+    .info-card.warning .info-card-icon {
+        background: #f6c23e;
+    }
+
+    .info-card-content {
+        flex: 1;
+    }
+
+    .info-card-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+
+    .info-card-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: #333;
+        margin: 0;
+    }
+
+    /* Chart Card */
+    .chart-card {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 25px;
+        transition: all 0.3s ease;
+        border: 1px solid #e8e8e8;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 25px;
+        height: 100%;
+    }
+
+    .chart-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: #4e73df;
+    }
+
+    .chart-title {
+        font-size: 18px;
+        color: #4e73df;
+        margin-bottom: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+
+    /* Loading indicator */
+    .loading-chart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+    }
+    .table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    font-size: 14px;
+}
+
+.table thead th {
+    background-color: #f8f9fc;
+    color: #4e73df;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 12px;
+    border-bottom: 2px solid #e3e6f0;
+}
+
+.table tbody td {
+    padding: 12px;
+    vertical-align: middle;
+    border-top: 1px solid #e3e6f0;
+}
+
+.table tbody tr:hover {
+    background-color: #f2f4f8;
+    transition: background-color 0.2s ease;
+}
+
+.badge {
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 500;
+}
+
+.badge-success {
+    background-color: #1cc88a;
+    color: #fff;
+}
+
+.badge-warning {
+    background-color: #f6c23e;
+    color: #212529;
+}
+
+.badge-danger {
+    background-color: #e74a3b;
+    color: #fff;
+}
+
+</style>
 @endsection
 
 @section('content')
 <div class="dashboard-content">
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="page-header-content">
-            <div class="breadcrumb-custom">
-                <a href="{{ route('dataKinerja.pilar', $indikator->pilar_id) }}">
-                    <i class="fas fa-arrow-left mr-2"></i> Kembali ke Pilar
-                </a>
-            </div>
-            <h1 class="page-title">{{ $indikator->nama }}</h1>
-            <p class="page-subtitle">
-                <i class="fas fa-tag mr-2"></i>{{ $indikator->kode }} •
-                <i class="fas fa-landmark mr-2"></i>{{ $indikator->pilar->nama ?? '-' }} •
-                <i class="fas fa-building mr-2"></i>{{ $indikator->bidang->nama ?? '-' }}
-            </p>
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <a href="{{ route('dataKinerja.pilar', $indikator->pilar_id) }}" class="btn btn-sm btn-outline-secondary mb-2">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+            <h1 class="h3 mb-0 text-gray-800">Detail Indikator: {{ $indikator->kode }} - {{ $indikator->nama }}</h1>
         </div>
-    </div>
-
-    <!-- Filter Panel -->
-    <div class="filter-panel">
-        <div class="filter-title">
-            <i class="fas fa-filter"></i> Filter Data
-        </div>
-        <form action="{{ route('dataKinerja.indikator', $indikator->id) }}" method="GET" class="filter-form" id="filterForm">
-            <div class="filter-group">
-                <label class="filter-label">Tahun</label>
-                <select name="tahun" class="filter-select" id="tahunSelect">
-                    @foreach(range(date('Y') + 1, date('Y') - 5) as $year)
-                        <option value="{{ $year }}" {{ $tahun == $year ? 'selected' : '' }}>
-                            {{ $year }}{{ $year == date('Y') ? ' (Tahun Ini)' : '' }}
-                        </option>
+        <div class="d-flex">
+            <form action="{{ route('dataKinerja.indikator', $indikator->id) }}" method="GET" class="d-flex align-items-center">
+                <select name="tahun" class="form-control form-control-sm mr-2">
+                    @foreach(range(date('Y') - 5, date('Y') + 1) as $year)
+                        <option value="{{ $year }}" {{ $tahun == $year ? 'selected' : '' }}>{{ $year }}</option>
                     @endforeach
                 </select>
-            </div>
-            <div class="filter-actions">
-                <button type="submit" class="btn-filter">
-                    <i class="fas fa-search"></i> Terapkan Filter
+                <button type="submit" class="btn btn-sm btn-primary">
+                    <i class="fas fa-filter fa-sm"></i> Filter
                 </button>
-                <button type="button" class="btn-reset" onclick="resetFilter()">
-                    <i class="fas fa-undo"></i> Reset
-                </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 
     <!-- Info Cards -->
@@ -89,7 +314,7 @@
                         <i class="fas fa-bullseye"></i>
                     </div>
                     <div class="info-card-content">
-                        <div class="info-card-label">Target Tahunan</div>
+                        <div class="info-card-label">Target</div>
                         <div class="info-card-value">{{ number_format($indikator->target ?? 0, 2) }}</div>
                     </div>
                 </div>
@@ -114,7 +339,7 @@
     </div>
 
     <!-- Deskripsi Indikator -->
-    {{-- <div class="dashboard-grid">
+    <div class="dashboard-grid">
         <div class="grid-span-12">
             <div class="chart-card">
                 <div class="chart-title">
@@ -133,23 +358,22 @@
                 </div>
             </div>
         </div>
-    </div> --}}
+    </div>
 
     <!-- Trend Chart -->
     <div class="dashboard-grid">
         <div class="grid-span-12">
             <div class="chart-card">
                 <div class="chart-title">
-                    <i class="fas fa-chart-line"></i> Trend Pencapaian Bulanan {{ $tahun }}
+                    <i class="fas fa-chart-line mr-2"></i> Trend Bulanan Tahun {{ $tahun }}
                 </div>
                 <div class="chart-container">
-                    <div class="loading-chart" id="chartLoading">
+                    <div class="loading-chart">
                         <div class="spinner-border text-primary" role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
-                        <p class="mt-3 text-muted">Memuat data trend...</p>
                     </div>
-                    <div id="trendChart" style="display: none;"></div>
+                    <div id="trendChart"></div>
                 </div>
             </div>
         </div>
@@ -160,83 +384,45 @@
         <div class="grid-span-12">
             <div class="chart-card">
                 <div class="chart-title">
-                    <i class="fas fa-table"></i> Data Realisasi Bulanan {{ $tahun }}
+                    <i class="fas fa-table mr-2"></i> Data Realisasi Tahun {{ $tahun }}
                 </div>
                 <div class="table-responsive">
                     <table class="table table-bordered" width="100%" cellspacing="0">
                         <thead>
                             <tr>
-                                <th><i class="fas fa-calendar mr-2"></i>Bulan</th>
-                                <th><i class="fas fa-bullseye mr-2"></i>Target Bulanan</th>
-                                <th><i class="fas fa-chart-bar mr-2"></i>Nilai Realisasi</th>
-                                <th><i class="fas fa-percentage mr-2"></i>Pencapaian</th>
-                                <th><i class="fas fa-flag mr-2"></i>Status</th>
+                                <th>Bulan</th>
+                                <th>Nilai</th>
+                                <th>Persentase</th>
+                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($realisasi as $data)
                                 @php
-                                    $targetBulan = $data->target_bulanan ?? 0;
+                                    $target = $indikator->target ?? 0;
                                     $nilai = $data->nilai ?? 0;
-                                    $persentase = $data->persentase ?? 0;
+                                    $persentase = $target > 0 ? ($nilai / $target) * 100 : 0;
 
                                     if ($persentase >= 90) {
                                         $statusText = 'Tercapai';
                                         $statusClass = 'badge badge-success';
-                                        $statusIcon = 'fas fa-check-circle';
                                     } elseif ($persentase >= 70) {
                                         $statusText = 'Perlu Perhatian';
                                         $statusClass = 'badge badge-warning';
-                                        $statusIcon = 'fas fa-exclamation-triangle';
                                     } else {
                                         $statusText = 'Tidak Tercapai';
                                         $statusClass = 'badge badge-danger';
-                                        $statusIcon = 'fas fa-times-circle';
                                     }
                                 @endphp
                                 <tr>
-                                    <td>
-                                        <strong>{{ Carbon\Carbon::create(null, $data->bulan, 1)->locale('id')->monthName }}</strong>
-                                        <small class="d-block text-muted">{{ Carbon\Carbon::create(null, $data->bulan, 1)->format('M Y') }}</small>
-                                    </td>
-                                    <td>
-                                        <span class="font-weight-bold">{{ number_format($targetBulan, 2) }}</span>
-                                    </td>
-                                    <td>
-                                        <span class="font-weight-bold">{{ number_format($nilai, 2) }}</span>
-                                        @if($nilai > 0)
-                                            <small class="d-block text-success">
-                                                <i class="fas fa-arrow-up"></i> Ada Data
-                                            </small>
-                                        @else
-                                            <small class="d-block text-muted">
-                                                <i class="fas fa-minus"></i> Belum Ada Data
-                                            </small>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <span class="font-weight-bold mr-2">{{ number_format($persentase, 2) }}%</span>
-                                            @if($persentase > 0)
-                                                <div class="progress" style="width: 50px; height: 8px;">
-                                                    <div class="progress-bar {{ $persentase >= 90 ? 'bg-success' : ($persentase >= 70 ? 'bg-warning' : 'bg-danger') }}"
-                                                         style="width: {{ min($persentase, 100) }}%"></div>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="{{ $statusClass }}">
-                                            <i class="{{ $statusIcon }} mr-1"></i>{{ $statusText }}
-                                        </span>
-                                    </td>
+                                    <td>{{ Carbon\Carbon::create(null, $data->bulan, 1)->locale('id')->monthName }}</td>
+                                    <td>{{ number_format($nilai, 2) }}</td>
+                                    <td>{{ number_format($persentase, 2) }}%</td>
+                                    <td><span class="{{ $statusClass }}">{{ $statusText }}</span></td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted py-4">
-                                        <i class="fas fa-info-circle fa-2x mb-2"></i>
-                                        <p class="mb-0">Tidak ada data realisasi untuk tahun {{ $tahun }}</p>
-                                    </td>
+                                    <td colspan="4" class="text-center">Tidak ada data realisasi</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -247,169 +433,105 @@
     </div>
 
 </div>
-
-<script>
-function resetFilter() {
-    const currentYear = {{ date('Y') }};
-    const tahunSelect = document.getElementById('tahunSelect');
-    tahunSelect.value = currentYear;
-    document.getElementById('filterForm').submit();
-}
-
-// Auto-submit form on select change untuk UX yang lebih baik
-document.getElementById('tahunSelect').addEventListener('change', function() {
-    const loadingText = document.createElement('small');
-    loadingText.className = 'text-muted ml-2';
-    loadingText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
-    this.parentNode.appendChild(loadingText);
-
-    setTimeout(() => {
-        document.getElementById('filterForm').submit();
-    }, 300);
-});
-</script>
 @endsection
 
 
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/apexcharts@latest"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('DOM loaded, initializing chart...');
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-    // Render Chart
-    const chartData = @json($chartData);
-    const loadingElement = document.getElementById('chartLoading');
-    const chartElement = document.getElementById('trendChart');
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Render Chart
+            const chartData = @json($chartData);
 
-    console.log('Chart Data:', chartData);
-    console.log('ApexCharts loaded:', typeof ApexCharts !== 'undefined');
-
-    // Short delay to ensure everything is loaded
-    setTimeout(() => {
-        if (chartData && chartData.length > 0 && typeof ApexCharts !== 'undefined') {
-            try {
+            if (chartData && chartData.length > 0 && typeof ApexCharts !== 'undefined') {
                 const options = {
                     series: [{
-                        name: 'Pencapaian (%)',
-                        data: chartData.map(item => parseFloat(item.nilai) || 0)
+                        name: 'Pencapaian',
+                        data: chartData.map(item => item.nilai)
                     }],
                     chart: {
                         type: 'line',
                         height: 350,
                         fontFamily: 'Poppins, sans-serif',
-                        toolbar: { show: true }
+                        toolbar: { show: false },
+                        zoom: { enabled: false }
                     },
-                    colors: ['var(--pln-blue, #0a4d85)'],
+                    colors: ['#4e73df'],
                     dataLabels: {
                         enabled: true,
                         formatter: val => val.toFixed(1) + '%'
                     },
-                    stroke: {
-                        curve: 'smooth',
-                        width: 4
-                    },
+                    stroke: { curve: 'smooth', width: 3 },
                     xaxis: {
-                        categories: chartData.map(item => item.bulan)
+                        categories: chartData.map(item => item.bulan),
+                        labels: { rotate: -45, style: { fontSize: '10px' } }
                     },
                     yaxis: {
                         min: 0,
-                        max: 110,
-                        labels: {
-                            formatter: val => val.toFixed(0) + '%'
-                        },
-                        title: {
-                            text: 'Persentase Pencapaian (%)'
-                        }
+                        max: 100,
+                        labels: { formatter: val => val.toFixed(0) + '%' }
                     },
                     tooltip: {
-                        y: {
-                            formatter: val => val.toFixed(2) + '%'
-                        }
+                        y: { formatter: val => val.toFixed(2) + '%' }
                     },
                     grid: {
-                        borderColor: '#e8e8e8',
-                        strokeDashArray: 3
+                        borderColor: '#e0e0e0',
+                        strokeDashArray: 4,
+                        xaxis: { lines: { show: true } }
                     },
                     markers: {
-                        size: 6,
+                        size: 5,
                         colors: ['#fff'],
-                        strokeColors: 'var(--pln-blue, #0a4d85)',
-                        strokeWidth: 3
+                        strokeColors: '#4e73df',
+                        strokeWidth: 2,
+                        hover: { size: 7 }
                     },
                     fill: {
                         type: 'gradient',
                         gradient: {
                             shade: 'light',
                             type: 'vertical',
-                            gradientToColors: ['var(--pln-light-blue, #009cde)'],
-                            opacityFrom: 0.8,
-                            opacityTo: 0.1
+                            shadeIntensity: 0.3,
+                            opacityFrom: 0.7,
+                            opacityTo: 0.2,
+                            stops: [0, 100]
                         }
-                    },
-                    annotations: {
-                        yaxis: [
-                            {
-                                y: 70,
-                                borderColor: '#f6c23e',
-                                borderWidth: 2,
-                                strokeDashArray: 5,
-                                label: {
-                                    text: 'Target Minimum (70%)',
-                                    position: 'right'
-                                }
-                            },
-                            {
-                                y: 90,
-                                borderColor: '#1cc88a',
-                                borderWidth: 2,
-                                strokeDashArray: 5,
-                                label: {
-                                    text: 'Target Optimal (90%)',
-                                    position: 'right'
-                                }
-                            }
-                        ]
                     }
                 };
 
-                const chart = new ApexCharts(chartElement, options);
-                chart.render().then(() => {
-                    console.log('Chart rendered successfully');
-                    if (loadingElement) loadingElement.style.display = 'none';
-                    if (chartElement) chartElement.style.display = 'block';
-                });
+                const chart = new ApexCharts(document.querySelector('#trendChart'), options);
+                chart.render();
+                document.querySelector('.loading-chart')?.remove();
+            }
 
-            } catch (error) {
-                console.error('Error creating chart:', error);
-                if (loadingElement) {
-                    loadingElement.innerHTML = `
-                        <div class="text-center text-muted py-4">
-                            <i class="fas fa-exclamation-triangle fa-3x mb-3 text-warning"></i>
-                            <h5>Error Memuat Chart</h5>
-                            <p>Gagal membuat chart: ${error.message}</p>
-                        </div>
-                    `;
+            // Isi status badge berdasarkan persentase
+            document.querySelectorAll('tbody tr').forEach(function (row) {
+                const percentCell = row.querySelector('.nilai-persentase');
+                const statusCell = row.querySelector('.status-badge');
+
+                if (percentCell && statusCell) {
+                    const val = parseFloat(percentCell.dataset.persentase || percentCell.textContent.replace('%', '')) || 0;
+                    let label = '';
+                    let className = '';
+
+                    if (val >= 90) {
+                        label = 'Tercapai';
+                        className = 'badge badge-success';
+                    } else if (val >= 70) {
+                        label = 'Perlu Perhatian';
+                        className = 'badge badge-warning';
+                    } else {
+                        label = 'Tidak Tercapai';
+                        className = 'badge badge-danger';
+                    }
+
+                    statusCell.innerHTML = `<span class="${className}">${label}</span>`;
                 }
-            }
-        } else {
-            // Show no data message
-            if (loadingElement) {
-                loadingElement.innerHTML = `
-                    <div class="text-center text-muted py-4">
-                        <i class="fas fa-chart-line fa-3x mb-3"></i>
-                        <h5>Tidak Ada Data Chart</h5>
-                        <p>Data trend untuk tahun {{ $tahun }} tidak tersedia</p>
-                        <small class="text-muted">ApexCharts: ${typeof ApexCharts !== 'undefined' ? 'Loaded' : 'Not loaded'}</small>
-                    </div>
-                `;
-            }
-            console.log('No chart data or ApexCharts not loaded');
-        }
-    }, 500);
-});
-</script>
+            });
+        });
+    </script>
 @endsection
 
 

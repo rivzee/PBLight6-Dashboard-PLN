@@ -3,7 +3,355 @@
 @section('title', 'Detail Pilar - ' . $pilar->nama)
 
 @section('styles')
-<link rel="stylesheet" href="{{ asset('css/dataKinerja.css') }}">
+<style>
+    .dashboard-content {
+        max-width: 1800px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    /* Dashboard Layout */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        grid-gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .grid-span-6 {
+        grid-column: span 6;
+    }
+
+    .grid-span-12 {
+        grid-column: span 12;
+    }
+
+    @media (max-width: 1200px) {
+        .grid-span-6 {
+            grid-column: span 12;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+            grid-gap: 15px;
+        }
+    }
+
+    /* Pilar Header Card */
+    .pilar-header-card {
+        background: var(--pln-accent-bg, #ffffff);
+        border-radius: 16px;
+        padding: 25px;
+        margin-bottom: 25px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--pln-border, #e8e8e8);
+        box-shadow: 0 8px 20px var(--pln-shadow, rgba(0,0,0,0.1));
+        display: flex;
+        align-items: center;
+    }
+
+    .pilar-header-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: var(--pilar-color, #4e73df);
+    }
+
+    .pilar-icon-large {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--pilar-color, #4e73df);
+        color: white;
+        font-size: 32px;
+        margin-right: 25px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        flex-shrink: 0;
+    }
+
+    .pilar-info {
+        flex: 1;
+    }
+
+    .pilar-name {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--pln-text, #333);
+        margin: 0 0 5px;
+    }
+
+    .pilar-code {
+        font-size: 16px;
+        color: var(--pln-text-secondary, #6c757d);
+        margin-bottom: 10px;
+    }
+
+    .pilar-description {
+        font-size: 15px;
+        color: var(--pln-text-secondary, #6c757d);
+        margin-bottom: 15px;
+    }
+
+    .pilar-value-large {
+        font-size: 36px;
+        font-weight: 700;
+        color: var(--pilar-color, #4e73df);
+    }
+
+    .pilar-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .pilar-stat-item {
+        text-align: center;
+        min-width: 100px;
+    }
+
+    .pilar-stat-value {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--pln-text, #333);
+    }
+
+    .pilar-stat-label {
+        font-size: 13px;
+        color: var(--pln-text-secondary, #6c757d);
+    }
+
+    /* Chart Card */
+    .chart-card {
+        background: var(--pln-accent-bg, #ffffff);
+        border-radius: 16px;
+        padding: 25px;
+        transition: all 0.3s ease;
+        border: 1px solid var(--pln-border, #e8e8e8);
+        box-shadow: 0 8px 20px var(--pln-shadow, rgba(0,0,0,0.1));
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 25px;
+        height: 100%;
+    }
+
+    .chart-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--pilar-color, #4e73df);
+    }
+
+    .chart-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px var(--pln-shadow, rgba(0,0,0,0.15));
+    }
+
+    .chart-title {
+        font-size: 18px;
+        color: var(--pilar-color, #4e73df);
+        margin-bottom: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+
+    .chart-title i {
+        margin-right: 10px;
+    }
+
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Indikator Cards */
+    .indikator-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .indikator-card {
+        background: var(--pln-accent-bg, #ffffff);
+        border-radius: 16px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--pln-border, #e8e8e8);
+        box-shadow: 0 8px 20px var(--pln-shadow, rgba(0,0,0,0.1));
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .indikator-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px var(--pln-shadow, rgba(0,0,0,0.15));
+    }
+
+    .indikator-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+
+    .indikator-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--pln-text, #333);
+        margin: 0 0 5px;
+    }
+
+    .indikator-code {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--pln-text-secondary, #6c757d);
+        padding: 3px 8px;
+        background: rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
+    }
+
+    .indikator-badge {
+        padding: 5px 10px;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 12px;
+        color: white;
+    }
+
+    .indikator-bidang {
+        font-size: 14px;
+        color: var(--pln-text-secondary, #6c757d);
+        margin-bottom: 15px;
+    }
+
+    .indikator-progress {
+        height: 10px;
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        overflow: hidden;
+        margin: 15px 0;
+    }
+
+    .indikator-progress-bar {
+        height: 100%;
+        border-radius: 5px;
+        transition: width 0.5s ease-in-out;
+    }
+
+    .indikator-values {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .indikator-value-item {
+        text-align: center;
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.03);
+        flex: 1;
+        min-width: 80px;
+    }
+
+    .indikator-value-label {
+        font-size: 12px;
+        color: var(--pln-text-secondary, #6c757d);
+        margin-bottom: 5px;
+    }
+
+    .indikator-value-number {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--pln-text, #333);
+    }
+
+    .indikator-actions {
+        margin-top: 15px;
+        text-align: right;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .pilar-header-card {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .pilar-icon-large {
+            margin-right: 0;
+            margin-bottom: 15px;
+        }
+
+        .pilar-stats {
+            justify-content: center;
+        }
+
+        .indikator-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .indikator-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .indikator-values {
+            flex-direction: column;
+        }
+
+        .indikator-value-item {
+            margin: 5px 0;
+        }
+    }
+
+    /* Color Variables based on Pilar Code */
+    .pilar-a { --pilar-color: #4e73df; }
+    .pilar-b { --pilar-color: #1cc88a; }
+    .pilar-c { --pilar-color: #36b9cc; }
+    .pilar-d { --pilar-color: #f6c23e; }
+    .pilar-e { --pilar-color: #e74a3b; }
+    .pilar-f { --pilar-color: #6f42c1; }
+
+    /* Loading indicator */
+    .loading-chart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+    }
+
+    .loading-chart i {
+        color: var(--pilar-color, #4e73df);
+        margin-bottom: 10px;
+    }
+
+    .loading-chart span {
+        font-size: 14px;
+        color: var(--pln-text-secondary, #6c757d);
+    }
+</style>
 @endsection
 
 @section('content')
@@ -113,8 +461,8 @@
             </div>
             <div class="indikator-values">
                 <div class="indikator-value-item">
-                    <div class="indikator-value-label">Target Bulanan</div>
-                    <div class="indikator-value-number">{{ number_format($indikator->target_bulanan ?? 0, 2) }}</div>
+                    <div class="indikator-value-label">Target</div>
+                    <div class="indikator-value-number">{{ number_format($indikator->target ?? 0) }}</div>
                 </div>
                 <div class="indikator-value-item">
                     <div class="indikator-value-label">Realisasi</div>
