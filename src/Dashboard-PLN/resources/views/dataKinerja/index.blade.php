@@ -473,7 +473,7 @@
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 100
+                        max: 110
                     },
                     x: {
                         grid: {
