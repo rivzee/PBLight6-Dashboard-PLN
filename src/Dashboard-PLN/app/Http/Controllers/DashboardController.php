@@ -191,7 +191,7 @@ for ($i = 1; $i <= 12; $i++) {
         $poorPerformers = Realisasi::with('indikator.bidang')
             ->where('tahun', $tahun)
             ->where('bulan', $bulan)
-            ->where('persentase', '<', 95)
+            ->where('persentase', '>=', 100)
             ->orderBy('persentase')
             ->take(10)
             ->get();

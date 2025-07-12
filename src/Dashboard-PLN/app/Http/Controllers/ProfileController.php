@@ -103,24 +103,31 @@ class ProfileController extends Controller
     /**
      * Update foto profil pengguna
      */
-    public function updatePhoto(Request $request)
-    {
-        $request->validate([
-            'profile_photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+public function updatePhoto(Request $request)
+{
+    $request->validate([
+        'profile_photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
 
-        $user = Auth::user();
+    $user = Auth::user();
 
-        // Hapus foto lama jika ada
-        if ($user->profile_photo) {
-            Storage::disk('public')->delete($user->profile_photo);
-        }
-
-        // Upload foto baru
-        $path = $request->file('profile_photo')->store('profile-photos', 'public');
-        $user->profile_photo = $path;
-        $user->save();
-
-        return redirect()->back()->with('success', 'Foto profil berhasil diperbarui');
+    // Hapus foto lama jika ada
+    if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
+        Storage::disk('public')->delete($user->profile_photo);
     }
+
+    // Ambil ekstensi asli
+    $ext = $request->file('profile_photo')->getClientOriginalExtension();
+    $filename = uniqid() . '.' . $ext;
+
+    // Simpan ke storage/app/public/profile-photos
+    $path = $request->file('profile_photo')->storeAs('profile-photos', $filename, 'public');
+
+    // Simpan path ke kolom user
+    $user->profile_photo = $path;
+    $user->save();
+
+    return redirect()->back()->with('success', 'Foto profil berhasil diperbarui');
+}
+
 }

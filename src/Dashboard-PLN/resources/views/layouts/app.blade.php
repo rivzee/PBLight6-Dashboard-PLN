@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <style>
-   
+
   </style>
   @yield('styles')
 </head>
@@ -616,12 +616,6 @@ use Illuminate\Support\Str;
               <label for="email" class="form-label">Email</label>
               <input type="email" class="form-control" id="email" name="email" value="{{ Auth::user()->email }}">
             </div>
-
-            <div class="form-group">
-              <label for="phone" class="form-label">Nomor Telepon</label>
-              <input type="text" class="form-control" id="phone" name="phone" value="{{ Auth::user()->phone ?? '' }}">
-            </div>
-
             <div class="form-actions">
               <button type="submit" class="btn-primary">
                 <i class="fas fa-save"></i> Simpan Perubahan
@@ -634,15 +628,16 @@ use Illuminate\Support\Str;
           <form id="updatePhotoForm" action="/profile/photo" method="POST" enctype="multipart/form-data">
             @csrf
 
-            <div class="profile-photo-preview">
-              @if(Auth::user()->profile_photo)
-                <img src="{{ Storage::url(Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}" id="photoPreview">
-              @else
-                <div class="profile-photo-placeholder">
-                  <i class="fas fa-user"></i>
-                </div>
-              @endif
-            </div>
+<div class="profile-photo-preview">
+  @if(Auth::user()->profile_photo && Storage::disk('public')->exists(Auth::user()->profile_photo))
+    <img src="{{ Storage::url(Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}" id="photoPreview" style="max-width: 200px;">
+  @else
+    <div class="profile-photo-placeholder">
+      <i class="fas fa-user"></i>
+    </div>
+  @endif
+</div>
+
 
             <div class="profile-photo-upload-container">
               <label for="profile_photo" class="photo-upload-btn">

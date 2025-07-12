@@ -229,7 +229,7 @@
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="rendah-tab" data-bs-toggle="tab" data-bs-target="#kinerja-rendah" type="button" role="tab" aria-controls="kinerja-rendah" aria-selected="false">
         <i class="fas fa-arrow-down me-2"></i>Perlu Perhatian
-        <span class="badge badge-warning">{{ collect($data['pilar'] ?? [])->where('nilai', '<=', 95)->count() }}</span>
+        <span class="badge badge-warning">{{ collect($data['pilar'] ?? [])->where('nilai', '<=', )->count() }}</span>
       </button>
     </li>
   </ul>
@@ -279,19 +279,10 @@
                         <td>
                             @if(($pilar['nilai'] ?? 0) >= 100)
                             <strong class="text-success">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
-                            <span class="performance-indicator high">
-                                <i class="fas fa-arrow-up"></i> {{ number_format($pilar['nilai'] ?? 0, 1) }}%
-                            </span>
                             @elseif(($pilar['nilai'] ?? 0) >= 95)
                             <strong class="text-primary">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
-                            <span class="performance-indicator medium">
-                                <i class="fas fa-minus"></i> {{ number_format($pilar['nilai'] ?? 0, 1) }}%
-                            </span>
                             @else
                             <strong class="text-warning">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
-                            <span class="performance-indicator low">
-                                <i class="fas fa-arrow-down"></i> {{ number_format($pilar['nilai'] ?? 0, 1) }}%
-                            </span>
                             @endif
                         </td>
                         <td>
@@ -371,7 +362,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @forelse(collect($data['pilar'] ?? [])->where('nilai', '>=', 80) as $index => $pilar)
+                  @forelse(collect($data['pilar'] ?? [])->where('nilai', '>=', 100) as $index => $pilar)
                   <tr class="data-row">
                     <td>{{ $pilar['nama'] }}</td>
                     <td>
@@ -435,14 +426,14 @@
                   </tr>
                 </thead>
                 <tbody>
-                  @forelse(collect($data['pilar'] ?? [])->where('nilai', '<', 95) as $index => $pilar)
+                  @forelse(collect($data['pilar'] ?? [])->where('nilai', '<', 100) as $index => $pilar)
                   <tr class="data-row">
                     <td>{{ $pilar['nama'] }}</td>
                     <td>
                       <strong class="text-warning">{{ $pilar['nilai'] }}%</strong>
-                      <span class="performance-indicator low">
+                      {{-- <span class="performance-indicator low">
                         <i class="fas fa-arrow-down"></i> {{ $pilar['nilai'] }}
-                      </span>
+                      </span> --}}
                     </td>
                     <td>
                       <span class="badge badge-warning">
@@ -753,9 +744,9 @@
 
     // Determine color based on value
     let gaugeColor = '#F44336'; // Red for low values
-    if (nkoValue >= 70) {
+    if (nkoValue >= 100) {
       gaugeColor = chartConfig.successBorder; // Green for high values
-    } else if (nkoValue >= 50) {
+    } else if (nkoValue >= 95) {
       gaugeColor = chartConfig.warningBorder; // Yellow for medium values
     }
 
@@ -1006,12 +997,12 @@ function initTrendChart(chartConfig = getChartConfig()) {
     const highPerformanceCtx = document.getElementById('highPerformanceChart');
     if (!highPerformanceCtx) return;
 
-    const highPilar = @json(collect($data['pilar'] ?? [])->where('nilai', '>=', 80)->values()->all());
+    const highPilar = @json(collect($data['pilar'] ?? [])->where('nilai', '>=', 100)->values()->all());
 
     if (highPilar.length > 0) {
       const labels = highPilar.map(pilar => pilar.nama);
       const values = highPilar.map(pilar => pilar.nilai);
-      const targetValues = highPilar.map(() => 80); // Target 80%
+      const targetValues = highPilar.map(() => 100);
 
       // Destroy existing chart if exists
       if (chartInstances.highPerformanceChart) {
@@ -1051,7 +1042,7 @@ function initTrendChart(chartConfig = getChartConfig()) {
           scales: {
             y: {
               beginAtZero: true,
-              max: 100,
+              max: 110,
               grid: {
                 color: chartConfig.gridColor
               },
@@ -1118,12 +1109,12 @@ function initTrendChart(chartConfig = getChartConfig()) {
     const lowPerformanceCtx = document.getElementById('lowPerformanceChart');
     if (!lowPerformanceCtx) return;
 
-    const lowPilar = @json(collect($data['pilar'] ?? [])->where('nilai', '<', 70)->values()->all());
+    const lowPilar = @json(collect($data['pilar'] ?? [])->where('nilai', '<', 100)->values()->all());
 
     if (lowPilar.length > 0) {
       const labels = lowPilar.map(pilar => pilar.nama);
       const values = lowPilar.map(pilar => pilar.nilai);
-      const targetValues = lowPilar.map(() => 95); // Target 70%
+      const targetValues = lowPilar.map(() => 100); // Target 70%
 
       // Destroy existing chart if exists
       if (chartInstances.lowPerformanceChart) {

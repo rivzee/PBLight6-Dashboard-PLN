@@ -128,13 +128,13 @@
         <div class="grid-span-3">
             <div class="card stat-card">
                 <div class="stat-header">
-                    <h3 class="stat-title">Target {{ $tahun }}</h3>
+                    <h3 class="stat-title">Target </h3>
                     <div class="stat-icon">
                         <i class="fas fa-bullseye"></i>
                     </div>
                 </div>
                 <div class="stat-value">{{ number_format($target, 0) }}%</div>
-                <p class="stat-description">Target Kinerja</p>
+                <p class="stat-description">Target Nilai Kinerja Organiasi</p>
             </div>
         </div>
     </div>
@@ -713,42 +713,50 @@ document.addEventListener('DOMContentLoaded', function () {
     const canvasList = document.querySelectorAll('.circle-progress canvas');
 
     canvasList.forEach(canvas => {
-        const ctx = canvas.getContext('2d');
-        const valueText = canvas.parentElement.querySelector('.circle-progress-value')?.innerText || '0';
-        const nilai = parseFloat(valueText.replace('%', '')) || 0;
+    const ctx = canvas.getContext('2d');
+    const valueText = canvas.parentElement.querySelector('.circle-progress-value')?.innerText || '0';
+    const nilai = parseFloat(valueText.replace('%', '')) || 0;
 
-        const width = canvas.width = 80;
-        const height = canvas.height = 80;
-        const radius = 35;
-        const centerX = width / 2;
-        const centerY = height / 2;
-        const lineWidth = 6;
-        const startAngle = -0.5 * Math.PI;
-        const endAngle = startAngle + (2 * Math.PI * (nilai / 100));
+    const width = canvas.width = 80;
+    const height = canvas.height = 80;
+    const radius = 35;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const lineWidth = 6;
+    const startAngle = -0.5 * Math.PI;
+    const endAngle = startAngle + (2 * Math.PI * (nilai / 100));
 
-        // Tentukan warna berdasarkan nilai
-        let color = '#dc3545'; // Merah (default)
-        if (nilai >= 80) {
-            color = '#28a745'; // Hijau
-        } else if (nilai >= 60) {
-            color = '#ffc107'; // Kuning
-        }
+    // Tentukan warna berdasarkan nilai sesuai ketentuan
+    let color = '#cccccc'; // Default: Abu-abu jika belum ada nilai
 
-        // Background lingkaran abu-abu
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-        ctx.strokeStyle = '#e6ecf2';
-        ctx.lineWidth = lineWidth;
-        ctx.stroke();
+    if (nilai === 0) {
+        color = '#cccccc'; // Belum dilakukan pengukuran
+    } else if (nilai < 95) {
+        color = '#dc3545'; // Merah
+    } else if (nilai >= 95 && nilai < 100) {
+        color = '#ffc107'; // Kuning
+    } else if (nilai >= 100) {
+        color = '#28a745'; // Hijau
+    }
 
-        // Progress
+    // Background lingkaran abu-abu
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = '#e6ecf2';
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+
+    // Progress
+    if (nilai > 0) {
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, startAngle, endAngle);
         ctx.strokeStyle = color;
         ctx.lineWidth = lineWidth;
         ctx.lineCap = 'round';
         ctx.stroke();
-    });
+    }
+});
+
 });
 </script>
 

@@ -139,7 +139,7 @@
 
     <!-- Accordion Pilar dengan desain yang lebih modern -->
     <div class="section-divider mb-4">
-        <h2><i class="fas fa-layer-group"></i> Target Per-Pilar</h2>
+        <h2><i class="fas fa-layer-group"></i> Target Perspektif</h2>
     </div>
 
     <!-- Tampilkan semua pilar secara berurutan dengan desain kartu yang lebih modern -->
