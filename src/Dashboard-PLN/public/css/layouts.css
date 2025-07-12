@@ -547,6 +547,7 @@
       transition: all 0.3s ease;
       cursor: pointer;
       position: relative;
+      gap: 10px;
     }
 
     .date-display:hover {

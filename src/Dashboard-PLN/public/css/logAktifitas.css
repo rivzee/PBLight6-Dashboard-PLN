@@ -291,8 +291,8 @@
         top: 0;
         z-index: 10;
         padding: 0.75rem 1rem;
-        background-color: var(--pln-accent-bg);
-        color: var(--pln-text);
+        background: linear-gradient(90deg, var(--pln-blue, #007bff), var(--pln-light-blue, #00c6ff)); /* gradiasi */
+        color: #fff;
         font-weight: 600;
         border-bottom: 1px solid var(--pln-border);
         white-space: nowrap;
@@ -486,15 +486,16 @@
         margin-bottom: 20px;
         padding-bottom: 15px;
         border-bottom: 1px solid var(--pln-border);
-    }
+        background: linear-gradient(90deg, var(--pln-blue, #007bff), var(--pln-light-blue, #00c6ff)); /* gradiasi */
+        color: #fff;    }
 
     .card-title {
         font-size: 18px;
         font-weight: 600;
-        color: var(--pln-text);
         margin: 0;
         display: flex;
         align-items: center;
+        color: #fff;
     }
 
     .card-title i {

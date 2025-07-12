@@ -73,7 +73,7 @@
         </div>
         <div class="stat-value">{{ $rataRata }}</div>
         <div class="progress">
-          <div class="progress-bar {{ $rataRata >= 90 ? 'progress-green' : ($rataRata >= 70 ? 'progress-yellow' : 'progress-red') }}" role="progressbar" style="width: 0%"></div>
+          <div class="progress-bar {{ $rataRata >= 100 ? 'progress-green' : ($rataRata >= 95 ? 'progress-yellow' : 'progress-red') }}" role="progressbar" style="width: 0%"></div>
         </div>
         <p class="stat-description">Rata-rata nilai indikator bidang</p>
       </div>
@@ -196,11 +196,6 @@
       <div class="card fade-in delay-4">
         <div class="card-header bg-primary text-white">
           <h5 class="card-title"><i class="fas fa-list-ul"></i> Daftar Indikator</h5>
-          <div>
-            <a href="{{ route('realisasi.index') }}" class="btn btn-sm btn-light">
-              <i class="fas fa-plus-circle"></i> Tambah
-            </a>
-          </div>
         </div>
         <div class="card-body">
           <div class="indikator-grid">
@@ -212,13 +207,13 @@
                 </div>
 
                 <div class="indikator-value">{{ $indikator->nilai_persentase }}%</div>
-
                 <div class="indikator-target">
-                  <i class="fas fa-bullseye mr-1"></i> Target: {{ $indikator->target ?? 'Belum ditetapkan' }}
+                    <i class="fas fa-bullseye mr-1"></i>
+                    Target Bulan Ini:
+                    {{ number_format($indikator->target_nilai, 2) }}
                 </div>
-
                 <div class="progress">
-                  <div class="progress-bar {{ $indikator->nilai_persentase >= 90 ? 'progress-green' : ($indikator->nilai_persentase >= 70 ? 'progress-yellow' : 'progress-red') }}" role="progressbar" style="width: 0%" data-width="{{ $indikator->nilai_persentase }}%"></div>
+                  <div class="progress-bar {{ $indikator->nilai_persentase >= 100 ? 'progress-green' : ($indikator->nilai_persentase >= 95 ? 'progress-yellow' : 'progress-red') }}" role="progressbar" style="width: 0%" data-width="{{ $indikator->nilai_persentase }}%"></div>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mt-3">
@@ -419,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const values = historiData.map(item => item.nilai);
 
     // Buat array target (misalnya 80% untuk semua bulan)
-    const targets = Array(labels.length).fill(80);
+    const targets = Array(labels.length).fill(100);
 
     // Buat chart dengan animasi
     const trendChart = new Chart(ctx, {
@@ -487,7 +482,7 @@ document.addEventListener('DOMContentLoaded', function() {
           },
           y: {
             beginAtZero: true,
-            max: 100,
+            max: 110,
             grid: {
               color: 'rgba(0, 0, 0, 0.05)',
               drawBorder: false

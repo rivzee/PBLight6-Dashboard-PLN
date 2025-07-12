@@ -64,10 +64,20 @@
 document.addEventListener('DOMContentLoaded', function () {
     const progressBars = document.querySelectorAll('.pilar-progress-bar');
     progressBars.forEach(bar => {
-        const target = bar.style.width;
+        // Ambil persentase dari style.width
+        const percent = parseFloat(bar.style.width);
+        // Set warna sesuai ketentuan
+        if (percent < 95) {
+            bar.style.backgroundColor = '#e74a3b'; // merah
+        } else if (percent >= 95 && percent < 100) {
+            bar.style.backgroundColor = '#f6c23e'; // kuning
+        } else if (percent >= 100) {
+            bar.style.backgroundColor = '#1cc88a'; // hijau
+        }
+        // Animasi progres
         bar.style.width = '0%';
         setTimeout(() => {
-            bar.style.width = target;
+            bar.style.width = percent + '%';
         }, 100);
     });
 });

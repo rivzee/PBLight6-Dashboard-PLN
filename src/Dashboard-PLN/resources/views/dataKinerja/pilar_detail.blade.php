@@ -57,31 +57,7 @@
             </div>
         </form>
     </div>
-    {{-- <div class="d-flex align-items-center justify-content-between mb-4">
-        <div>
-            <a href="{{ route('dataKinerja.pilar') }}" class="btn btn-sm btn-outline-secondary mb-2">
-                <i class="fas fa-arrow-left"></i> Kembali
-            </a>
-            <h1 class="h3 mb-0 text-gray-800">Detail Perspektif {{ $pilar->nama }}</h1>
-        </div>
-        <div class="d-flex">
-            <form action="{{ route('dataKinerja.pilar', $pilar->id) }}" method="GET" class="d-flex align-items-center">
-                <select name="tahun" class="form-control form-control-sm mr-2">
-                    @foreach(range(date('Y') - 5, date('Y') + 1) as $year)
-                        <option value="{{ $year }}" {{ $tahun == $year ? 'selected' : '' }}>{{ $year }}</option>
-                    @endforeach
-                </select>
-                <select name="bulan" class="form-control form-control-sm mr-2">
-                    @foreach(range(1, 12) as $month)
-                        <option value="{{ $month }}" {{ $bulan == $month ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $month, 1)) }}</option>
-                    @endforeach
-                </select>
-                <button type="submit" class="btn btn-sm btn-primary">
-                    <i class="fas fa-filter fa-sm"></i> Filter
-                </button>
-            </form>
-        </div>
-    </div> --}}
+
 
     @include('components.alert')
 
@@ -128,7 +104,7 @@
         </div>
         <div class="grid-span-6">
             <div class="chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-line"></i> Trend Bulanan {{ $tahun }}</h3>
+                <h3 class="chart-title"><i class="fas fa-chart-line"></i> Trend Bulanan Perspektif {{ $tahun }}</h3>
                 <div id="trendBulananChart" class="chart-container">
                     <div class="loading-chart">
                         <i class="fas fa-circle-notch fa-spin fa-3x"></i>
@@ -155,15 +131,21 @@
                     <div class="text-muted mb-2">
                         <i class="fas fa-building mr-1"></i> {{ $indikator->bidang->nama ?? '-' }}
                     </div>
-                    <div class="progress mb-3" style="height: 8px;">
-                        <div class="progress-bar"
-                            role="progressbar"
-                            style="width: {{ $indikator->persentase ?? 0 }}%; background-color: {{ ($indikator->persentase ?? 0) >= 90 ? '#1cc88a' : (($indikator->persentase ?? 0) >= 70 ? '#f6c23e' : '#e74a3b') }};"
-                            aria-valuenow="{{ $indikator->persentase ?? 0 }}"
-                            aria-valuemin="0"
-                            aria-valuemax="110">
-                        </div>
-                    </div>
+@php
+    $persen = $indikator->persentase ?? 0;
+    $warna = $persen >= 100 ? '#1cc88a' : ($persen >= 95 ? '#f6c23e' : '#e74a3b');
+@endphp
+
+<div class="progress mb-3" style="height: 8px;">
+    <div class="progress-bar"
+        role="progressbar"
+        style="width: {{ $persen }}%; background-color: {{ $warna }};"
+        aria-valuenow="{{ $persen }}"
+        aria-valuemin="0"
+        aria-valuemax="110">
+    </div>
+</div>
+
                     <div class="d-flex justify-content-between text-center mb-3">
                         <div>
                             <div class="small text-muted">Target Bulanan</div>
@@ -188,27 +170,7 @@
     </div>
 </div>
 @endsection
-{{-- <script>
-function resetFilter() {
-    const currentYear = {{ date('Y') }};
-    const tahunSelect = document.getElementById('tahunSelect');
-    tahunSelect.value = currentYear;
-    document.getElementById('filterForm').submit();
-}
 
-// Auto-submit form on select change untuk UX yang lebih baik
-document.getElementById('tahunSelect').addEventListener('change', function() {
-    const loadingText = document.createElement('small');
-    loadingText.className = 'text-muted ml-2';
-    loadingText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
-    this.parentNode.appendChild(loadingText);
-
-    setTimeout(() => {
-        document.getElementById('filterForm').submit();
-    }, 300);
-});
-</script> --}}
-{{-- @endsection --}}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
 @section('scripts')
@@ -219,8 +181,8 @@ document.getElementById('tahunSelect').addEventListener('change', function() {
 
         // Tentukan warna berdasarkan nilai pencapaian
         const getColor = (val) => {
-            if (val >= 90) return '#1cc88a';       // hijau
-            if (val >= 70) return '#f6c23e';       // kuning
+            if (val >= 100) return '#1cc88a';       // hijau
+            if (val >= 95) return '#f6c23e';       // kuning
             return '#e74a3b';                      // merah
         };
 

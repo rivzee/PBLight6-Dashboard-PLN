@@ -57,24 +57,19 @@ class TargetKPI extends Model
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Relasi ke User yang menyetujui target
-     */
-    public function approver(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'disetujui_oleh');
-    }
+
 
     /**
      * Mendapatkan target untuk bulan tertentu (1-12)
      */
     public function getTargetBulan(int $bulan): float
     {
-        if ($this->target_bulanan && isset($this->target_bulanan[$bulan - 1])) {
-            return (float) $this->target_bulanan[$bulan - 1];
+        if ($this->target_bulanan && isset($this->target_bulanan[$bulan])) {
+            return (float) $this->target_bulanan[$bulan];
         }
 
-        return $this->target_tahunan / 12;
+        // Jika tidak tersedia, fallback ke rata-rata
+        return $this->target_tahunan > 0 ? ($this->target_tahunan / 12) : 0;
     }
 
     /**
@@ -88,7 +83,7 @@ class TargetKPI extends Model
             return 0;
         }
 
-        return min(100, ($nilai / $target) * 100);
+        return min(110, ($nilai / $target) * 100);
     }
 
     /**
@@ -126,4 +121,5 @@ class TargetKPI extends Model
 
         return array_sum($this->target_bulanan);
     }
+
 }

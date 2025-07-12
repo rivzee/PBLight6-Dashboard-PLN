@@ -5,65 +5,58 @@
 @section('page_title', 'DASHBOARD KARYAWAN')
 
 @section('styles')
-<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
+<link rel="stylesheet" href="{{ asset('css/dataKinerja.css') }}">
 @endsection
 
 @section('content')
 <div class="dashboard-content">
     <!-- Filter -->
     <div class="row mb-4">
+        <!-- Filter Form -->
         <div class="col-md-8">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <form action="{{ route('dashboard') }}" method="get" class="form-inline">
-                        <div class="row align-items-center">
-                            <div class="col-md-4 mb-2 mb-md-0">
-                                <label for="tahun" class="mr-2">Tahun:</label>
+                    <form action="{{ route('dataKinerja.index') }}" method="get">
+                        <div class="row g-3 align-items-end">
+                            <!-- Tahun -->
+                            <div class="col-md-4">
+                                <label for="tahun" class="form-label">Tahun</label>
                                 <select name="tahun" id="tahun" class="form-control">
                                     @php
                                         $currentYear = date('Y');
                                         $startYear = $currentYear - 5;
-                                        $endYear = $currentYear;
                                     @endphp
-
-                                    @for($year = $endYear; $year >= $startYear; $year--)
+                                    @for($year = $currentYear; $year >= $startYear; $year--)
                                         <option value="{{ $year }}" {{ $tahun == $year ? 'selected' : '' }}>{{ $year }}</option>
                                     @endfor
                                 </select>
                             </div>
 
-                            <div class="col-md-4 mb-2 mb-md-0">
-                                <label for="bulan" class="mr-2">Bulan:</label>
+                            <!-- Bulan -->
+                            <div class="col-md-4">
+                                <label for="bulan" class="form-label">Bulan</label>
                                 <select name="bulan" id="bulan" class="form-control">
                                     @php
                                         $namaBulan = [
-                                            1 => 'Januari',
-                                            2 => 'Februari',
-                                            3 => 'Maret',
-                                            4 => 'April',
-                                            5 => 'Mei',
-                                            6 => 'Juni',
-                                            7 => 'Juli',
-                                            8 => 'Agustus',
-                                            9 => 'September',
-                                            10 => 'Oktober',
-                                            11 => 'November',
-                                            12 => 'Desember'
+                                            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
                                         ];
                                     @endphp
-
                                     @foreach($namaBulan as $value => $nama)
                                         <option value="{{ $value }}" {{ $bulan == $value ? 'selected' : '' }}>{{ $nama }}</option>
                                     @endforeach
                                 </select>
                             </div>
 
-                            <div class="col-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-filter mr-1"></i> Filter
+
+                            <!-- Tombol -->
+                            <div class="col-md-4 d-flex justify-content-start">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="fas fa-filter me-1"></i> Filter
                                 </button>
-                                <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary ml-2">
-                                    <i class="fas fa-sync-alt mr-1"></i> Reset
+                                <a href="{{ route('dataKinerja.index') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-sync-alt me-1"></i> Reset
                                 </a>
                             </div>
                         </div>
@@ -71,19 +64,22 @@
                 </div>
             </div>
         </div>
+
+        <!-- Ringkasan Bulan -->
         <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-center h-100">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Data Bulan: <strong>{{ date('F Y', mktime(0, 0, 0, $bulan, 1, $tahun)) }}</strong></h5>
-                        <a href="{{ route('eksporPdf.index') }}" class="export-btn">
-                            <i class="fas fa-file-pdf"></i> Ekspor PDF
-                        </a>
+                        <h6 class="mb-0">Data Bulan:
+                            <strong>{{ date('F Y', mktime(0, 0, 0, $bulan, 1, $tahun)) }}</strong>
+                        </h6>
+                        <span class="badge bg-primary text-white">{{ $totalIndikator }} Indikator</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     @include('components.alert')
 
@@ -97,7 +93,7 @@
                         <i class="fas fa-chart-line"></i>
                     </div>
                 </div>
-                <div class="stat-value">{{ $nilaiNKO }}</div>
+                <div class="stat-value">{{ number_format($nilaiNKO, 2) }}</div>
                 <p class="stat-description">Nilai Kinerja Organisasi</p>
             </div>
         </div>
@@ -134,13 +130,13 @@
         <div class="grid-span-3">
             <div class="card stat-card">
                 <div class="stat-header">
-                    <h3 class="stat-title">Target {{ $tahun }}</h3>
+                    <h3 class="stat-title">Target </h3>
                     <div class="stat-icon">
                         <i class="fas fa-bullseye"></i>
                     </div>
                 </div>
-                <div class="stat-value">100%</div>
-                <p class="stat-description">Target Kinerja</p>
+                <div class="stat-value">{{ number_format($target, 0) }}%</div>
+                <p class="stat-description">Target Nilai Kinerja Organiasi</p>
             </div>
         </div>
     </div>
@@ -148,51 +144,69 @@
     <!-- Chart Tren NKO -->
     <div class="grid-span-12">
         <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-chart-line"></i> Tren NKO {{ $tahun }}</h3>
-            <div id="nkoTrendChart" class="chart-container large">
-                <div class="loading-chart">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
-                    <p class="mt-2">Memuat data...</p>
-                </div>
+            <h3 class="chart-title">
+                <i class="fas fa-chart-line"></i> Tren NKO {{ $tahun }}
+            </h3>
+            <div class="chart-container large position-relative">
+                <!-- Elemen canvas Chart -->
+                <canvas id="nkoTrendChart" height="300"></canvas>
             </div>
         </div>
     </div>
+
 
     <!-- Section: Analisis Per-Pilar -->
     <div class="section-divider">
-        <h2><i class="fas fa-layer-group"></i>Analisis Per-Pilar</h2>
+        <h2><i class="fas fa-layer-group"></i> Analisis Per-Perspektif</h2>
     </div>
 
-    <div class="dashboard-grid">
-        <div class="grid-span-12">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Kinerja Per-Pilar</h3>
-                <div id="pilarChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
+    <div class="section-wrapper">
+        <div class="section-header">
+        </div>
+
+        <div class="card pilar-card">
+            <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Nilai Kinerja Per-Perspektif</h3>
+
+            @if($pilars->isEmpty())
+                <div class="text-center text-muted py-4">
+                    <em>Belum ada data perspektif untuk periode ini.</em>
                 </div>
-            </div>
+            @else
+                @foreach($pilars->chunk(3) as $chunk)
+                    <div class="pillar-container">
+                        @foreach($chunk as $index => $pilar)
+                            @php
+                                $globalIndex = $loop->parent->index * 3 + $index;
+                            @endphp
+                            <a href="{{ route('dataKinerja.pilar', $pilar->id) }}" class="pillar-item-link">
+                                <div class="pillar-item">
+                                    <div class="pillar-title">{{ strtoupper($pilar->nama) }}</div>
+                                    <div class="pillar-value text-primary">{{ number_format($pilar->nilai, 1) }}%</div>
+                                    <div class="circle-progress">
+                                        <canvas id="pilarChart{{ $globalIndex }}"></canvas>
+                                        <div class="circle-progress-value">{{ number_format($pilar->nilai, 1) }}%</div>
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @endforeach
+            @endif
         </div>
     </div>
 
+
     <!-- Section: Analisis Per-Bidang -->
     <div class="section-divider">
-        <h2><i class="fas fa-building"></i>Analisis Per-Bidang</h2>
+        <h2><i class="fas fa-building"></i> Analisis Per-Bidang</h2>
     </div>
 
     <div class="dashboard-grid">
         <div class="grid-span-12">
             <div class="card chart-card">
                 <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Kinerja Per-Bidang</h3>
-                <div id="bidangChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
+                <div class="chart-container medium position-relative">
+                    <canvas id="bidangChart" height="280"></canvas>
                 </div>
             </div>
         </div>
@@ -276,227 +290,405 @@
             </div>
         </div>
     </div>
+
+    <!-- Section: Perkembangan Bulanan -->
+    <div class="section-divider">
+        <h2><i class="fas fa-calendar-alt"></i>Perkembangan Bulanan</h2>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="grid-span-12">
+            <div class="card chart-card scrollable-card">
+                <h3 class="chart-title"><i class="fas fa-calendar-week"></i> Perkembangan Per Bulan</h3>
+                <div class="perkembangan-table-container">
+                    <table class="perkembangan-table">
+                        <thead>
+                            <tr>
+                                <th>Bulan</th>
+                                <th>NKO</th>
+                                <th>Indikator Tercapai</th>
+                                <th>Total Indikator</th>
+                                <th>Persentase Tercapai (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($analisisData['perkembangan'] as $data)
+                                <tr>
+                                    <td>{{ $data['bulan'] }}</td>
+                                    <td>{{ $data['nko'] }}</td>
+                                    <td>{{ $data['tercapai'] }}</td>
+                                    <td>{{ $data['total'] }}</td>
+                                    <td>{{ $data['persentase'] }}%</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Inisialisasi Chart Tren NKO
-    initNkoTrendChart();
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('DOM Loaded - Init charts');
 
-    // Inisialisasi Chart Per-Pilar
-    initPilarChart();
+        const trendNKOData = @json($trendNKO ?? []);
+        const indikatorCompositionData = @json($indikatorComposition ?? []);
+        const statusMappingData = @json($statusMapping ?? []);
+        const historicalTrendData = @json($historicalTrend ?? []);
+        const forecastData = @json($forecastData ?? []);
+        const pilarData = @json($pilarData ?? []);
+        const bidangData = @json($bidangData ?? []);
+        const perkembanganPerBulan = @json($analisisData['perkembangan']);
 
-    // Inisialisasi Chart Per-Bidang
-    initBidangChart();
-});
+        console.log({ trendNKOData, indikatorCompositionData, statusMappingData });
 
-function initNkoTrendChart() {
-    const ctx = document.getElementById('nkoTrendChart');
-    const chartData = @json($analisisData['perkembangan'] ?? []);
+        initNkoTrendChart(trendNKOData);
+        initIndikatorCompositionChart(indikatorCompositionData);
+        initStatusMappingChart(statusMappingData);
+        initHistoricalTrendChart(historicalTrendData);
+        initForecastChart(forecastData);
+        initPilarChart(pilarData);
+        initBidangChart(bidangData);
+        initPilarProgressCards(pilarProgressData);
+        initPerkembanganChart(perkembanganPerBulan);
+    });
+    function initPilarProgressCards(data) {
+        if (!Array.isArray(data)) return;
 
-    // Validasi data
-    if (!ctx || !chartData || !Array.isArray(chartData) || chartData.length === 0) {
-        if (ctx && ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').innerHTML = `
-                <div class="text-center py-5">
-                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                    <p>Tidak ada data tren NKO yang tersedia.</p>
-                </div>
-            `;
-        }
-        return;
-    }
+        data.forEach((pilar, index) => {
+            const canvas = document.getElementById(`pilarChart${index}`);
+            if (!canvas || typeof pilar.nilai !== 'number') return;
 
-    // Hapus loading indicator
-    if (ctx.querySelector('.loading-chart')) {
-        ctx.querySelector('.loading-chart').remove();
-    }
-
-    // Siapkan data untuk chart
-    const labels = chartData.map(item => item.bulan);
-    const values = chartData.map(item => item.nko);
-
-    // Buat chart baru
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Nilai NKO',
-                data: values,
-                borderColor: '#4e73df',
-                backgroundColor: 'rgba(78, 115, 223, 0.1)',
-                borderWidth: 3,
-                pointBackgroundColor: '#4e73df',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointRadius: 5,
-                pointHoverRadius: 7,
-                tension: 0.3,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
+            new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [pilar.nilai, 100 - pilar.nilai],
+                        backgroundColor: ['#e74a3b', '#e6e6e6'],
+                        borderWidth: 0
+                    }]
                 },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: '#fff',
-                    bodyColor: '#fff',
-                    padding: 12,
-                    displayColors: false
-                }
-            },
-            scales: {
-                x: {
-                    grid: {
-                        display: false
+                options: {
+                    cutout: '80%',
+                    responsive: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
                     }
-                },
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.05)'
+                }
+            });
+        });
+    }
+
+    function initNkoTrendChart(data) {
+        const ctx = document.getElementById('nkoTrendChart');
+        if (!ctx || !data.length) return;
+
+        const labels = data.map(item => item.bulan);
+        const values = data.map(item => item.nko);
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'NKO',
+                    data: values,
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78,115,223,0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, max: 100 },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+    function initNkoTrendChart(data) {
+        const ctx = document.getElementById('nkoTrendChart');
+        if (!ctx || !data.length) return;
+
+        const labels = data.map(item => item.bulan);
+        const values = data.map(item => item.nko);
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'NKO',
+                    data: values,
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78,115,223,0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 110
                     },
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
+                    x: {
+                        grid: {
+                            display: false
                         }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true
                     }
                 }
             }
-        }
-    });
-}
-
-function initPilarChart() {
-    const ctx = document.getElementById('pilarChart');
-    const pilarData = @json($pilarData ?? []);
-
-    // Validasi data
-    if (!ctx || !pilarData || !Array.isArray(pilarData) || pilarData.length === 0) {
-        if (ctx && ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').innerHTML = `
-                <div class="text-center py-5">
-                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                    <p>Tidak ada data pilar yang tersedia.</p>
-                </div>
-            `;
-        }
-        return;
+        });
     }
 
-    // Hapus loading indicator
-    if (ctx.querySelector('.loading-chart')) {
-        ctx.querySelector('.loading-chart').remove();
-    }
 
-    // Buat chart baru
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: pilarData.map(item => item.nama),
-            datasets: [{
-                label: 'Nilai Pilar',
-                data: pilarData.map(item => item.nilai),
-                backgroundColor: [
-                    'rgba(78, 115, 223, 0.8)',
-                    'rgba(28, 200, 138, 0.8)',
-                    'rgba(54, 185, 204, 0.8)',
-                    'rgba(246, 194, 62, 0.8)',
-                    'rgba(231, 74, 59, 0.8)',
-                    'rgba(111, 66, 193, 0.8)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        }
-                    }
-                }
+    function initIndikatorCompositionChart(data) {
+        const ctx = document.getElementById('indikatorCompositionChart');
+        if (!ctx || !data) return;
+
+        const labels = Object.keys(data);
+        const values = Object.values(data);
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b']
+                }]
             },
-            plugins: {
-                legend: {
-                    display: false
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
                 }
             }
-        }
-    });
-}
-
-function initBidangChart() {
-    const ctx = document.getElementById('bidangChart');
-    const bidangData = @json($bidangData ?? []);
-
-    // Validasi data
-    if (!ctx || !bidangData || !Array.isArray(bidangData) || bidangData.length === 0) {
-        if (ctx && ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').innerHTML = `
-                <div class="text-center py-5">
-                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                    <p>Tidak ada data bidang yang tersedia.</p>
-                </div>
-            `;
-        }
-        return;
+        });
     }
 
-    // Hapus loading indicator
-    if (ctx.querySelector('.loading-chart')) {
-        ctx.querySelector('.loading-chart').remove();
+    function initStatusMappingChart(data) {
+        const ctx = document.getElementById('statusMappingChart');
+        if (!ctx || !data.length) return;
+
+        new Chart(ctx, {
+            type: 'polarArea',
+            data: {
+                labels: data.map(d => d.status),
+                datasets: [{
+                    data: data.map(d => d.count),
+                    backgroundColor: [
+                        'rgba(78, 115, 223, 0.8)',
+                        'rgba(28, 200, 138, 0.8)',
+                        'rgba(246, 194, 62, 0.8)',
+                        'rgba(231, 74, 59, 0.8)'
+                    ]
+                }]
+            },
+            options: { responsive: true }
+        });
     }
 
-    // Buat chart baru
-    new Chart(ctx, {
-        type: 'horizontalBar',
-        data: {
-            labels: bidangData.map(item => item.nama),
-            datasets: [{
-                label: 'Nilai Bidang',
-                data: bidangData.map(item => item.nilai),
-                backgroundColor: 'rgba(54, 185, 204, 0.8)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        }
+    function initHistoricalTrendChart(data) {
+        const ctx = document.getElementById('historicalTrendChart');
+        if (!ctx || !data.length) return;
+
+        const labels = data.map(item => item.bulan);
+        const values = data.map(item => item.nko);
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Tren Historis',
+                    data: values,
+                    backgroundColor: 'rgba(78,115,223,0.2)',
+                    borderColor: 'rgba(78,115,223,1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { responsive: true }
+        });
+    }
+
+
+    function initPilarChart(data) {
+        const ctx = document.getElementById('pilarChart');
+        if (!ctx || Object.keys(data).length === 0) return;
+
+        const labels = Object.keys(data);
+        const values = Object.values(data);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Nilai Pilar',
+                    data: values,
+                    backgroundColor: '#36b9cc'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, max: 100 }
+                }
+            }
+        });
+    }
+
+    function initBidangChart(data) {
+        const ctx = document.getElementById('bidangChart');
+        if (!ctx || Object.keys(data).length === 0) return;
+
+        const labels = Object.keys(data);
+        const values = Object.values(data);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Nilai Bidang',
+                    data: values,
+                    backgroundColor: '#4e73df'
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false, // agar menyesuaikan container
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
                     }
                 }
+            }
+        });
+    }
+    function initPerkembanganChart(data) {
+        const ctx = document.getElementById('perkembanganChart');
+        if (!ctx || !data.length) return;
+
+        const labels = data.map(p => p.bulan);
+        const values = data.map(p => p.persentase);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '% Tercapai',
+                    data: values,
+                    backgroundColor: '#1e90ff',
+                    borderRadius: 5,
+                    maxBarThickness: 40
+                }]
             },
-            plugins: {
-                legend: {
-                    display: false
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 110,
+                        ticks: {
+                            callback: (value) => `${value}%`
+                        }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: true }
                 }
             }
-        }
-    });
-}
+        });
+    }
+
+
+
 </script>
-@endsection
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const canvasList = document.querySelectorAll('.circle-progress canvas');
 
+        canvasList.forEach(canvas => {
+        const ctx = canvas.getContext('2d');
+        const valueText = canvas.parentElement.querySelector('.circle-progress-value')?.innerText || '0';
+        const nilai = parseFloat(valueText.replace('%', '')) || 0;
+
+        const width = canvas.width = 80;
+        const height = canvas.height = 80;
+        const radius = 35;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const lineWidth = 6;
+        const startAngle = -0.5 * Math.PI;
+        const endAngle = startAngle + (2 * Math.PI * (nilai / 100));
+
+        // Tentukan warna berdasarkan nilai sesuai ketentuan
+        let color = '#cccccc'; // Default: Abu-abu jika belum ada nilai
+
+        if (nilai === 0) {
+            color = '#cccccc'; // Belum dilakukan pengukuran
+        } else if (nilai < 95) {
+            color = '#dc3545'; // Merah
+        } else if (nilai >= 95 && nilai < 100) {
+            color = '#ffc107'; // Kuning
+        } else if (nilai >= 100) {
+            color = '#28a745'; // Hijau
+        }
+
+        // Background lingkaran abu-abu
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = '#e6ecf2';
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+
+        // Progress
+        if (nilai > 0) {
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        }
+    });
+
+    });
+</script>
+
+@endsection

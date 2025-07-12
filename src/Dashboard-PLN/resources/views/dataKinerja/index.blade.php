@@ -8,75 +8,75 @@
 
 @section('content')
 <div class="dashboard-content">
-<!-- Filter -->
-<div class="row mb-4">
-    <!-- Filter Form -->
-    <div class="col-md-8">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <form action="{{ route('dataKinerja.index') }}" method="get">
-                    <div class="row g-3 align-items-end">
-                        <!-- Tahun -->
-                        <div class="col-md-4">
-                            <label for="tahun" class="form-label">Tahun</label>
-                            <select name="tahun" id="tahun" class="form-control">
-                                @php
-                                    $currentYear = date('Y');
-                                    $startYear = $currentYear - 5;
-                                @endphp
-                                @for($year = $currentYear; $year >= $startYear; $year--)
-                                    <option value="{{ $year }}" {{ $tahun == $year ? 'selected' : '' }}>{{ $year }}</option>
-                                @endfor
-                            </select>
-                        </div>
+    <!-- Filter -->
+    <div class="row mb-4">
+        <!-- Filter Form -->
+        <div class="col-md-8">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <form action="{{ route('dataKinerja.index') }}" method="get">
+                        <div class="row g-3 align-items-end">
+                            <!-- Tahun -->
+                            <div class="col-md-4">
+                                <label for="tahun" class="form-label">Tahun</label>
+                                <select name="tahun" id="tahun" class="form-control">
+                                    @php
+                                        $currentYear = date('Y');
+                                        $startYear = $currentYear - 5;
+                                    @endphp
+                                    @for($year = $currentYear; $year >= $startYear; $year--)
+                                        <option value="{{ $year }}" {{ $tahun == $year ? 'selected' : '' }}>{{ $year }}</option>
+                                    @endfor
+                                </select>
+                            </div>
 
-                        <!-- Bulan -->
-                        <div class="col-md-4">
-                            <label for="bulan" class="form-label">Bulan</label>
-                            <select name="bulan" id="bulan" class="form-control">
-                                @php
-                                    $namaBulan = [
-                                        1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
-                                        5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
-                                        9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
-                                    ];
-                                @endphp
-                                @foreach($namaBulan as $value => $nama)
-                                    <option value="{{ $value }}" {{ $bulan == $value ? 'selected' : '' }}>{{ $nama }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                            <!-- Bulan -->
+                            <div class="col-md-4">
+                                <label for="bulan" class="form-label">Bulan</label>
+                                <select name="bulan" id="bulan" class="form-control">
+                                    @php
+                                        $namaBulan = [
+                                            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+                                        ];
+                                    @endphp
+                                    @foreach($namaBulan as $value => $nama)
+                                        <option value="{{ $value }}" {{ $bulan == $value ? 'selected' : '' }}>{{ $nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
 
 
-                        <!-- Tombol -->
-                        <div class="col-md-4 d-flex justify-content-start">
-                            <button type="submit" class="btn btn-primary me-2">
-                                <i class="fas fa-filter me-1"></i> Filter
-                            </button>
-                            <a href="{{ route('dataKinerja.index') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-sync-alt me-1"></i> Reset
-                            </a>
+                            <!-- Tombol -->
+                            <div class="col-md-4 d-flex justify-content-start">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="fas fa-filter me-1"></i> Filter
+                                </button>
+                                <a href="{{ route('dataKinerja.index') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-sync-alt me-1"></i> Reset
+                                </a>
+                            </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Ringkasan Bulan -->
-    <div class="col-md-4">
-        <div class="card shadow-sm h-100">
-            <div class="card-body d-flex flex-column justify-content-center h-100">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Data Bulan:
-                        <strong>{{ date('F Y', mktime(0, 0, 0, $bulan, 1, $tahun)) }}</strong>
-                    </h6>
-                    <span class="badge bg-primary text-white">{{ $totalIndikator }} Indikator</span>
+        <!-- Ringkasan Bulan -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-center h-100">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">Data Bulan:
+                            <strong>{{ date('F Y', mktime(0, 0, 0, $bulan, 1, $tahun)) }}</strong>
+                        </h6>
+                        <span class="badge bg-primary text-white">{{ $totalIndikator }} Indikator</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
 
     @include('components.alert')
@@ -140,107 +140,75 @@
     </div>
 
     <!-- Chart Tren NKO -->
-<div class="grid-span-12">
-    <div class="card chart-card">
-        <h3 class="chart-title">
-            <i class="fas fa-chart-line"></i> Tren NKO {{ $tahun }}
-        </h3>
-        <div class="chart-container large position-relative">
-            <!-- Elemen canvas Chart -->
-            <canvas id="nkoTrendChart" height="300"></canvas>
-        </div>
-    </div>
-</div>
-
-
-{{-- <!-- Section: Analisis Tren & Prediksi -->
-<div class="section-divider">
-    <h2><i class="fas fa-chart-line"></i> Tren & Prediksi</h2>
-</div>
-
-<div class="dashboard-grid">
-    <!-- Tren Historis -->
-    <div class="grid-span-6">
-        <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-history"></i> Tren Historis {{ $tahun }}</h3>
-            <div class="chart-container medium position-relative">
-                <canvas id="nkoTrendChart" height="280"></canvas>
-            </div>
-        </div>
-    </div>
-
-<!-- Forecast / Prediksi -->
-<div class="grid-span-6">
-    <div class="card chart-card h-100">
-        <h3 class="chart-title">
-            <i class="fas fa-chart-line text-warning"></i> Prediksi NKO (Forecast)
-        </h3>
-        <div class="chart-container medium position-relative" style="height: 280px;">
-            <canvas id="forecastChart" height="280"></canvas>
-        </div>
-    </div>
-</div>
-</div> --}}
-
-
-<!-- Section: Analisis Per-Pilar -->
-<div class="section-divider">
-    <h2><i class="fas fa-layer-group"></i> Analisis Per-Perspektif</h2>
-</div>
-
-<div class="section-wrapper">
-    <div class="section-header">
-    </div>
-
-    <div class="card pilar-card">
-        <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Nilai Kinerja Per-Perspektif</h3>
-
-        @if($pilars->isEmpty())
-            <div class="text-center text-muted py-4">
-                <em>Belum ada data perspektif untuk periode ini.</em>
-            </div>
-        @else
-            @foreach($pilars->chunk(3) as $chunk)
-                <div class="pillar-container">
-                    @foreach($chunk as $index => $pilar)
-                        @php
-                            $globalIndex = $loop->parent->index * 3 + $index;
-                        @endphp
-                        <a href="{{ route('dataKinerja.pilar', $pilar->id) }}" class="pillar-item-link">
-                            <div class="pillar-item">
-                                <div class="pillar-title">{{ strtoupper($pilar->nama) }}</div>
-                                <div class="pillar-value text-primary">{{ number_format($pilar->nilai, 1) }}%</div>
-                                <div class="circle-progress">
-                                    <canvas id="pilarChart{{ $globalIndex }}"></canvas>
-                                    <div class="circle-progress-value">{{ number_format($pilar->nilai, 1) }}%</div>
-                                </div>
-                            </div>
-                        </a>
-                    @endforeach
-                </div>
-            @endforeach
-        @endif
-    </div>
-</div>
-
-
-
-
-<!-- Section: Analisis Per-Bidang -->
-<div class="section-divider">
-    <h2><i class="fas fa-building"></i> Analisis Per-Bidang</h2>
-</div>
-
-<div class="dashboard-grid">
     <div class="grid-span-12">
         <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Kinerja Per-Bidang</h3>
-            <div class="chart-container medium position-relative">
-                <canvas id="bidangChart" height="280"></canvas>
+            <h3 class="chart-title">
+                <i class="fas fa-chart-line"></i> Tren NKO {{ $tahun }}
+            </h3>
+            <div class="chart-container large position-relative">
+                <!-- Elemen canvas Chart -->
+                <canvas id="nkoTrendChart" height="300"></canvas>
             </div>
         </div>
     </div>
-</div>
+
+
+    <!-- Section: Analisis Per-Pilar -->
+    <div class="section-divider">
+        <h2><i class="fas fa-layer-group"></i> Analisis Per-Perspektif</h2>
+    </div>
+
+    <div class="section-wrapper">
+        <div class="section-header">
+        </div>
+
+        <div class="card pilar-card">
+            <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Nilai Kinerja Per-Perspektif</h3>
+
+            @if($pilars->isEmpty())
+                <div class="text-center text-muted py-4">
+                    <em>Belum ada data perspektif untuk periode ini.</em>
+                </div>
+            @else
+                @foreach($pilars->chunk(3) as $chunk)
+                    <div class="pillar-container">
+                        @foreach($chunk as $index => $pilar)
+                            @php
+                                $globalIndex = $loop->parent->index * 3 + $index;
+                            @endphp
+                            <a href="{{ route('dataKinerja.pilar', $pilar->id) }}" class="pillar-item-link">
+                                <div class="pillar-item">
+                                    <div class="pillar-title">{{ strtoupper($pilar->nama) }}</div>
+                                    <div class="pillar-value text-primary">{{ number_format($pilar->nilai, 1) }}%</div>
+                                    <div class="circle-progress">
+                                        <canvas id="pilarChart{{ $globalIndex }}"></canvas>
+                                        <div class="circle-progress-value">{{ number_format($pilar->nilai, 1) }}%</div>
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @endforeach
+            @endif
+        </div>
+    </div>
+
+
+    <!-- Section: Analisis Per-Bidang -->
+    <div class="section-divider">
+        <h2><i class="fas fa-building"></i> Analisis Per-Bidang</h2>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="grid-span-12">
+            <div class="card chart-card">
+                <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Kinerja Per-Bidang</h3>
+                <div class="chart-container medium position-relative">
+                    <canvas id="bidangChart" height="280"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Section: Top & Bottom Indikator -->
     <div class="section-divider">
@@ -321,42 +289,42 @@
         </div>
     </div>
 
-<!-- Section: Perkembangan Bulanan -->
-<div class="section-divider">
-    <h2><i class="fas fa-calendar-alt"></i>Perkembangan Bulanan</h2>
-</div>
+    <!-- Section: Perkembangan Bulanan -->
+    <div class="section-divider">
+        <h2><i class="fas fa-calendar-alt"></i>Perkembangan Bulanan</h2>
+    </div>
 
-<div class="dashboard-grid">
-    <div class="grid-span-12">
-        <div class="card chart-card scrollable-card">
-            <h3 class="chart-title"><i class="fas fa-calendar-week"></i> Perkembangan Per Bulan</h3>
-            <div class="perkembangan-table-container">
-                <table class="perkembangan-table">
-                    <thead>
-                        <tr>
-                            <th>Bulan</th>
-                            <th>NKO</th>
-                            <th>Indikator Tercapai</th>
-                            <th>Total Indikator</th>
-                            <th>Persentase Tercapai (%)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($analisisData['perkembangan'] as $data)
+    <div class="dashboard-grid">
+        <div class="grid-span-12">
+            <div class="card chart-card scrollable-card">
+                <h3 class="chart-title"><i class="fas fa-calendar-week"></i> Perkembangan Per Bulan</h3>
+                <div class="perkembangan-table-container">
+                    <table class="perkembangan-table">
+                        <thead>
                             <tr>
-                                <td>{{ $data['bulan'] }}</td>
-                                <td>{{ $data['nko'] }}</td>
-                                <td>{{ $data['tercapai'] }}</td>
-                                <td>{{ $data['total'] }}</td>
-                                <td>{{ $data['persentase'] }}%</td>
+                                <th>Bulan</th>
+                                <th>NKO</th>
+                                <th>Indikator Tercapai</th>
+                                <th>Total Indikator</th>
+                                <th>Persentase Tercapai (%)</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach ($analisisData['perkembangan'] as $data)
+                                <tr>
+                                    <td>{{ $data['bulan'] }}</td>
+                                    <td>{{ $data['nko'] }}</td>
+                                    <td>{{ $data['tercapai'] }}</td>
+                                    <td>{{ $data['total'] }}</td>
+                                    <td>{{ $data['persentase'] }}%</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 </div>
 @endsection
@@ -664,100 +632,100 @@
             }
         });
     }
-function initPerkembanganChart(data) {
-    const ctx = document.getElementById('perkembanganChart');
-    if (!ctx || !data.length) return;
+    function initPerkembanganChart(data) {
+        const ctx = document.getElementById('perkembanganChart');
+        if (!ctx || !data.length) return;
 
-    const labels = data.map(p => p.bulan);
-    const values = data.map(p => p.persentase);
+        const labels = data.map(p => p.bulan);
+        const values = data.map(p => p.persentase);
 
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: '% Tercapai',
-                data: values,
-                backgroundColor: '#1e90ff',
-                borderRadius: 5,
-                maxBarThickness: 40
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 110,
-                    ticks: {
-                        callback: (value) => `${value}%`
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '% Tercapai',
+                    data: values,
+                    backgroundColor: '#1e90ff',
+                    borderRadius: 5,
+                    maxBarThickness: 40
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 110,
+                        ticks: {
+                            callback: (value) => `${value}%`
+                        }
+                    },
+                    x: {
+                        grid: { display: false }
                     }
                 },
-                x: {
-                    grid: { display: false }
+                plugins: {
+                    legend: { display: true }
                 }
-            },
-            plugins: {
-                legend: { display: true }
             }
-        }
-    });
-}
+        });
+    }
 
 
 
 </script>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const canvasList = document.querySelectorAll('.circle-progress canvas');
+    document.addEventListener('DOMContentLoaded', function () {
+        const canvasList = document.querySelectorAll('.circle-progress canvas');
 
-    canvasList.forEach(canvas => {
-    const ctx = canvas.getContext('2d');
-    const valueText = canvas.parentElement.querySelector('.circle-progress-value')?.innerText || '0';
-    const nilai = parseFloat(valueText.replace('%', '')) || 0;
+        canvasList.forEach(canvas => {
+        const ctx = canvas.getContext('2d');
+        const valueText = canvas.parentElement.querySelector('.circle-progress-value')?.innerText || '0';
+        const nilai = parseFloat(valueText.replace('%', '')) || 0;
 
-    const width = canvas.width = 80;
-    const height = canvas.height = 80;
-    const radius = 35;
-    const centerX = width / 2;
-    const centerY = height / 2;
-    const lineWidth = 6;
-    const startAngle = -0.5 * Math.PI;
-    const endAngle = startAngle + (2 * Math.PI * (nilai / 100));
+        const width = canvas.width = 80;
+        const height = canvas.height = 80;
+        const radius = 35;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const lineWidth = 6;
+        const startAngle = -0.5 * Math.PI;
+        const endAngle = startAngle + (2 * Math.PI * (nilai / 100));
 
-    // Tentukan warna berdasarkan nilai sesuai ketentuan
-    let color = '#cccccc'; // Default: Abu-abu jika belum ada nilai
+        // Tentukan warna berdasarkan nilai sesuai ketentuan
+        let color = '#cccccc'; // Default: Abu-abu jika belum ada nilai
 
-    if (nilai === 0) {
-        color = '#cccccc'; // Belum dilakukan pengukuran
-    } else if (nilai < 95) {
-        color = '#dc3545'; // Merah
-    } else if (nilai >= 95 && nilai < 100) {
-        color = '#ffc107'; // Kuning
-    } else if (nilai >= 100) {
-        color = '#28a745'; // Hijau
-    }
+        if (nilai === 0) {
+            color = '#cccccc'; // Belum dilakukan pengukuran
+        } else if (nilai < 95) {
+            color = '#dc3545'; // Merah
+        } else if (nilai >= 95 && nilai < 100) {
+            color = '#ffc107'; // Kuning
+        } else if (nilai >= 100) {
+            color = '#28a745'; // Hijau
+        }
 
-    // Background lingkaran abu-abu
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = '#e6ecf2';
-    ctx.lineWidth = lineWidth;
-    ctx.stroke();
-
-    // Progress
-    if (nilai > 0) {
+        // Background lingkaran abu-abu
         ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
-        ctx.strokeStyle = color;
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = '#e6ecf2';
         ctx.lineWidth = lineWidth;
-        ctx.lineCap = 'round';
         ctx.stroke();
-    }
-});
 
-});
+        // Progress
+        if (nilai > 0) {
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        }
+    });
+
+    });
 </script>
 
 @endsection

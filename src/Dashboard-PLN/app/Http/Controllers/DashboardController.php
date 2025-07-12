@@ -45,7 +45,7 @@ class DashboardController extends Controller
             return redirect()->route('dashboard');
         }
 
-            $tahun = (int) $request->input('tahun', date('Y'));
+        $tahun = (int) $request->input('tahun', date('Y'));
         $bulan = (int) $request->input('bulan', date('m'));
 
         $pilars = Pilar::with(['indikators' => function ($query) {
@@ -108,71 +108,71 @@ class DashboardController extends Controller
 
         // Hitung NKO berdasarkan rata-rata semua pilar
         $totalNilaiAkhir = 0;
-$totalBobot = 0;
+        $totalBobot = 0;
 
-foreach ($pilars as $pilar) {
-    foreach ($pilar->indikators as $indikator) {
-        $realisasiAkhir = $indikator->realisasis
-            ->where('tahun', $tahun)
-            ->where('bulan', $bulan)
-            ->where('diverifikasi', true)
-            ->sum('nilai_akhir');
+        foreach ($pilars as $pilar) {
+            foreach ($pilar->indikators as $indikator) {
+                $realisasiAkhir = $indikator->realisasis
+                    ->where('tahun', $tahun)
+                    ->where('bulan', $bulan)
+                    ->where('diverifikasi', true)
+                    ->sum('nilai_akhir');
 
-        $bobotIndikator = $indikator->bobot ?? 0;
+                $bobotIndikator = $indikator->bobot ?? 0;
 
-        $totalNilaiAkhir += $realisasiAkhir;
-        $totalBobot += $bobotIndikator;
-    }
-}
-
-$data['nko'] = $totalBobot > 0
-    ? min(round(($totalNilaiAkhir / $totalBobot) * 100, 2), 110)
-    : 0;
-
-
-        // Tentukan status NKO berdasarkan nilai
-        if ($data['nko'] >= 100) {
-            $data['nko_status'] = 'Tercapai';
-            $data['nko_color'] = 'success';
-        } elseif ($data['nko'] >= 95) {
-            $data['nko_status'] = 'Hampir Tercapai';
-            $data['nko_color'] = 'warning';
-        } else {
-            $data['nko_status'] = 'Perlu Peningkatan';
-            $data['nko_color'] = 'danger';
+                $totalNilaiAkhir += $realisasiAkhir;
+                $totalBobot += $bobotIndikator;
+            }
         }
 
-        // === Trend NKO per bulan dari Januari hingga bulan aktif ===
-        $nkoTrend = [];
+        $data['nko'] = $totalBobot > 0
+            ? min(round(($totalNilaiAkhir / $totalBobot) * 100, 2), 110)
+            : 0;
 
-for ($i = 1; $i <= 12; $i++) {
-    $totalNilaiAkhirBulan = 0;
-    $totalBobotBulan = 0;
 
-    foreach ($pilars as $pilar) {
-        foreach ($pilar->indikators as $indikator) {
-            $nilaiAkhir = $indikator->realisasis
-                ->where('tahun', $tahun)
-                ->where('bulan', $i)
-                ->where('diverifikasi', true)
-                ->sum('nilai_akhir');
+                // Tentukan status NKO berdasarkan nilai
+                if ($data['nko'] >= 100) {
+                    $data['nko_status'] = 'Tercapai';
+                    $data['nko_color'] = 'success';
+                } elseif ($data['nko'] >= 95) {
+                    $data['nko_status'] = 'Hampir Tercapai';
+                    $data['nko_color'] = 'warning';
+                } else {
+                    $data['nko_status'] = 'Perlu Peningkatan';
+                    $data['nko_color'] = 'danger';
+                }
 
-            $bobot = $indikator->bobot ?? 0;
+                // === Trend NKO per bulan dari Januari hingga bulan aktif ===
+                $nkoTrend = [];
 
-            $totalNilaiAkhirBulan += $nilaiAkhir;
-            $totalBobotBulan += $bobot;
+        for ($i = 1; $i <= 12; $i++) {
+            $totalNilaiAkhirBulan = 0;
+            $totalBobotBulan = 0;
+
+            foreach ($pilars as $pilar) {
+                foreach ($pilar->indikators as $indikator) {
+                    $nilaiAkhir = $indikator->realisasis
+                        ->where('tahun', $tahun)
+                        ->where('bulan', $i)
+                        ->where('diverifikasi', true)
+                        ->sum('nilai_akhir');
+
+                    $bobot = $indikator->bobot ?? 0;
+
+                    $totalNilaiAkhirBulan += $nilaiAkhir;
+                    $totalBobotBulan += $bobot;
+                }
+            }
+
+            $nkoBulan = $totalBobotBulan > 0
+                ? min(round(($totalNilaiAkhirBulan / $totalBobotBulan) * 100, 2), 110)
+                : 0;
+
+            $nkoTrend[] = [
+                'bulan' => \Carbon\Carbon::create()->month($i)->format('M'),
+                'nko' => $nkoBulan,
+            ];
         }
-    }
-
-    $nkoBulan = $totalBobotBulan > 0
-        ? min(round(($totalNilaiAkhirBulan / $totalBobotBulan) * 100, 2), 110)
-        : 0;
-
-    $nkoTrend[] = [
-        'bulan' => \Carbon\Carbon::create()->month($i)->format('M'),
-        'nko' => $nkoBulan,
-    ];
-}
 
 
 
@@ -215,25 +215,38 @@ for ($i = 1; $i <= 12; $i++) {
         $bulan = (int) $request->input('bulan', date('m'));
 
         $bidang = Bidang::where('role_pic', $user->role)->first();
-
         if (!$bidang) {
             return redirect()->route('dashboard')->with('error', 'Bidang tidak ditemukan untuk PIC ini.');
         }
 
-        $indikators = Indikator::where('bidang_id', $bidang->id)
+        $indikators = Indikator::with('targetKPI')
+            ->where('bidang_id', $bidang->id)
             ->where('aktif', true)
             ->orderBy('kode')
             ->get();
 
         foreach ($indikators as $indikator) {
+            // Ambil realisasi bulan berjalan
             $realisasi = Realisasi::where('indikator_id', $indikator->id)
                 ->where('tahun', $tahun)
                 ->where('bulan', $bulan)
                 ->first();
 
-            $indikator->nilai_persentase = $realisasi ? $realisasi->persentase : 0;
-            $indikator->nilai_absolut = $realisasi ? $realisasi->nilai : 0;
-            $indikator->diverifikasi = $realisasi ? $realisasi->diverifikasi : false;
+            $indikator->nilai_persentase = $realisasi?->persentase ?? 0;
+            $indikator->nilai_absolut = $realisasi?->nilai ?? 0;
+            $indikator->diverifikasi = $realisasi?->diverifikasi ?? false;
+
+            // Ambil target KPI untuk indikator ini (TANPA cek tahun_penilaian, ambil langsung terbaru)
+            $targetKPI = $indikator->targetKPI->sortByDesc('created_at')->first();
+
+            // Ambil target bulanan dengan logika: bulan ke-(n-1)
+            $target_bulanan = 0;
+            if ($targetKPI && is_array($targetKPI->target_bulanan)) {
+                $target_bulanan = $targetKPI->target_bulanan[$bulan - 1] ?? 0;
+            }
+
+            // Simpan ke properti indikator agar bisa ditampilkan di blade
+            $indikator->target_nilai = $target_bulanan;
         }
 
         $totalNilai = $indikators->sum('nilai_persentase');
@@ -253,7 +266,7 @@ for ($i = 1; $i <= 12; $i++) {
                     $log->loggable->indikator->bidang_id == $bidang->id;
             });
 
-                $tanggalHariIni = now()->toDateString();
+        $tanggalHariIni = now()->toDateString();
 
         $missingInputs = Indikator::where('bidang_id', $bidang->id)
             ->where('aktif', true)
@@ -264,18 +277,17 @@ for ($i = 1; $i <= 12; $i++) {
             })
             ->get();
 
+        $bidangComparison = $this->getBidangComparison($bidang->id, $tahun, $bulan);
 
-                $bidangComparison = $this->getBidangComparison($bidang->id, $tahun, $bulan);
-
-                return view('dashboard.admin', compact(
-                    'bidang', 'indikators', 'rataRata', 'historiData',
-                    'tahun', 'bulan', 'latestActivities', 'missingInputs', 'bidangComparison'
-                ));
-            }
-
+        return view('dashboard.admin', compact(
+            'bidang', 'indikators', 'rataRata', 'historiData',
+            'tahun', 'bulan', 'latestActivities', 'missingInputs', 'bidangComparison'
+        ));
+    }
 
     public function user(Request $request)
     {
+
         $tahun = $request->input('tahun', now()->year);
         $bulan = $request->input('bulan', now()->month);
         $statusVerifikasi = $request->input('status_verifikasi', 'all');
@@ -283,11 +295,11 @@ for ($i = 1; $i <= 12; $i++) {
         $indikatorQuery = Indikator::with([
             'bidang',
             'pilar',
-            'realisasis' => fn($q) => $q->where('tahun', $tahun)->where('bulan', '<=', 12),
+            'realisasis' => fn($q) => $q->where('tahun', $tahun)->where('bulan', $bulan)->where('diverifikasi', true),
             'targetKPI' => fn($q) => $q
                 ->whereHas('tahunPenilaian', fn($q2) => $q2->where('tahun', $tahun))
                 ->where('disetujui', true),
-        ]);
+        ])->where('aktif', true);
 
         if ($statusVerifikasi === 'verified') {
             $indikatorQuery->whereHas('realisasis', fn($q) => $q->where('diverifikasi', true));
@@ -300,124 +312,120 @@ for ($i = 1; $i <= 12; $i++) {
         // Hitung persentase bulan aktif
         foreach ($indikators as $indikator) {
             $targetKPI = $indikator->targetKPI->first();
-            $targetBulan = $targetKPI?->target_bulanan[$bulan] ?? 0;
+            $targetBulan = ($targetKPI && is_array($targetKPI->target_bulanan))
+                ? $targetKPI->target_bulanan[$bulan - 1] ?? 0
+                : 0;
 
-            $realisasi = $indikator->realisasis
-                ->where('bulan', $bulan)
-                ->where('diverifikasi', true)
-                ->sum('nilai');
+            $realisasiAkhir = $indikator->realisasis->sum('nilai');
 
-            $persentase = ($targetBulan > 0 && $realisasi > 0)
-                ? min(($realisasi / $targetBulan) * 100, 110)
+            $persentase = ($targetBulan > 0)
+                ? min(($realisasiAkhir / $targetBulan) * 100, 110)
                 : 0;
 
             $indikator->persentase = round($persentase, 2);
             $indikator->target_tahunan = $targetKPI?->target_tahunan ?? 0;
+            $indikator->target_bulanan = $targetBulan;
+            $indikator->realisasi_bulanan = $realisasiAkhir;
         }
 
-        // Hitung NKO Score utama
-        $pilarGroups = $indikators->groupBy(fn($i) => $i->pilar->nama ?? 'Tanpa Pilar');
-        $nilaiNKO = $pilarGroups->count() > 0
-            ? round($pilarGroups->map(fn($group) => $group->avg('persentase'))->avg(), 2)
+        // Hitung NKO Score utama dengan nilai_akhir
+        $pilars = Pilar::with(['indikators' => fn($q) => $q->where('aktif', true)])->get();
+
+        $totalNilaiAkhir = 0;
+        $totalBobot = 0;
+
+        foreach ($pilars as $pilar) {
+            foreach ($pilar->indikators as $indikator) {
+                $realisasiAkhir = $indikator->realisasis
+                    ->where('tahun', $tahun)
+                    ->where('bulan', $bulan)
+                    ->where('diverifikasi', true)
+                    ->sum('nilai_akhir');
+
+                $bobotIndikator = $indikator->bobot ?? 0;
+
+                $totalNilaiAkhir += $realisasiAkhir;
+                $totalBobot += $bobotIndikator;
+            }
+        }
+
+        $nilaiNKO = $totalBobot > 0
+            ? round(($totalNilaiAkhir / $totalBobot) * 100, 2)
             : 0;
 
-        $totalIndikator = $indikators->count();
-        $totalIndikatorTercapai = $indikators->filter(fn($i) => $i->persentase >= 80)->count();
 
+        $totalIndikator = $indikators->count();
+        $totalIndikatorTercapai = $indikators->filter(fn($i) => $i->persentase >= 95)->count();
         $persenTercapai = $totalIndikator > 0
             ? round(($totalIndikatorTercapai / $totalIndikator) * 100, 2)
             : 0;
 
-        $indikatorComposition = [
-            'Tercapai' => $totalIndikatorTercapai,
-            'Belum Tercapai' => $indikators->filter(fn($i) => $i->persentase > 0 && $i->persentase < 100)->count(),
-            'Tanpa Data' => $indikators->filter(fn($i) => $i->persentase == 0)->count(),
-        ];
-
-        $statusMapping = $indikators->map(fn($i) => [
-            'kode' => $i->kode,
-            'nama' => $i->nama,
-            'bidang' => $i->bidang->nama ?? '-',
-            'persen' => $i->persentase,
-        ])->values();
-
-        // === Trend Historis NKO (Perbulan) ===
+        // Trend Historis NKO (Perbulan) dengan nilai_akhir
         $trendNKO = collect();
         foreach (range(1, 12) as $b) {
-            // Hitung persentase masing-masing indikator pada bulan ke-b
-            foreach ($indikators as $indikator) {
-                $target = $indikator->targetKPI->first()?->target_bulanan[$b] ?? 0;
-                $real = $indikator->realisasis
-                    ->where('bulan', $b)
-                    ->where('diverifikasi', true)
-                    ->sum('nilai');
+            $totalNilaiBulanAkhir = 0;
+            $totalBobotBulan = 0;
 
-                $persen = ($target > 0 && $real > 0)
-                    ? min(($real / $target) * 100, 110)
-                    : 0;
+            foreach ($pilars as $pilar) {
+                foreach ($pilar->indikators as $indikator) {
+                    $realAkhir = $indikator->realisasis
+                        ->where('tahun', $tahun)
+                        ->where('bulan', $b)
+                        ->where('diverifikasi', true)
+                        ->sum('nilai_akhir');
 
-                $indikator->{"persen_bulan_$b"} = $persen;
+                    $bobotIndikator = $indikator->bobot ?? 0;
+
+                    $totalNilaiBulanAkhir += $realAkhir;
+                    $totalBobotBulan += $bobotIndikator;
+                }
             }
 
-            // Hitung rata-rata per pilar untuk bulan ke-b
-            $pilarBulanan = $indikators->groupBy(fn($i) => $i->pilar->nama ?? 'Tanpa Pilar')
-                ->map(fn($group) => $group->avg("persen_bulan_$b"));
-
-            $nkoBulan = $pilarBulanan->avg();
+            $nkoBulan = $totalBobotBulan > 0
+                ? round($totalNilaiBulanAkhir / $totalBobotBulan * 100, 2)
+                : 0;
 
             $trendNKO->push([
                 'bulan' => DateTime::createFromFormat('!m', $b)->format('F') . ' ' . $tahun,
-                'nko' => round($nkoBulan ?? 0, 2),
+                'nko' => $nkoBulan,
             ]);
         }
-
         $historicalTrend = $trendNKO;
+        // Hitung nilai pilar (rata-rata persentase indikator aktif di pilar)
+        foreach ($pilars as $pilar) {
+            $persenList = [];
+            foreach ($pilar->indikators as $indikator) {
+                // Ambil target KPI dan target bulanan
+                $targetKPI = $indikator->targetKPI->first();
+                $targetBulan = ($targetKPI && is_array($targetKPI->target_bulanan))
+                    ? $targetKPI->target_bulanan[$bulan - 1] ?? 0
+                    : 0;
 
-        // === Forecast (Prediksi 10 Bulan ke Depan) ===
-        $X = [];
-        $Y = [];
-        $counter = 1;
-        $lastMonthIndex = 0;
+                // Ambil realisasi nilai (bukan nilai_akhir)
+                $realisasi = $indikator->realisasis
+                    ->where('tahun', $tahun)
+                    ->where('bulan', $bulan)
+                    ->where('diverifikasi', true)
+                    ->sum('nilai');
 
-        foreach ($trendNKO as $index => $item) {
-            if ($item['nko'] > 0) {
-                $X[] = $counter;
-                $Y[] = $item['nko'];
-                $lastMonthIndex = $index + 1;
-                $counter++;
+                // Hitung persentase, jika target bulanan 0 maka persentase = 0
+                $persentase = ($targetBulan > 0)
+                    ? min(($realisasi / $targetBulan) * 100, 110)
+                    : 0;
+
+                // Jika belum ada realisasi, persentase tetap 0
+                $persenList[] = round($persentase, 2);
             }
+            // Set nilai_perhitungan sebagai rata-rata persentase indikator di pilar (termasuk yang belum diinput)
+            $pilar->nilai_perhitungan = count($persenList) > 0 ? round(array_sum($persenList) / count($persenList), 2) : 0;
         }
 
-        $n = count($X);
-        $sumX = array_sum($X);
-        $sumY = array_sum($Y);
-        $sumXY = array_sum(array_map(fn($x, $y) => $x * $y, $X, $Y));
-        $sumX2 = array_sum(array_map(fn($x) => $x * $x, $X));
+        // Data pilar untuk chart
+        $pilarData = $pilars->mapWithKeys(function ($pilar) {
+            return [$pilar->nama => $pilar->nilai_perhitungan ?? 0];
+        });
 
-        $denom = ($n * $sumX2 - $sumX ** 2) ?: 1;
-        $a = ($n * $sumXY - $sumX * $sumY) / $denom;
-        $b = ($sumY * $sumX2 - $sumX * $sumXY) / $denom;
 
-        $forecastData = collect();
-        $totalForecast = 10;
-        $currentMonth = $lastMonthIndex;
-        $currentYear = $tahun;
-
-        for ($i = 1; $i <= $totalForecast; $i++) {
-            $x = $n + $i;
-            $forecast = $a * $x + $b;
-
-            $forecastMonth = ($currentMonth + $i) % 12;
-            $forecastMonth = $forecastMonth === 0 ? 12 : $forecastMonth;
-            $forecastYear = $currentYear + floor(($currentMonth + $i - 1) / 12);
-
-            $forecastData->push([
-                'bulan' => DateTime::createFromFormat('!m', $forecastMonth)->format('F') . ' ' . $forecastYear,
-                'nko' => round($forecast, 2),
-            ]);
-        }
-
-        $pilarData = $pilarGroups->map(fn($group) => round($group->avg('persentase'), 2));
 
         $bidangData = $indikators->groupBy(fn($i) => $i->bidang->nama ?? 'Tanpa Bidang')
             ->map(fn($group) => round($group->avg('persentase'), 2));
@@ -437,45 +445,59 @@ for ($i = 1; $i <= 12; $i++) {
                 'nilai' => $i->persentase,
             ])->values()->all(),
 
-            'perkembangan' => $trendNKO->map(function ($data, $index) use ($indikators) {
-                $b = $index + 1;
-                $total = $indikators->count();
-                $tercapai = $indikators->filter(function ($i) use ($b) {
-                    $target = $i->targetKPI->first()?->target_bulanan[$b] ?? 0;
-                    $real = $i->realisasis
-                        ->where('bulan', $b)
-                        ->where('diverifikasi', true)
-                        ->sum('nilai');
-                    $persen = ($target > 0 && $real > 0)
-                        ? min(($real / $target) * 100, 110)
-                        : 0;
-                    return $persen >= 100;
-                })->count();
+        'perkembangan' => $trendNKO->map(function ($data, $index) use ($pilars, $tahun) {
+            $b = $index + 1;
+            $indikatorsBulan = collect($pilars)->flatMap->indikators->filter(function($indikator) use ($tahun, $b) {
+                $targetKPI = $indikator->targetKPI->first();
+                $targetBulan = ($targetKPI && is_array($targetKPI->target_bulanan))
+                    ? $targetKPI->target_bulanan[$b - 1] ?? 0
+                    : 0;
+                $realisasi = $indikator->realisasis
+                    ->where('tahun', $tahun)
+                    ->where('bulan', $b)
+                    ->where('diverifikasi', true)
+                    ->sum('nilai');
+                $persentase = ($targetBulan > 0)
+                    ? min(($realisasi / $targetBulan) * 100, 110)
+                    : 0;
+                $indikator->persentase_bulan = round($persentase, 2);
+                return true;
+            });
+
+                $totalIndikator = $indikatorsBulan->count();
+                $totalIndikatorTercapai = $indikatorsBulan->filter(fn($i) => $i->persentase_bulan >= 95)->count();
+                $persenTercapai = $totalIndikator > 0
+                    ? round(($totalIndikatorTercapai / $totalIndikator) * 100, 2)
+                    : 0;
+
+                $nkoBulan = $data['nko'];
 
                 return [
                     'bulan' => $data['bulan'],
-                    'nko' => $data['nko'],
-                    'tercapai' => $tercapai,
-                    'total' => $total,
-                    'persentase' => $total > 0 ? round($tercapai / $total * 100, 2) : 0,
+                    'nko' => $nkoBulan,
+                    'tercapai' => $totalIndikatorTercapai,
+                    'total' => $totalIndikator,
+                    'persentase' => $persenTercapai,
                 ];
             }),
         ];
 
-        $pilars = $pilarGroups->map(function ($indikatorList, $pilarNama) {
-            $first = $indikatorList->first();
+        $pilars = $pilars->map(function ($pilar) {
             return (object) [
-                'id' => $first->pilar->id ?? 0,
-                'kode' => $first->pilar->kode ?? '-',
-                'nama' => $pilarNama,
-                'deskripsi' => $first->pilar->deskripsi ?? null,
-                'nilai' => round($indikatorList->avg('persentase'), 2),
-                'indikators_count' => $indikatorList->count(),
-                'indikators_tercapai' => $indikatorList->filter(fn($i) => $i->persentase >= 100)->count(),
+                'id' => $pilar->id,
+                'kode' => $pilar->kode,
+                'nama' => $pilar->nama,
+                'deskripsi' => $pilar->deskripsi,
+                'nilai' => $pilar->nilai_perhitungan ?? 0,
+                'indikators_count' => $pilar->indikators->count(),
+                'indikators_tercapai' => $pilar->indikators->filter(function($i) {
+                    return isset($i->persentase) && $i->persentase >= 100;
+                })->count(),
             ];
-        })->values();
+        });
 
-        $target = $indikators->first()?->targetKPI->first()?->target_tahunan ?? 0;
+        // $target = $indikators->first()?->targetKPI->first()?->target_bulanan[$bulan - 1] ?? 0;
+        $target = max(100,0);
 
         return view('dataKinerja.index', compact(
             'tahun',
@@ -486,9 +508,6 @@ for ($i = 1; $i <= 12; $i++) {
             'persenTercapai',
             'nilaiNKO',
             'trendNKO',
-            'forecastData',
-            'indikatorComposition',
-            'statusMapping',
             'historicalTrend',
             'pilarData',
             'bidangData',

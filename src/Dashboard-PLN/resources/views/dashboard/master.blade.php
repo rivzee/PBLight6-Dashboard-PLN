@@ -117,60 +117,7 @@
       </div>
     </div>
   </div>
-  <!-- Statistik Ringkasan -->
-  {{-- <div class="dashboard-grid">
-    <div class="grid-span-3">
-      <div class="card stat-card">
-        <div class="stat-header">
-          <h3 class="stat-title">NKO Score</h3>
-          <div class="stat-icon">
-            <i class="fas fa-chart-line"></i>
-          </div>
-        </div>
-        <div class="stat-value">{{ $data['nko'] ?? 0 }}%</div>
-        <p class="stat-description">Nilai Kinerja Organisasi</p>
-      </div>
-    </div>
 
-    <div class="grid-span-3">
-      <div class="card stat-card">
-        <div class="stat-header">
-          <h3 class="stat-title">KPI</h3>
-          <div class="stat-icon">
-            <i class="fas fa-layer-group"></i>
-          </div>
-        </div>
-        <div class="stat-value">{{ count($data['pilar'] ?? []) }}</div>
-        <p class="stat-description">Key performance Indicator</p>
-      </div>
-    </div>
-
-    <div class="grid-span-3">
-      <div class="card stat-card">
-        <div class="stat-header">
-          <h3 class="stat-title">Kinerja Tinggi</h3>
-          <div class="stat-icon">
-            <i class="fas fa-arrow-up"></i>
-          </div>
-        </div>
-        <div class="stat-value">{{ collect($data['pilar'] ?? [])->where('nilai', '>=', 80)->count() }}</div>
-        <p class="stat-description">Pilar dengan Kinerja ≥ 80%</p>
-      </div>
-    </div>
-
-    <div class="grid-span-3">
-      <div class="card stat-card">
-        <div class="stat-header">
-          <h3 class="stat-title">Perlu Perhatian</h3>
-          <div class="stat-icon">
-            <i class="fas fa-exclamation-triangle"></i>
-          </div>
-        </div>
-        <div class="stat-value">{{ collect($data['pilar'] ?? [])->where('nilai', '<', 70)->count() }}</div>
-        <p class="stat-description">Pilar dengan Kinerja < 70%</p>
-      </div>
-    </div>
-  </div> --}}
 
     <!-- Dashboard Overview -->
     <div class="dashboard-grid">
@@ -229,7 +176,7 @@
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="rendah-tab" data-bs-toggle="tab" data-bs-target="#kinerja-rendah" type="button" role="tab" aria-controls="kinerja-rendah" aria-selected="false">
         <i class="fas fa-arrow-down me-2"></i>Perlu Perhatian
-        <span class="badge badge-warning">{{ collect($data['pilar'] ?? [])->where('nilai', '<=', )->count() }}</span>
+        <span class="badge badge-warning">{{ collect($data['pilar'] ?? [])->where('nilai', '<=', 100)->count() }}</span>
       </button>
     </li>
   </ul>
@@ -280,9 +227,9 @@
                             @if(($pilar['nilai'] ?? 0) >= 100)
                             <strong class="text-success">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
                             @elseif(($pilar['nilai'] ?? 0) >= 95)
-                            <strong class="text-primary">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
-                            @else
                             <strong class="text-warning">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
+                            @else
+                            <strong class="text-danger">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
                             @endif
                         </td>
                         <td>

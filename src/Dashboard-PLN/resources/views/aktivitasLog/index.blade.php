@@ -191,12 +191,21 @@
                                         <td>{{ $log->created_at->format('d M Y, H:i:s') }}</td>
                                         <td>
                                             @if($log->user)
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="user-avatar">{{ substr($log->user->name, 0, 1) }}</div>
-                                                <span>{{ $log->user->name }}</span>
-                                            </div>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    @if($log->user->profile_photo)
+                                                        <img src="{{ Storage::url($log->user->profile_photo) }}" alt="{{ $log->user->name }}" class="user-avatar" style="width:32px;height:32px;border-radius:50%;">
+                                                    @else
+                                                        <div class="user-avatar" style="width:32px;height:32px;border-radius:50%;background:#007bff;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;">
+                                                            {{ strtoupper(substr($log->user->name, 0, 1)) }}
+                                                        </div>
+                                                    @endif
+                                                    <div>
+                                                        <div>{{ $log->user->name }}</div>
+                                                        <div class="text-muted small">{{ $log->user->email }}</div>
+                                                    </div>
+                                                </div>
                                             @else
-                                            <span class="text-muted">Sistem</span>
+                                                <span class="text-muted">Sistem</span>
                                             @endif
                                         </td>
                                         <td>

@@ -598,25 +598,24 @@
     }
 
     /* Chart Container */
-/* Pastikan chart container proporsional */
-.chart-container {
-    position: relative;
+    .chart-container {
+        position: relative;
+        width: 100%;
+        min-height: 350px;
+        height: 100%;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+    #trendChart {
     width: 100%;
-    min-height: 350px;
-    height: 100%;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-}
-#trendChart {
-    width: 100% !important;
-    height: 100% !important;
-    min-width: 0;
-    min-height: 0;
-    display: block;
-}
+    padding: 0 20px;
+    margin-top: 10px;
+    box-sizing: border-box;
+    }
+
 
     .chart-container.large {
         height: 450px;
@@ -756,7 +755,7 @@
     .pilar-card h3.card-title {
     font-size: 18px;
     font-weight: 600;
-    color: #007bff;
+    color: #205185;
     display: flex;
     align-items: center;
     margin-bottom: 20px;
@@ -801,7 +800,7 @@
     left: 0;
     height: 4px;
     width: 100%;
-    background: linear-gradient(90deg, #007bff, #00c6ff); /* 🔵 Biru gradasi */
+    background: linear-gradient(90deg, var(--pln-blue, #007bff), var(--pln-light-blue, #00c6ff));
     z-index: 2;
     }
     .pillar-item:hover {
@@ -879,51 +878,51 @@
     background: var(--pln-light-blue, #00c6ff);
     border-radius: 4px;
     }
-/* Tabel Perkembangan Bulanan - sama seperti tabel indikator */
-.perkembangan-table-container {
-    padding: 0;
-    overflow: auto;
-    border-radius: 16px;
-    border: 1px solid var(--pln-border, #e8e8e8);
-    background: var(--pln-accent-bg, #ffffff);
-}
 
-.perkembangan-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-}
+    .perkembangan-table-container {
+        padding: 0;
+        overflow: auto;
+        border-radius: 16px;
+        border: 1px solid var(--pln-border, #e8e8e8);
+        background: var(--pln-accent-bg, #ffffff);
+    }
 
-.perkembangan-table thead th {
-    background: linear-gradient(90deg, var(--pln-blue, #007bff), var(--pln-light-blue, #00c6ff));
-    color: #fff;
-    font-weight: 600;
-    text-align: left;
-    padding: 14px;
-    font-size: 14px;
-    position: sticky;
-    top: 0;
-    z-index: 5;
-}
+    .perkembangan-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
 
-.perkembangan-table tbody tr {
-    background-color: var(--pln-accent-bg, #ffffff);
-    transition: all 0.2s ease;
-}
+    .perkembangan-table thead th {
+        background: linear-gradient(90deg, var(--pln-blue, #007bff), var(--pln-light-blue, #00c6ff));
+        color: #fff;
+        font-weight: 600;
+        text-align: left;
+        padding: 14px;
+        font-size: 14px;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+    }
 
-.perkembangan-table tbody tr:hover {
-    background-color: rgba(0, 156, 222, 0.05);
-}
+    .perkembangan-table tbody tr {
+        background-color: var(--pln-accent-bg, #ffffff);
+        transition: all 0.2s ease;
+    }
 
-/* Rata tengah isi TABEL saja */
-.perkembangan-table td {
-    padding: 12px 14px;
-    border-top: 1px solid var(--pln-border, #e8e8e8);
-    font-size: 14px;
-    vertical-align: middle;
-    text-align: center; /* Ini yang bikin isi tabel di tengah */
-}
-.dashboard-content {
+    .perkembangan-table tbody tr:hover {
+        background-color: rgba(0, 156, 222, 0.05);
+    }
+
+    /* Rata tengah isi TABEL saja */
+    .perkembangan-table td {
+        padding: 12px 14px;
+        border-top: 1px solid var(--pln-border, #e8e8e8);
+        font-size: 14px;
+        vertical-align: middle;
+        text-align: center;
+    }
+    .dashboard-content {
         max-width: 1800px;
         margin: 0 auto;
         padding: 0 15px;
@@ -1090,9 +1089,9 @@
 
     .filter-group {
         display: flex;
-        flex-direction: row; /* Ubah dari column ke row */
+        flex-direction: row;
         align-items: center;
-        gap: 16px; /* Jarak antar label dan select */
+        gap: 16px;
         min-width: 150px;
         flex-wrap: wrap;
     }
@@ -1335,7 +1334,7 @@
 
     .chart-title {
         font-size: 20px;
-        color: #4e73df;
+        color: #283d7f;
         margin-bottom: 25px;
         font-weight: 700;
         display: flex;
@@ -1421,10 +1420,14 @@
         left: 100%;
     }
 
+
     .badge-success {
         background: linear-gradient(135deg, #1cc88a, #17a673);
         color: #fff;
         box-shadow: 0 4px 15px rgba(28, 200, 138, 0.3);
+    }
+    .bg-primary {
+        background:  linear-gradient(90deg, var(--pln-blue, #1e40af), var(--pln-light-blue, #3b82f6));
     }
 
     .badge-warning {
@@ -1564,7 +1567,7 @@
         left: 0;
         width: 100%;
         height: 5px;
-        background: var(--pilar-color, #4e73df);
+        background: linear-gradient(90deg, var(--pln-blue, #007bff), var(--pln-light-blue, #00c6ff));
     }
 
     .pilar-icon-large {
@@ -1574,7 +1577,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--pilar-color, #4e73df);
+        background: linear-gradient(90deg, var(--pln-blue, #007bff), var(--pln-light-blue, #00c6ff));
         color: white;
         font-size: 32px;
         margin-right: 25px;
@@ -1654,7 +1657,7 @@
         left: 0;
         width: 100%;
         height: 4px;
-        background: var(--pilar-color, #4e73df);
+        background: linear-gradient(90deg, var(--pln-blue, #007bff), var(--pln-light-blue, #00c6ff));
     }
 
     .chart-card:hover {
@@ -1906,7 +1909,7 @@
         left: 0;
         width: 100%;
         height: 5px;
-        background: #007bff;
+        background: linear-gradient(90deg, var(--pln-blue, #007bff), var(--pln-light-blue, #00c6ff));
     }
 
     .pilar-header {
@@ -1929,7 +1932,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #007bff;
+        background: linear-gradient(90deg, var(--pln-blue, #007bff), var(--pln-light-blue, #00c6ff));
         color: white;
         font-size: 22px;
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
@@ -1938,7 +1941,7 @@
     .pilar-value {
         font-size: 32px;
         font-weight: 700;
-        color: #007bff;
+        color: #1b4878;
         margin: 15px 0 5px;
     }
 

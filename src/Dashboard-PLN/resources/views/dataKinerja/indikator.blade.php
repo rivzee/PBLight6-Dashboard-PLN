@@ -219,7 +219,7 @@
                                             <span class="font-weight-bold mr-2">{{ number_format($persentase, 2) }}%</span>
                                             @if($persentase > 0)
                                                 <div class="progress" style="width: 50px; height: 8px;">
-                                                    <div class="progress-bar {{ $persentase >= 90 ? 'bg-success' : ($persentase >= 70 ? 'bg-warning' : 'bg-danger') }}"
+                                                    <div class="progress-bar {{ $persentase >= 100 ? 'bg-success' : ($persentase >= 95 ? 'bg-warning' : 'bg-danger') }}"
                                                          style="width: {{ min($persentase, 100) }}%"></div>
                                                 </div>
                                             @endif
@@ -249,24 +249,24 @@
 </div>
 
 <script>
-function resetFilter() {
-    const currentYear = {{ date('Y') }};
-    const tahunSelect = document.getElementById('tahunSelect');
-    tahunSelect.value = currentYear;
-    document.getElementById('filterForm').submit();
-}
-
-// Auto-submit form on select change untuk UX yang lebih baik
-document.getElementById('tahunSelect').addEventListener('change', function() {
-    const loadingText = document.createElement('small');
-    loadingText.className = 'text-muted ml-2';
-    loadingText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
-    this.parentNode.appendChild(loadingText);
-
-    setTimeout(() => {
+    function resetFilter() {
+        const currentYear = {{ date('Y') }};
+        const tahunSelect = document.getElementById('tahunSelect');
+        tahunSelect.value = currentYear;
         document.getElementById('filterForm').submit();
-    }, 300);
-});
+    }
+
+    // Auto-submit form on select change untuk UX yang lebih baik
+    document.getElementById('tahunSelect').addEventListener('change', function() {
+        const loadingText = document.createElement('small');
+        loadingText.className = 'text-muted ml-2';
+        loadingText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
+        this.parentNode.appendChild(loadingText);
+
+        setTimeout(() => {
+            document.getElementById('filterForm').submit();
+        }, 300);
+    });
 </script>
 @endsection
 
@@ -274,112 +274,132 @@ document.getElementById('tahunSelect').addEventListener('change', function() {
 
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const chartData = @json($chartData);
-            const chartEl = document.querySelector('#trendChart');
-            let chart = null;
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const chartData = @json($chartData);
+        const chartEl = document.querySelector('#trendChart');
+        let chart = null;
 
-            function renderChart() {
-                if (chart) {
-                    chart.destroy();
-                }
-                if (chartData && chartData.length > 0 && typeof ApexCharts !== 'undefined' && chartEl) {
-                    const options = {
-                        series: [{
-                            name: 'Pencapaian',
-                            data: chartData.map(item => item.nilai)
-                        }],
-                        chart: {
-                            type: 'line',
-                            height: chartEl.offsetWidth < 600 ? 250 : 350,
-                            fontFamily: 'Poppins, sans-serif',
-                            toolbar: { show: false },
-                            zoom: { enabled: false },
-                            animations: { enabled: true }
-                        },
-                        responsive: [{
-                            breakpoint: 600,
-                            options: {
-                                chart: { height: 220 },
-                                xaxis: { labels: { rotate: -30, style: { fontSize: '9px' } } }
-                            }
-                        }],
-                        colors: ['#4e73df'],
-                        dataLabels: {
-                            enabled: true,
-                            formatter: val => val.toFixed(1) + '%',
-                            style: { fontSize: chartEl.offsetWidth < 600 ? '10px' : '12px' }
-                        },
-                        stroke: { curve: 'smooth', width: 3 },
-                        xaxis: {
-                            categories: chartData.map(item => item.bulan),
-                            labels: { rotate: -45, style: { fontSize: chartEl.offsetWidth < 600 ? '9px' : '11px' } }
-                        },
-                        yaxis: {
-                            min: 0,
-                            max: 100,
-                            labels: { formatter: val => val.toFixed(0) + '%' }
-                        },
-                        tooltip: {
-                            y: { formatter: val => val.toFixed(2) + '%' }
-                        },
-                        grid: {
-                            borderColor: '#e0e0e0',
-                            strokeDashArray: 4,
-                            xaxis: { lines: { show: true } }
-                        },
-                        markers: {
-                            size: chartEl.offsetWidth < 600 ? 3 : 5,
-                            colors: ['#fff'],
-                            strokeColors: '#4e73df',
-                            strokeWidth: 2,
-                            hover: { size: 7 }
-                        },
-                        fill: {
-                            type: 'gradient',
-                            gradient: {
-                                shade: 'light',
-                                type: 'vertical',
-                                shadeIntensity: 0.3,
-                                opacityFrom: 0.7,
-                                opacityTo: 0.2,
-                                stops: [0, 100]
+        function renderChart() {
+            if (chart) chart.destroy();
+
+            if (chartData && chartData.length > 0 && typeof ApexCharts !== 'undefined' && chartEl) {
+                const options = {
+                    series: [{
+                        name: 'Pencapaian',
+                        data: chartData.map(item => item.nilai)
+                    }],
+                    chart: {
+                        type: 'line',
+                        height: chartEl.offsetWidth < 600 ? 280 : 400,
+                        fontFamily: 'Poppins, sans-serif',
+                        toolbar: { show: false },
+                        zoom: { enabled: false },
+                        animations: { enabled: true }
+                    },
+                    responsive: [{
+                        breakpoint: 600,
+                        options: {
+                            chart: { height: 260 },
+                            xaxis: { labels: { rotate: -30, style: { fontSize: '10px' } } }
+                        }
+                    }],
+                    colors: ['#4e73df'],
+                    dataLabels: {
+                        enabled: true,
+                        formatter: val => val.toFixed(1) + '%',
+                        style: {
+                            fontSize: chartEl.offsetWidth < 600 ? '10px' : '12px',
+                            fontWeight: '600'
+                        }
+                    },
+                    stroke: {
+                        curve: 'smooth',
+                        width: 3
+                    },
+                    xaxis: {
+                        categories: chartData.map(item => item.bulan),
+                        labels: {
+                            rotate: -45,
+                            style: {
+                                fontSize: chartEl.offsetWidth < 600 ? '10px' : '11px',
+                                fontWeight: '500'
                             }
                         }
-                    };
-                    chart = new ApexCharts(chartEl, options);
-                    chart.render();
-                    document.querySelector('.loading-chart')?.remove();
-                }
-            }
-
-            renderChart();
-            window.addEventListener('resize', function () {
-                renderChart();
-            });
-
-            // Isi status badge berdasarkan persentase
-            document.querySelectorAll('tbody tr').forEach(function (row) {
-                const percentCell = row.querySelector('.nilai-persentase');
-                const statusCell = row.querySelector('.status-badge');
-                if (percentCell && statusCell) {
-                    const val = parseFloat(percentCell.dataset.persentase || percentCell.textContent.replace('%', '')) || 0;
-                    let label = '';
-                    let className = '';
-                    if (val >= 100) {
-                        label = 'Tercapai';
-                        className = 'badge badge-success';
-                    } else if (val >= 95) {
-                        label = 'Perlu Perhatian';
-                        className = 'badge badge-warning';
-                    } else {
-                        label = 'Tidak Tercapai';
-                        className = 'badge badge-danger';
+                    },
+                    yaxis: {
+                        min: 0,
+                        max: 120,
+                        tickAmount: 6,
+                        labels: {
+                            formatter: val => val.toFixed(0) + '%',
+                            style: {
+                                fontSize: '11px'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: val => val.toFixed(2) + '%'
+                        }
+                    },
+                    grid: {
+                        borderColor: '#e0e0e0',
+                        strokeDashArray: 4,
+                        xaxis: { lines: { show: true } },
+                        yaxis: { lines: { show: true } }
+                    },
+                    markers: {
+                        size: 5,
+                        colors: ['#fff'],
+                        strokeColors: '#4e73df',
+                        strokeWidth: 2,
+                        hover: { size: 7 }
+                    },
+                    fill: {
+                        type: 'gradient',
+                        gradient: {
+                            shade: 'light',
+                            type: 'vertical',
+                            shadeIntensity: 0.3,
+                            opacityFrom: 0.8,
+                            opacityTo: 0.2,
+                            stops: [0, 100]
+                        }
                     }
-                    statusCell.innerHTML = `<span class="${className}">${label}</span>`;
+                };
+
+                chart = new ApexCharts(chartEl, options);
+                chart.render();
+                document.querySelector('.loading-chart')?.remove();
+            }
+        }
+
+        renderChart();
+        window.addEventListener('resize', renderChart);
+
+        // Status badge
+        document.querySelectorAll('tbody tr').forEach(function (row) {
+            const percentCell = row.querySelector('.nilai-persentase');
+            const statusCell = row.querySelector('.status-badge');
+            if (percentCell && statusCell) {
+                const val = parseFloat(percentCell.dataset.persentase || percentCell.textContent.replace('%', '')) || 0;
+                let label = '';
+                let className = '';
+                if (val >= 100) {
+                    label = 'Tercapai';
+                    className = 'badge badge-success';
+                } else if (val >= 95) {
+                    label = 'Perlu Perhatian';
+                    className = 'badge badge-warning';
+                } else {
+                    label = 'Tidak Tercapai';
+                    className = 'badge badge-danger';
                 }
-            });
+                statusCell.innerHTML = `<span class="${className}">${label}</span>`;
+            }
         });
-    </script>
+    });
+</script>
+
 @endsection

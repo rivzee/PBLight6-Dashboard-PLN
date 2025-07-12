@@ -1029,6 +1029,7 @@
     display: flex;
     align-items: center;
     transition: color 0.5s ease;
+    gap: 10px;
   }
 
   .section-divider h2 i {
@@ -1702,7 +1703,6 @@
         color: var(--pln-text, #333);
         margin: 0;
         padding-right: 15px;
-        background: #f8f9fc;
         position: relative;
         z-index: 1;
         display: flex;
@@ -1714,12 +1714,6 @@
         color: var(--pln-light-blue, #00c6ff);
     }
 
-    .section-divider::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: #e3e6f0;
-    }
 
     /* Card Components */
     .card {

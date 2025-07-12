@@ -93,12 +93,6 @@ use Illuminate\Support\Str;
             <span class="menu-text">Log Aktivitas</span>
           </a>
         </li>
-        {{-- <li>
-          <a href="{{ route('lokasi.index') }}" class="{{ request()->routeIs('lokasi.*') ? 'active' : '' }}">
-            <i class="fas fa-map-marker-alt icon"></i>
-            <span class="menu-text">Lokasi</span>
-          </a>
-        </li> --}}
         @endif
 
      {{-- Menu untuk Admin (PIC Bidang) --}}
@@ -115,12 +109,6 @@ use Illuminate\Support\Str;
             <span class="menu-text">Data Realisasi</span>
           </a>
         </li>
-        {{-- <li>
-          <a href="#" class="{{ request()->routeIs('kpi.index') ? 'active' : '' }}">
-            <i class="fas fa-chart-line icon"></i>
-            <span class="menu-text">Laporan KPI</span>
-          </a>
-        </li> --}}
 
         @endif
 
@@ -340,78 +328,6 @@ use Illuminate\Support\Str;
                 </div>
                 @endif
 
-                <!-- Section: Target yang Perlu Disetujui -->
-                @if($unapprovedItems->count() > 0)
-                <div class="notification-section target-section">
-                    <div class="section-header">
-                        <i class="fas fa-bullseye text-info"></i>
-                        <h6>Target Perlu Disetujui</h6>
-                        <span class="section-badge info">{{ $totalUnapproved }}</span>
-                    </div>
-
-                    @foreach($unapprovedItems as $item)
-                    @php
-                        try {
-                            $targetUrl = route('targetKinerja.approve', $item->id);
-                        } catch (\Exception $e) {
-                            // Fallback ke halaman target index jika route approve tidak ada
-                            $targetUrl = route('targetKinerja.index') . '?item=' . $item->id;
-                            \Log::warning('TargetKinerja.approve route not found, using fallback:', ['id' => $item->id, 'fallback_url' => $targetUrl]);
-                        }
-                        \Log::info('Target approval URL generated:', ['id' => $item->id, 'url' => $targetUrl]);
-                    @endphp
-                    <a href="{{ $targetUrl }}" class="notification-item target-item"
-                       data-id="{{ $item->id }}"
-                       data-type="target"
-                       title="Klik untuk approval target ID: {{ $item->id }}">
-                        <div class="notification-icon bg-info">
-                            <i class="fas fa-bullseye"></i>
-                        </div>
-                        <div class="notification-content">
-                            <p class="notification-title">
-                                {{ $item->indikator->kode ?? 'N/A' }} - {{ Str::limit($item->indikator->nama ?? 'Indikator tidak ditemukan', 40) }}
-                            </p>
-                            <p class="notification-info">
-                                <i class="fas fa-user"></i> {{ $item->user->name ?? 'User tidak ditemukan' }}
-                                <span class="notification-value">
-                                    <i class="fas fa-target"></i>
-                                    @php
-                                        try {
-                                            $target = $item->target_bulanan ?? 0;
-                                            // Handle jika target adalah array atau object
-                                            if (is_array($target) || is_object($target)) {
-                                                $target = 0;
-                                            }
-                                            // Handle jika target adalah string yang tidak valid
-                                            if (!is_numeric($target)) {
-                                                $target = 0;
-                                            }
-                                            $formattedTarget = number_format((float)$target, 0, ',', '.');
-                                        } catch (\Exception $e) {
-                                            $formattedTarget = '0';
-                                            \Log::error('Error formatting target: ' . $e->getMessage());
-                                        }
-                                    @endphp
-                                    {{ $formattedTarget }}
-                                </span>
-                            </p>
-                            <p class="notification-time">
-                                <i class="fas fa-clock"></i> {{ $item->created_at->diffForHumans() }}
-                            </p>
-                        </div>
-                        <div class="notification-action">
-                            <i class="fas fa-check"></i>
-                        </div>
-                    </a>
-                    @endforeach
-
-                    @if($totalUnapproved > 5)
-                    <a href="{{ route('targetKinerja.index') }}" class="notification-more info">
-                        <i class="fas fa-bullseye"></i> Lihat {{ $totalUnapproved - 5 }} lainnya
-                    </a>
-                    @endif
-                </div>
-                @endif
 
                 <!-- Empty State -->
                 @if($totalNotifications === 0)
@@ -434,7 +350,7 @@ use Illuminate\Support\Str;
                     </div>
                     <div class="empty-content">
                         <h6>Tidak Ada Notifikasi</h6>
-                        <p>Anda tidak memiliki akses notifikasi verifikasi</p>
+                        <p>Anda tidak memiliki akses notifikasi</p>
                     </div>
                 </div>
             @endif
@@ -628,15 +544,15 @@ use Illuminate\Support\Str;
           <form id="updatePhotoForm" action="/profile/photo" method="POST" enctype="multipart/form-data">
             @csrf
 
-<div class="profile-photo-preview">
-  @if(Auth::user()->profile_photo && Storage::disk('public')->exists(Auth::user()->profile_photo))
-    <img src="{{ Storage::url(Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}" id="photoPreview" style="max-width: 200px;">
-  @else
-    <div class="profile-photo-placeholder">
-      <i class="fas fa-user"></i>
-    </div>
-  @endif
-</div>
+            <div class="profile-photo-preview">
+            @if(Auth::user()->profile_photo && Storage::disk('public')->exists(Auth::user()->profile_photo))
+                <img src="{{ Storage::url(Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}" id="photoPreview" style="max-width: 200px;">
+            @else
+                <div class="profile-photo-placeholder">
+                <i class="fas fa-user"></i>
+                </div>
+            @endif
+            </div>
 
 
             <div class="profile-photo-upload-container">

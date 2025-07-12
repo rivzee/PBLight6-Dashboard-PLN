@@ -188,41 +188,41 @@ class DataKinerjaController extends Controller
                 'nilai' => $i->persentase,
             ])->values()->all(),
 
-'perkembangan' => $trendNKO->map(function ($data, $index) use ($pilars, $tahun) {
-    $b = $index + 1;
-    $indikatorsBulan = collect($pilars)->flatMap->indikators->filter(function($indikator) use ($tahun, $b) {
-        $targetKPI = $indikator->targetKPI->first();
-        $targetBulan = ($targetKPI && is_array($targetKPI->target_bulanan))
-            ? $targetKPI->target_bulanan[$b - 1] ?? 0
-            : 0;
-        $realisasi = $indikator->realisasis
-            ->where('tahun', $tahun)
-            ->where('bulan', $b)
-            ->where('diverifikasi', true)
-            ->sum('nilai');
-        $persentase = ($targetBulan > 0)
-            ? min(($realisasi / $targetBulan) * 100, 110)
-            : 0;
-        $indikator->persentase_bulan = round($persentase, 2);
-        return true;
-    });
+        'perkembangan' => $trendNKO->map(function ($data, $index) use ($pilars, $tahun) {
+            $b = $index + 1;
+            $indikatorsBulan = collect($pilars)->flatMap->indikators->filter(function($indikator) use ($tahun, $b) {
+                $targetKPI = $indikator->targetKPI->first();
+                $targetBulan = ($targetKPI && is_array($targetKPI->target_bulanan))
+                    ? $targetKPI->target_bulanan[$b - 1] ?? 0
+                    : 0;
+                $realisasi = $indikator->realisasis
+                    ->where('tahun', $tahun)
+                    ->where('bulan', $b)
+                    ->where('diverifikasi', true)
+                    ->sum('nilai');
+                $persentase = ($targetBulan > 0)
+                    ? min(($realisasi / $targetBulan) * 100, 110)
+                    : 0;
+                $indikator->persentase_bulan = round($persentase, 2);
+                return true;
+            });
 
-    $totalIndikator = $indikatorsBulan->count();
-    $totalIndikatorTercapai = $indikatorsBulan->filter(fn($i) => $i->persentase_bulan >= 95)->count();
-    $persenTercapai = $totalIndikator > 0
-        ? round(($totalIndikatorTercapai / $totalIndikator) * 100, 2)
-        : 0;
+                $totalIndikator = $indikatorsBulan->count();
+                $totalIndikatorTercapai = $indikatorsBulan->filter(fn($i) => $i->persentase_bulan >= 95)->count();
+                $persenTercapai = $totalIndikator > 0
+                    ? round(($totalIndikatorTercapai / $totalIndikator) * 100, 2)
+                    : 0;
 
-    $nkoBulan = $data['nko'];
+                $nkoBulan = $data['nko'];
 
-    return [
-        'bulan' => $data['bulan'],
-        'nko' => $nkoBulan,
-        'tercapai' => $totalIndikatorTercapai,
-        'total' => $totalIndikator,
-        'persentase' => $persenTercapai,
-    ];
-}),
+                return [
+                    'bulan' => $data['bulan'],
+                    'nko' => $nkoBulan,
+                    'tercapai' => $totalIndikatorTercapai,
+                    'total' => $totalIndikator,
+                    'persentase' => $persenTercapai,
+                ];
+            }),
         ];
 
         $pilars = $pilars->map(function ($pilar) {
