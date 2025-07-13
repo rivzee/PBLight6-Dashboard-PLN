@@ -34,12 +34,12 @@
         </tbody>
     </table>
 
-    <h2>Detail Indikator Kinerja Per-Pilar</h2>
+    <h2>Detail Indikator Kinerja Per-Perspektif</h2>
     @foreach($pilars as $pilar)
         <div class="pilar-header">Pilar {{ $pilar->kode }}: {{ $pilar->nama }}</div>
 
         @if($pilar->indikators->isEmpty())
-            <p><em>Tidak ada indikator untuk pilar ini.</em></p>
+            <p><em>Tidak ada indikator untuk perspektif ini.</em></p>
         @else
             <table>
                 <thead>
@@ -131,10 +131,6 @@
     <td colspan="2"></td>
     <td class="text-right">{{ number_format($pilar->total_nilai, 2, ',', '.') }}</td>
     <td></td>
-</tr>
-<tr style="background-color: #d0f0d0; font-weight: bold;">
-    <td colspan="10" align="left">NKO (Nilai Kinerja Organisasi)</td>
-    <td class="text-right" colspan="2">{{ number_format($pilar->nko, 2, ',', '.') }}</td>
 </tr>
 
 </tbody>
