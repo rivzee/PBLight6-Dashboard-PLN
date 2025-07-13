@@ -272,7 +272,7 @@ class AktivitasLog extends Model
             'tipe' => $tipe,
             'judul' => $judul,
             'deskripsi' => $deskripsi,
-            'data' => is_array($data) ? json_encode($data) : $data,
+            'data' => is_array($data) ? $data : [],
             'ip_address' => $ipAddress,
             'user_agent' => $userAgent,
         ];

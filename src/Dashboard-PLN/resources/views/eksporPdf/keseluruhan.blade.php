@@ -125,6 +125,18 @@
 
     </tr>
 @endforeach
+<tr style="background-color: #eef; font-weight: bold;">
+    <td colspan="7" align="left">Total</td>
+    <td class="text-right">{{ number_format($pilar->total_bobot, 2, ',', '.') }}</td>
+    <td colspan="2"></td>
+    <td class="text-right">{{ number_format($pilar->total_nilai, 2, ',', '.') }}</td>
+    <td></td>
+</tr>
+<tr style="background-color: #d0f0d0; font-weight: bold;">
+    <td colspan="10" align="left">NKO (Nilai Kinerja Organisasi)</td>
+    <td class="text-right" colspan="2">{{ number_format($pilar->nko, 2, ',', '.') }}</td>
+</tr>
+
 </tbody>
 
 
@@ -135,6 +147,23 @@
             <div class="page-break"></div>
         @endif
     @endforeach
+
+   <h2>Rekapitulasi Keseluruhan</h2>
+    <table>
+        <tr style="background-color: #eef; font-weight: bold;">
+            <td colspan="10" class="text-left">Total Nilai Keseluruhan</td>
+            <td colspan="2" class="text-right">{{ number_format($totalSeluruhNilai, 2, ',', '.') }}</td>
+        </tr>
+        <tr style="background-color: #eef; font-weight: bold;">
+            <td colspan="10" class="text-left">Total Bobot Keseluruhan</td>
+            <td colspan="2" class="text-right">{{ number_format($totalSeluruhBobot, 2, ',', '.') }}</td>
+        </tr>
+        <tr style="background-color: #d0f0d0; font-weight: bold;">
+            <td colspan="10" class="text-left">NKO (Nilai Kinerja Organisasi) Keseluruhan</td>
+            <td colspan="2" class="text-right">{{ number_format($nkoKeseluruhan, 2, ',', '.') }}</td>
+        </tr>
+    </table>
+
 
     <div class="footer">
         <p>Dokumen ini dicetak oleh Sistem Manajemen Kinerja PLN pada {{ $tanggal_cetak }}</p>

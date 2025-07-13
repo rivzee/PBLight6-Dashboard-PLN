@@ -115,7 +115,7 @@
                             @if($log->user->role == 'asisten_manager')
                                 <span class="badge-role role-master">Master Admin</span>
                             @elseif(Str::startsWith($log->user->role, 'pic_'))
-                                <span class="badge-role role-pic">PIC {{ Str::ucfirst(Str::after($log->user->role, 'pic_')) }}</span>
+                                <span class="badge-role role-pic">PIC {{ Str::postucfirst(Str::after($log->user->role, 'pic_')) }}</span>
                             @elseif($log->user->role == 'karyawan')
                                 <span class="badge-role role-user">Karyawan</span>
                             @else
@@ -230,7 +230,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                <form action="{{ url('aktivitas-log', $log->id) }}" method="POST">
+                <form action="{{ route('aktivitasLog.destroy', $log->id) }}" method="POST">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger">

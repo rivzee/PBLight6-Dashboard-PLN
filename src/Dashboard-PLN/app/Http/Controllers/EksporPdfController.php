@@ -113,11 +113,33 @@ class EksporPdfController extends Controller
                 ];
             });
 
+            $indikatorsAktif = $indikators->filter(function ($i) {
+                return $i['realisasi_nilai'] > 0 && $i['target_bulanan'] > 0;
+            });
+
+            $totalNilaiAkhir = $indikatorsAktif->sum('nilai_akhir');
+            $totalBobot = $indikatorsAktif->sum('bobot');
+
+            $nko = $totalBobot > 0 ? round(($totalNilaiAkhir / $totalBobot) * 100, 2) : 0;
+            $nko = min($nko, 110);
+
+
             $pilar->indikators = $indikators;
+            $pilar->total_nilai = round($totalNilaiAkhir, 2);
+            $pilar->total_bobot = round($totalBobot, 2);
+            $pilar->nko = $nko;
             return $pilar;
         });
+        
+
+        // 🔽 Tambahan: Hitung total keseluruhan
+        $totalSeluruhNilai = $pilars->sum('total_nilai');
+        $totalSeluruhBobot = $pilars->sum('total_bobot');
+        $nkoKeseluruhan = $totalSeluruhBobot > 0 ? round(($totalSeluruhNilai / $totalSeluruhBobot) * 100, 2) : 0;
+        $nkoKeseluruhan = min($nkoKeseluruhan, 110);
 
         $rataRataPencapaian = $totalIndikator > 0 ? round(($tercapai / $totalIndikator) * 100, 2) : 0;
+
 
         $data = [
             'title' => 'Laporan KPI Keseluruhan',
@@ -128,6 +150,9 @@ class EksporPdfController extends Controller
             'tercapai' => $tercapai,
             'belumTercapai' => $belumTercapai,
             'rataRataPencapaian' => $rataRataPencapaian,
+            'totalSeluruhNilai' => $totalSeluruhNilai,
+            'totalSeluruhBobot' => $totalSeluruhBobot,
+            'nkoKeseluruhan' => $nkoKeseluruhan,
         ];
 
         $pdf = PDF::loadView('eksporPdf.keseluruhan', $data);

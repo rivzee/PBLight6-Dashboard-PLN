@@ -130,8 +130,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [AktivitasLogController::class, 'index'])->name('index');
         Route::get('/ekspor-csv', [AktivitasLogController::class, 'eksporCsv'])->name('eksporCsv');
         Route::post('/hapus-log-lama', [AktivitasLogController::class, 'hapusLogLama'])->name('hapusLogLama');
-        Route::delete('/{id}', [AktivitasLogController::class, 'destroy'])->name('destroy');
         Route::post('/hapus-multiple', [AktivitasLogController::class, 'hapusMultiple'])->name('hapusMultiple');
+        Route::delete('/{id}', [AktivitasLogController::class, 'destroy'])->name('destroy');
         Route::get('/{id}', [AktivitasLogController::class, 'show'])->name('show')->where('id', '[0-9]+');
     });
     // Profile routes langsung (tidak pakai prefix) - tidak perlu ada duplikasi

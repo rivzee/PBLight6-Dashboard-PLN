@@ -232,9 +232,9 @@
                                                 <a href="{{ route('aktivitasLog.show', $log->id) }}" class="btn btn-primary btn-sm btn-icon" title="Lihat Detail">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <form method="post" action="{{ route('aktivitasLog.destroy', $log->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus log ini?')">
+                                                <form method="POST" action="{{ route('aktivitasLog.destroy', $log->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus log ini?')">
                                                     @csrf
-                                                    @method('DELETE')
+                                                    <input type="hidden" name="_method" value="DELETE"> {{-- tambahkan ini --}}
                                                     <button type="submit" class="btn btn-danger btn-sm btn-icon" title="Hapus Log">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
