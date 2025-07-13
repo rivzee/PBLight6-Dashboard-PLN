@@ -180,7 +180,6 @@
                                         <th width="180px">Pengguna</th>
                                         <th width="100px">Tipe</th>
                                         <th>Detail</th>
-                                        <th width="100px">Aksi</th>
                                     </tr>
                                 </thead>
 
@@ -227,20 +226,7 @@
                                             </div>
                                             @endif
                                         </td>
-                                        <td>
-                                            <div class="d-flex gap-2">
-                                                <a href="{{ route('aktivitasLog.show', $log->id) }}" class="btn btn-primary btn-sm btn-icon" title="Lihat Detail">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <form method="POST" action="{{ route('aktivitasLog.destroy', $log->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus log ini?')">
-                                                    @csrf
-                                                    <input type="hidden" name="_method" value="DELETE"> {{-- tambahkan ini --}}
-                                                    <button type="submit" class="btn btn-danger btn-sm btn-icon" title="Hapus Log">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
+
                                     </tr>
                                     @empty
                                     <tr>
