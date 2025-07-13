@@ -21,7 +21,7 @@
         <div class="alert alert-danger alert-dismissible fade show">
             <ul class="mb-0">
                 @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
+                    <li>Tahun penilaian sudah terdaftar</li>
                 @endforeach
             </ul>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -51,9 +51,6 @@
                         <label for="tipe_periode" class="form-label">Tipe Periode <span class="text-danger">*</span></label>
                         <select class="form-select" id="tipe_periode" name="tipe_periode" required>
                             <option value="tahunan" {{ old('tipe_periode') == 'tahunan' ? 'selected' : '' }}>Tahunan</option>
-                            <option value="semesteran" {{ old('tipe_periode') == 'semesteran' ? 'selected' : '' }}>Semesteran</option>
-                            <option value="triwulanan" {{ old('tipe_periode') == 'triwulanan' ? 'selected' : '' }}>Triwulanan</option>
-                            <option value="bulanan" {{ old('tipe_periode') == 'bulanan' ? 'selected' : '' }}>Bulanan</option>
                         </select>
                         <small class="form-text">Pilih tipe periode untuk penilaian KPI</small>
                     </div>
