@@ -47,71 +47,7 @@ class AktivitasLogController extends Controller
         return view('aktivitasLog.show', compact('log'));
     }
 
-    public function eksporCsv(Request $request)
-    {
-        $logs = $this->applyFilters($request)->orderByDesc('created_at')->get();
-        $filename = 'log_aktivitas_' . now()->format('Y-m-d_His') . '.csv';
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\""
-        ];
-
-        $callback = function () use ($logs) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, ['ID', 'User', 'Tipe', 'Judul', 'Deskripsi', 'Model', 'Data', 'IP Address', 'User Agent', 'Waktu']);
-            foreach ($logs as $log) {
-                $modelInfo = $log->loggable_type && $log->loggable_id
-                    ? class_basename($log->loggable_type) . ' #' . $log->loggable_id
-                    : '';
-                fputcsv($file, [
-                    $log->id,
-                    $log->user->name ?? 'Tidak Ada',
-                    $log->tipe,
-                    $log->judul,
-                    $log->deskripsi,
-                    $modelInfo,
-                    $log->data ? json_encode($log->data) : '',
-                    $log->ip_address,
-                    $log->user_agent,
-                    $log->created_at->format('Y-m-d H:i:s'),
-                ]);
-            }
-            fclose($file);
-        };
-
-        return response()->stream($callback, Response::HTTP_OK, $headers);
-    }
-
-    public function hapusLogLama(Request $request)
-    {
-        $request->validate(['periode' => 'required|in:1,3,6,12']);
-        $cutoffDate = now()->subMonths((int)$request->periode);
-
-        $count = AktivitasLog::where('created_at', '<', $cutoffDate)->count();
-        AktivitasLog::where('created_at', '<', $cutoffDate)->delete();
-
-        return redirect()->route('aktivitasLog.index')->with('success', "$count log aktivitas berhasil dihapus.");
-    }
-
-    public function destroy($id)
-    {
-        AktivitasLog::findOrFail($id)->delete();
-        return redirect()->route('aktivitasLog.index')->with('success', 'Log aktivitas berhasil dihapus.');
-    }
-
-    public function hapusMultiple(Request $request)
-    {
-        $request->validate([
-            'log_ids' => 'required|array',
-            'log_ids.*' => 'required|integer|exists:aktivitas_logs,id',
-        ]);
-
-        $count = AktivitasLog::whereIn('id', $request->log_ids)->count();
-        AktivitasLog::whereIn('id', $request->log_ids)->delete();
-
-        return redirect()->route('aktivitasLog.index')->with('success', "$count log aktivitas berhasil dihapus.");
-    }
 
     private function applyFilters(Request $request)
     {

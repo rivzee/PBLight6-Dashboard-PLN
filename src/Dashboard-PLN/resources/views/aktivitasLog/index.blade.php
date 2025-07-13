@@ -112,32 +112,6 @@
                         </div>
                     </form>
 
-                    <div class="cleanup-section mt-4">
-                        <h6 class="cleanup-title">
-                            <i class="fas fa-trash-alt"></i> Pembersihan Log
-                        </h6>
-
-                        <form method="post" action="{{ route('aktivitasLog.hapusLogLama') }}" class="d-inline" id="deleteOldForm">
-                            @csrf
-                            <div class="cleanup-options">
-                                <select name="periode" class="form-control" required>
-                                    <option value="1">1 Bulan</option>
-                                    <option value="3">3 Bulan</option>
-                                    <option value="6">6 Bulan</option>
-                                    <option value="12">12 Bulan</option>
-                                </select>
-                                <button type="submit" class="btn btn-danger"
-                                    onclick="return confirm('Apakah Anda yakin ingin menghapus log lama? Tindakan ini tidak dapat dibatalkan.')">
-                                    <i class="fas fa-trash-alt"></i> Hapus Log Lama
-                                </button>
-                            </div>
-
-                            <small class="cleanup-warning">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                Peringatan: Tindakan ini akan menghapus semua log aktivitas yang lebih lama dari periode yang dipilih
-                            </small>
-                        </form>
-                    </div>
                 </div>
             </div>
 
@@ -332,6 +306,17 @@
                 const checked = document.querySelectorAll('.select-checkbox:checked');
                 selectAllCheckbox.checked = checked.length === checkboxes.length;
             }
+        }
+
+        // Tambahkan konfirmasi untuk hapus log lama
+        const deleteOldForm = document.getElementById('deleteOldForm');
+        const deleteOldBtn = document.getElementById('deleteOldBtn');
+        if (deleteOldForm && deleteOldBtn) {
+            deleteOldForm.addEventListener('submit', function(e) {
+                if (!confirm('Apakah Anda yakin ingin menghapus log lama? Tindakan ini tidak dapat dibatalkan.')) {
+                    e.preventDefault();
+                }
+            });
         }
 
     });
