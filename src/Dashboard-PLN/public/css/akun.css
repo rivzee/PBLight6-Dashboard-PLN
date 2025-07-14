@@ -1043,7 +1043,7 @@
     background-color: rgba(0, 0, 0, 0.5) !important;
     backdrop-filter: blur(4px);
   }
-  
+
   /* MODAL CONTAINER */
   .modal-content {
     background: rgba(51, 84, 134, 0.425); /* transparan lembut */
@@ -1055,7 +1055,7 @@
     padding: 30px;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
   }
-  
+
   /* MODAL TITLE */
   .modal-title {
     color: #ffffff;
@@ -1063,7 +1063,7 @@
     font-weight: 700;
     margin-bottom: 1rem;
   }
-  
+
   /* LABEL */
   .modal-body label {
     color: #f0f0f0;
@@ -1071,7 +1071,7 @@
     margin-bottom: 5px;
     display: block;
   }
-  
+
   /* FORM FIELD STYLE */
   .modal-body input,
   .modal-body select,
@@ -1087,12 +1087,12 @@
     box-shadow: inset 0 1px 2px rgba(0,0,0,0.15);
     transition: 0.3s ease;
   }
-  
+
   .modal-body input::placeholder,
   .modal-body textarea::placeholder {
     color: rgba(255, 255, 255, 0.6);
   }
-  
+
   .modal-body input:focus,
   .modal-body select:focus,
   .modal-body textarea:focus {
@@ -1101,7 +1101,7 @@
     border-color: #00bfff;
     box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.3);
   }
-  
+
   /* BUTTON AREA */
   .modal-footer {
     border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -1110,7 +1110,7 @@
     justify-content: flex-end;
     gap: 12px;
   }
-  
+
   /* BUTTON STYLES */
   .modal-footer .btn {
     border-radius: 8px;
@@ -1119,24 +1119,24 @@
     transition: all 0.3s ease;
     font-size: 0.95rem;
   }
-  
+
   .modal-footer .btn-secondary {
     background: rgba(255, 255, 255, 0.2);
     color: #fff;
     border: none;
   }
-  
+
   .modal-footer .btn-secondary:hover {
     background: rgba(255, 255, 255, 0.3);
   }
-  
+
   .modal-footer .btn-primary {
     background-color: #00bfff;
     color: #ffffff;
     border: none;
     box-shadow: 0 4px 12px rgba(0, 191, 255, 0.4);
   }
-  
+
   .modal-footer .btn-primary:hover {
     background-color: #009acd;
     transform: translateY(-2px);
@@ -1158,7 +1158,7 @@
     background-position: right 1rem center;
     background-size: 10px;
   }
-  
+
   /* Saat dropdown aktif/focus */
   .modal-body select:focus {
     outline: none;
@@ -1166,16 +1166,39 @@
     border-color: #00bfff;
     box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.2);
   }
-  
+
   /* Scroll list dropdown (Chrome/Edge) */
   select option {
     background-color: #1e2a38;
     color: #fff;
   }
-  
+
   /* Firefox (fallback untuk dropdown background) */
   select optgroup, select option {
     background-color: #1e2a38;
     color: #fff;
   }
-    
+.custom-pagination .page-item {
+  margin: 0 2px;
+}
+
+.custom-pagination .page-link {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: 500;
+  color: #007bff;
+  transition: all 0.2s ease-in-out;
+  background-color: #fff;
+}
+
+.custom-pagination .page-link:hover {
+  background-color: #e7f1ff;
+  color: #0056b3;
+}
+
+.custom-pagination .page-item.active .page-link {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
