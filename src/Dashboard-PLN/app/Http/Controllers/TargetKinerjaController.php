@@ -155,49 +155,52 @@ class TargetKinerjaController extends Controller
     {
         $user = Auth::user();
         $target = TargetKPI::with(['indikator.bidang', 'tahunPenilaian'])->findOrFail($id);
-
+    
+        // Cek akses untuk admin
         if ($user->isAdmin() && $target->indikator->bidang_id !== $user->getBidang()->id) {
             return redirect()->route('targetKinerja.index')->with('error', 'Tidak memiliki akses.');
         }
-
+    
+        // Cegah edit jika sudah disetujui dan bukan master admin
         if ($target->disetujui && !$user->isMasterAdmin()) {
             return redirect()->route('targetKinerja.index', ['tahun_penilaian_id' => $target->tahun_penilaian_id])
                 ->with('error', 'Target sudah disetujui, tidak bisa diubah.');
         }
-
+    
+        // Tampilkan form edit seperti create
         return view('targetKinerja.edit', [
-            'target' => $target,
             'indikator' => $target->indikator,
-            'tahunPenilaian' => $target->tahunPenilaian
+            'tahunPenilaian' => $target->tahunPenilaian,
+            'target' => $target,
         ]);
     }
-
+    
     public function update(Request $request, $id)
     {
         $user = Auth::user();
         $target = TargetKPI::with('indikator')->findOrFail($id);
-
+    
+        // Cek akses admin terhadap bidang indikator
         if ($user->isAdmin() && $target->indikator->bidang_id !== $user->getBidang()->id) {
             return redirect()->route('targetKinerja.index')->with('error', 'Tidak memiliki akses.');
         }
-
+    
+        // Validasi input target bulanan
         $request->validate([
             'target_bulanan' => 'required|array|size:12',
             'target_bulanan.*' => 'required|numeric|min:0|max:10000000000',
         ]);
-
+    
+        // Proses dan simpan target bulanan
         $targetBulanan = [];
-        $totalTahunan = 0;
         for ($i = 0; $i < 12; $i++) {
-            $nilai = round(floatval($request->target_bulanan[$i]), 3);
-            $targetBulanan[$i] = $nilai;
-            $totalTahunan += $nilai;
+            $targetBulanan[$i] = round(floatval($request->target_bulanan[$i]), 3);
         }
-
-        // Target tahunan adalah total dari semua bulan (Jan-Des)
-        $targetTahunan = $targetBulanan[11]; // gunakan nilai bulan Desember sebagai target tahunan
-
-
+    
+        // Target tahunan = target bulan Desember (kumulatif)
+        $targetTahunan = $targetBulanan[11];
+    
+        // Update data target
         $target->update([
             'target_tahunan' => $targetTahunan,
             'target_bulanan' => $targetBulanan,
@@ -206,10 +209,11 @@ class TargetKinerjaController extends Controller
             'disetujui_oleh' => $user->id,
             'disetujui_pada' => now(),
         ]);
-
+    
         return redirect()->route('targetKinerja.index', ['tahun_penilaian_id' => $target->tahun_penilaian_id])
             ->with('success', 'Target berhasil diperbarui.');
     }
+    
 
     public function approve($id)
     {

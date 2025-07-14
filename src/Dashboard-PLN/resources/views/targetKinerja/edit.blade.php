@@ -46,11 +46,10 @@
                 @endif
             </div>
 
-            <form action="{{ route('targetKinerja.update', $target->id) }}" method="POST">
+            <form id="targetForm" action="{{ route('targetKinerja.update', $target->id) }}" method="POST">
                 @csrf
                 @method('PUT')
 
-                <!-- Input Target Bulanan -->
                 <div class="form-group">
                     <label><strong>Target Kumulatif per Bulan ({{ $indikator->satuan }})</strong> <span class="text-danger">*</span></label>
                     <div class="monthly-grid">
@@ -67,7 +66,7 @@
                                 <label>{{ $nama }} {{ $tahunPenilaian->tahun }}</label>
                                 <div class="input-group">
                                     <input type="number"
-                                        class="form-control monthly-target {{ $i === 11 ? 'december-target' : '' }} @error('target_bulanan.'.$i) is-invalid @enderror"
+                                        class="form-control target-input {{ $i === 11 ? 'december-target' : '' }} @error('target_bulanan.'.$i) is-invalid @enderror"
                                         name="target_bulanan[{{ $i }}]"
                                         id="target_bulanan_{{ $i }}"
                                         step="0.01"
@@ -86,7 +85,6 @@
                     </div>
                 </div>
 
-                <!-- Target Tahunan Display -->
                 <div class="total-display mt-3">
                     <i class="fas fa-chart-line me-2"></i>
                     <strong>Target Tahunan: <span id="targetTahunan">{{ number_format($target_bulanan[11], 3) }}</span> {{ $indikator->satuan }}</strong>
@@ -96,9 +94,6 @@
                     <div class="form-actions mt-4">
                         <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i> Simpan Perubahan</button>
                         <a href="{{ route('targetKinerja.index', ['tahun_penilaian_id' => $tahunPenilaian->id]) }}" class="btn btn-secondary"><i class="fas fa-times me-1"></i> Batal</a>
-                        {{-- <button type="button" class="btn btn-warning ms-2" id="distributeBtn">
-                            <i class="fas fa-random me-1"></i> Distribusi Otomatis
-                        </button> --}}
                     </div>
                 @else
                     <div class="alert alert-warning mt-4">
@@ -114,45 +109,89 @@
 
 @section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const updateTargetTahunan = () => {
-        const desemberValue = parseFloat(document.querySelector('.december-target')?.value || 0);
-        document.getElementById('targetTahunan').innerText = desemberValue.toFixed(3);
-    };
+document.addEventListener('DOMContentLoaded', function() {
+    function updateTargetTahunan() {
+        const inputs = document.querySelectorAll('.target-input');
+        const desemberInput = inputs[11]; 
+        const targetTahunan = parseFloat(desemberInput.value) || 0;
 
-    const highlightInputs = () => {
-        document.querySelectorAll('.monthly-target').forEach((input, index) => {
-            input.style.backgroundColor = index === 11 ? '#fff3cd' : '#ffffff';
-            input.style.borderColor = index === 11 ? '#ffc107' : '#ced4da';
-        });
-    };
+        document.getElementById('targetTahunan').textContent = targetTahunan.toFixed(3);
 
-    document.querySelectorAll('.monthly-target').forEach((input, index) => {
-        input.addEventListener('input', () => {
-            if (parseFloat(input.value) < 0) input.value = 0;
-            updateTargetTahunan();
-        });
-    });
-
-    // Tombol distribusi otomatis
-    document.getElementById('distributeBtn')?.addEventListener('click', () => {
-        const total = parseFloat(document.querySelector('.december-target')?.value || 0);
-        if (total <= 0) {
-            alert('Isi target bulan Desember terlebih dahulu!');
-            return;
+        const totalDisplay = document.querySelector('.total-display');
+        if (targetTahunan > 0) {
+            totalDisplay.style.backgroundColor = '#e8f5e8';
+            totalDisplay.style.borderColor = '#b8e6b8';
+        } else {
+            totalDisplay.style.backgroundColor = '#f8f9fc';
+            totalDisplay.style.borderColor = '#e3e6f0';
         }
-        const perBulan = total / 12;
-        document.querySelectorAll('.monthly-target').forEach((input, i) => {
-            if (i !== 11) {
-                input.value = (perBulan * (i + 1)).toFixed(3);
+    }
+
+    function validateKumulatif() {
+        const inputs = document.querySelectorAll('.target-input');
+        let previousValue = 0;
+        let allValid = true;
+
+        inputs.forEach((input, index) => {
+            const currentValue = parseFloat(input.value) || 0;
+
+            if (currentValue > 0) {
+                if (currentValue < previousValue) {
+                    input.style.borderColor = '#dc3545';
+                    input.style.backgroundColor = '#ffe6e6';
+                    allValid = false;
+                } else {
+                    input.style.borderColor = '#28a745';
+                    input.style.backgroundColor = '#f8fff8';
+                }
+                previousValue = currentValue;
+            } else {
+                input.style.borderColor = '';
+                input.style.backgroundColor = '';
             }
         });
-        updateTargetTahunan();
-        alert(`Target didistribusi otomatis!\nTotal: ${total.toFixed(3)}, per bulan: ${perBulan.toFixed(3)}`);
+
+        return allValid;
+    }
+
+    document.querySelectorAll('.target-input').forEach((input, index) => {
+        input.addEventListener('input', function() {
+            updateTargetTahunan();
+            validateKumulatif();
+        });
+
+        input.addEventListener('focus', function() {
+            if (index > 0) {
+                const previousInput = document.querySelectorAll('.target-input')[index - 1];
+                const previousValue = parseFloat(previousInput.value) || 0;
+
+                if (previousValue > 0 && !this.value) {
+                    this.placeholder = `Min: ${previousValue.toFixed(2)}`;
+                }
+            }
+        });
     });
 
-    highlightInputs();
     updateTargetTahunan();
+
+    const form = document.getElementById('targetForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const desemberValue = parseFloat(document.querySelectorAll('.target-input')[11].value) || 0;
+
+            if (desemberValue <= 0) {
+                e.preventDefault();
+                alert('Target bulan Desember harus diisi untuk menentukan target tahunan!');
+                return false;
+            }
+
+            if (!validateKumulatif()) {
+                e.preventDefault();
+                alert('Target kumulatif tidak valid! Nilai target harus selalu naik atau sama dari bulan sebelumnya.');
+                return false;
+            }
+        });
+    }
 });
 </script>
 @endsection

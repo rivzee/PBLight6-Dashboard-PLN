@@ -577,7 +577,7 @@ use Illuminate\Support\Str;
             <input type="hidden" name="update_type" value="password">
 
             <!-- Tampilkan pesan sukses yang lebih menonjol -->
-            @if(session('success'))
+            {{-- @if(session('success'))
             <div class="alert alert-success mb-4" style="background: linear-gradient(135deg, #28a745, #5cb85c); color: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);">
               <div class="d-flex align-items-center mb-2">
                 <i class="fas fa-check-circle mr-2" style="font-size: 20px;"></i>
@@ -591,7 +591,7 @@ use Illuminate\Support\Str;
                 </ol>
               </p>
             </div>
-            @endif
+            @endif --}}
 
             <!-- Success message yang akan ditampilkan via JavaScript -->
             <div id="manual-success-message" style="display:none;" class="alert alert-success mb-4" style="background: linear-gradient(135deg, #28a745, #5cb85c); color: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);">
