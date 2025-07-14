@@ -127,14 +127,57 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
+    const validateKumulatif = () => {
+        const inputs = document.querySelectorAll('.monthly-target');
+        let valid = true;
+        let prev = 0;
+
+        inputs.forEach((input, i) => {
+            const val = parseFloat(input.value) || 0;
+            if (val < prev) {
+                input.style.borderColor = '#dc3545';
+                input.style.backgroundColor = '#ffe6e6';
+                valid = false;
+            } else {
+                input.style.borderColor = '#ced4da';
+                input.style.backgroundColor = '#ffffff';
+                prev = val;
+            }
+        });
+
+        return valid;
+    };
+
     document.querySelectorAll('.monthly-target').forEach((input, index) => {
         input.addEventListener('input', () => {
             if (parseFloat(input.value) < 0) input.value = 0;
             updateTargetTahunan();
+            validateKumulatif();
         });
     });
 
-    // Tombol distribusi otomatis
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function (e) {
+        const isValid = validateKumulatif();
+        const desemberValue = parseFloat(document.querySelector('.december-target')?.value || 0);
+
+        if (desemberValue <= 0) {
+            alert("Nilai bulan Desember wajib diisi sebagai target tahunan.");
+            e.preventDefault();
+            return false;
+        }
+
+        if (!isValid) {
+            alert("Input target bulanan harus kumulatif (tidak boleh menurun).");
+            e.preventDefault();
+            return false;
+        }
+    });
+
+    highlightInputs();
+    updateTargetTahunan();
+
+    // Tombol distribusi otomatis (jika diaktifkan)
     document.getElementById('distributeBtn')?.addEventListener('click', () => {
         const total = parseFloat(document.querySelector('.december-target')?.value || 0);
         if (total <= 0) {
@@ -148,11 +191,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         updateTargetTahunan();
+        validateKumulatif();
         alert(`Target didistribusi otomatis!\nTotal: ${total.toFixed(3)}, per bulan: ${perBulan.toFixed(3)}`);
     });
-
-    highlightInputs();
-    updateTargetTahunan();
 });
 </script>
 @endsection
+
