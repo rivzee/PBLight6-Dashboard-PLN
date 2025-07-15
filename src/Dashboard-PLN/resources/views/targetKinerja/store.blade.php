@@ -29,10 +29,7 @@
             </select>
         </div>
 
-        <div class="mb-3">
-            <label for="target_tahunan" class="form-label">Target Tahunan</label>
-            <input type="number" step="0.01" class="form-control" name="target_tahunan" required>
-        </div>
+        <!-- Target Tahunan removed - now using monthly targets only -->
 
         <div class="mb-3">
             <label class="form-label">Target Bulanan</label>

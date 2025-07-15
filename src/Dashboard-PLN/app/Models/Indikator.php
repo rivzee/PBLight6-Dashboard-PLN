@@ -20,7 +20,6 @@ class Indikator extends Model
         'nama',
         'deskripsi',
         'bobot',
-        'target',
         'urutan',
         'aktif',
         'is_utama',
@@ -30,7 +29,6 @@ class Indikator extends Model
     // Casting tipe data otomatis
     protected $casts = [
         'bobot' => 'float',
-        'target' => 'float',
         'aktif' => 'boolean',
         'is_utama' => 'boolean',
         'prioritas' => 'integer',

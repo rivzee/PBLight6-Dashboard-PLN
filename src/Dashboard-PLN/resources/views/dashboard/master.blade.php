@@ -4,814 +4,7 @@
 @section('title', 'Master Admin Dashboard')
 
 @section('styles')
-<style>
-  /* Dashboard Layout System */
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    gap: 20px;
-    margin-bottom: 25px;
-    width: 100%;
-  }
-
-  .grid-span-3 {
-    grid-column: span 3;
-  }
-
-  .grid-span-4 {
-    grid-column: span 4;
-  }
-
-  .grid-span-6 {
-    grid-column: span 6;
-  }
-
-  .grid-span-8 {
-    grid-column: span 8;
-  }
-
-  .grid-span-12 {
-    grid-column: span 12;
-  }
-
-  /* Card Styling yang Konsisten untuk tema terang dan gelap */
-  .card {
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.5s ease;
-    box-shadow: 0 4px 15px var(--pln-shadow);
-  }
-
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px var(--pln-shadow);
-  }
-
-  [data-theme="light"] .card {
-    background: #ffffff;
-    border: 1px solid #dee2e6;
-  }
-
-  [data-theme="dark"] .card {
-    background: var(--pln-surface);
-    border: 1px solid var(--pln-border);
-  }
-
-  .card-header {
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  [data-theme="light"] .card-header {
-    border-bottom: 1px solid #dee2e6;
-  }
-
-  [data-theme="dark"] .card-header {
-    border-bottom: 1px solid var(--pln-border);
-  }
-
-  .card-body {
-    padding: 20px;
-  }
-
-  .card-header.bg-success {
-    background: linear-gradient(45deg, #28a745, #20c997);
-  }
-
-  .card-header.bg-warning {
-    background: linear-gradient(45deg, #ffc107, #fd7e14);
-    color: #212529 !important; /* Warna teks yang lebih gelap untuk kontras dengan background kuning */
-  }
-
-  .card-header.bg-primary {
-    background: linear-gradient(45deg, var(--pln-blue), var(--pln-light-blue));
-  }
-
-  .card-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 0;
-    display: flex;
-    align-items: center;
-  }
-
-  .card-title i {
-    margin-right: 8px;
-    font-size: 0.9em;
-  }
-
-  /* Stat Card Styling */
-  .stat-card {
-    padding: 20px;
-    border-radius: 12px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .stat-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-
-  .stat-title {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--pln-text-secondary);
-    margin: 0;
-  }
-
-  .stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    transition: all 0.5s ease;
-  }
-
-  [data-theme="light"] .stat-icon {
-    background: rgba(0, 120, 176, 0.1);
-    color: #0078b0;
-  }
-
-  [data-theme="dark"] .stat-icon {
-    background: rgba(0, 156, 222, 0.15);
-    color: #4db5ff;
-  }
-
-  .stat-value {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 5px 0;
-    color: var(--pln-text);
-    transition: color 0.5s ease;
-  }
-
-  .stat-description {
-    font-size: 0.85rem;
-    color: var(--pln-text-secondary);
-    margin: 0;
-    transition: color 0.5s ease;
-  }
-
-  /* Chart Card Styling */
-  .chart-card {
-    padding: 20px;
-    height: 100%;
-  }
-
-  .chart-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin: 0 0 15px 0;
-    color: var(--pln-text);
-    display: flex;
-    align-items: center;
-    transition: color 0.5s ease;
-  }
-
-  .chart-title i {
-    margin-right: 8px;
-    transition: color 0.5s ease;
-  }
-
-  [data-theme="light"] .chart-title i {
-    color: #0078b0;
-  }
-
-  [data-theme="dark"] .chart-title i {
-    color: #4db5ff;
-  }
-
-  .chart-container {
-    position: relative;
-    height: 300px;
-    margin: 0 auto;
-    transition: all 0.5s ease;
-  }
-
-  .chart-container.medium {
-    height: 300px;
-  }
-
-  .chart-container.large {
-    height: 400px;
-  }
-
-  /* Gauge Center Text */
-  #gauge-center-text h3 {
-    transition: color 0.5s ease;
-  }
-
-  #gauge-center-text p {
-    transition: color 0.5s ease;
-  }
-
-  /* Section Divider */
-  .section-divider {
-    margin: 30px 0 20px;
-    border-bottom: 1px solid var(--pln-border);
-    padding-bottom: 10px;
-    transition: border-color 0.5s ease;
-  }
-
-  .section-divider h2 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--pln-text);
-    margin: 0;
-    display: flex;
-    align-items: center;
-    transition: color 0.5s ease;
-  }
-
-  .section-divider h2 i {
-    margin-right: 10px;
-    transition: color 0.5s ease;
-  }
-
-  [data-theme="light"] .section-divider h2 i {
-    color: #0078b0;
-  }
-
-  [data-theme="dark"] .section-divider h2 i {
-    color: #4db5ff;
-  }
-
-  /* Table Styling */
-  .table-responsive {
-    overflow-x: auto;
-    border-radius: 8px;
-  }
-
-  .data-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-  }
-
-  .data-table thead th {
-    text-align: left;
-    padding: 12px 15px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    border-bottom: 2px solid var(--pln-border);
-    transition: all 0.5s ease;
-  }
-
-  [data-theme="light"] .data-table thead th {
-    background: #f8f9fa;
-    color: #333333;
-  }
-
-  [data-theme="dark"] .data-table thead th {
-    background: var(--pln-surface-2);
-    color: var(--pln-text);
-  }
-
-  .data-table tbody td {
-    padding: 12px 15px;
-    border-bottom: 1px solid var(--pln-border);
-    font-size: 0.9rem;
-    color: var(--pln-text);
-    vertical-align: middle;
-    transition: all 0.5s ease;
-  }
-
-  .data-table tbody tr:hover {
-    background: var(--pln-accent-bg);
-  }
-
-  /* Pengaturan untuk tabel di Bootstrap */
-  .table-hover tbody tr:hover {
-    background-color: var(--pln-accent-bg);
-  }
-
-  .table thead th {
-    color: var(--pln-text);
-    border-bottom-color: var(--pln-border);
-    transition: all 0.5s ease;
-  }
-
-  .table tbody td {
-    color: var(--pln-text);
-    border-color: var(--pln-border);
-    transition: all 0.5s ease;
-  }
-
-  .table-responsive {
-    margin-bottom: 1rem;
-  }
-
-  .thead-light th {
-    background-color: var(--pln-surface-2);
-    color: var(--pln-text);
-    border-color: var(--pln-border);
-    transition: all 0.5s ease;
-  }
-
-  /* Empty State */
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 30px;
-    color: var(--pln-text-secondary);
-    transition: color 0.5s ease;
-  }
-
-  /* Text colors yang kontras dan terlihat untuk light dan dark */
-  [data-theme="light"] .text-success {
-    color: #1e7e34 !important;
-    font-weight: 600;
-  }
-
-  [data-theme="light"] .text-warning {
-    color: #d39e00 !important;
-    font-weight: 600;
-  }
-
-  [data-theme="light"] .text-primary {
-    color: #0078b0 !important;
-    font-weight: 600;
-  }
-
-  [data-theme="light"] .text-muted {
-    color: #6c757d !important;
-  }
-
-  [data-theme="dark"] .text-success {
-    color: #34eb52 !important;
-    font-weight: 600;
-  }
-
-  [data-theme="dark"] .text-warning {
-    color: #ffdf4f !important;
-    font-weight: 600;
-  }
-
-  [data-theme="dark"] .text-primary {
-    color: #4db5ff !important;
-    font-weight: 600;
-  }
-
-  [data-theme="dark"] .text-muted {
-    color: rgba(248, 250, 252, 0.7) !important;
-  }
-
-  /* Indikator performa untuk tema light dan dark */
-  .performance-indicator {
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 8px;
-    border-radius: 30px;
-    font-size: 13px;
-    font-weight: 600;
-    margin-left: 8px;
-    transition: all 0.5s ease;
-  }
-
-  .performance-indicator i {
-    margin-right: 5px;
-  }
-
-  [data-theme="light"] .performance-indicator.high {
-    color: #1e7e34;
-    background-color: rgba(40, 167, 69, 0.15);
-    border: 1px solid rgba(40, 167, 69, 0.3);
-  }
-
-  [data-theme="light"] .performance-indicator.medium {
-    color: #d39e00;
-    background-color: rgba(255, 193, 7, 0.15);
-    border: 1px solid rgba(255, 193, 7, 0.3);
-  }
-
-  [data-theme="light"] .performance-indicator.low {
-    color: #bd2130;
-    background-color: rgba(220, 53, 69, 0.15);
-    border: 1px solid rgba(220, 53, 69, 0.3);
-  }
-
-  [data-theme="dark"] .performance-indicator.high {
-    color: #34eb52;
-    background-color: rgba(40, 167, 69, 0.15);
-    border: 1px solid rgba(40, 167, 69, 0.3);
-  }
-
-  [data-theme="dark"] .performance-indicator.medium {
-    color: #ffdf4f;
-    background-color: rgba(255, 193, 7, 0.15);
-    border: 1px solid rgba(255, 193, 7, 0.3);
-  }
-
-  [data-theme="dark"] .performance-indicator.low {
-    color: #ff5a6a;
-    background-color: rgba(220, 53, 69, 0.15);
-    border: 1px solid rgba(220, 53, 69, 0.3);
-  }
-
-  /* Form styling yang terintegrasi untuk light dan dark mode */
-  .form-select,
-  .form-control {
-    transition: all 0.5s ease;
-  }
-
-  [data-theme="light"] .form-select,
-  [data-theme="light"] .form-control {
-    background-color: #ffffff;
-    border-color: #dee2e6;
-    color: #333333;
-  }
-
-  [data-theme="light"] .form-select:focus,
-  [data-theme="light"] .form-control:focus {
-    background-color: #ffffff;
-    border-color: #0078b0;
-    color: #333333;
-    box-shadow: 0 0 0 0.25rem rgba(0, 120, 176, 0.25);
-  }
-
-  [data-theme="light"] .form-label {
-    color: #333333;
-    font-weight: 500;
-    transition: color 0.5s ease;
-  }
-
-  [data-theme="dark"] .form-select,
-  [data-theme="dark"] .form-control {
-    background-color: #1e293b;
-    border-color: rgba(248, 250, 252, 0.1);
-    color: #f8fafc;
-  }
-
-  [data-theme="dark"] .form-select:focus,
-  [data-theme="dark"] .form-control:focus {
-    background-color: #1e293b;
-    border-color: #0091d1;
-    color: #f8fafc;
-    box-shadow: 0 0 0 0.25rem rgba(0, 156, 222, 0.25);
-  }
-
-  [data-theme="dark"] .form-label {
-    color: #f8fafc;
-    font-weight: 500;
-    transition: color 0.5s ease;
-  }
-
-  /* Variabel untuk dark/light mode chart */
-  :root {
-    --chart-grid-color: rgba(0, 0, 0, 0.1);
-    --chart-text-color: #333333;
-    --chart-success-color: rgba(40, 167, 69, 0.7);
-    --chart-success-border: #28a745;
-    --chart-warning-color: rgba(255, 193, 7, 0.7);
-    --chart-warning-border: #ffc107;
-    --chart-primary-color: rgba(0, 120, 176, 0.3);
-    --chart-primary-border: #0078b0;
-    --chart-background: rgba(255, 255, 255, 0.9);
-    --chart-tooltip-bg: rgba(255, 255, 255, 0.95);
-    --chart-tooltip-text: #333333;
-    --chart-tooltip-border: #dee2e6;
-    --chart-legend-text: #333333;
-    --transition-speed: 0.5s;
-  }
-
-  [data-theme="dark"] {
-    --chart-grid-color: rgba(255, 255, 255, 0.1);
-    --chart-text-color: #f8fafc;
-    --chart-success-color: rgba(40, 167, 69, 0.7);
-    --chart-success-border: #34eb52;
-    --chart-warning-color: rgba(255, 193, 7, 0.7);
-    --chart-warning-border: #ffdf4f;
-    --chart-primary-color: rgba(0, 156, 222, 0.3);
-    --chart-primary-border: #4db5ff;
-    --chart-background: rgba(0, 0, 0, 0.05);
-    --chart-tooltip-bg: rgba(30, 41, 59, 0.95);
-    --chart-tooltip-text: #f8fafc;
-    --chart-tooltip-border: #334155;
-    --chart-legend-text: #f8fafc;
-    --transition-speed: 0.5s;
-  }
-
-  /* Transisi global untuk perubahan tema */
-  * {
-    transition-property: color, background-color, border-color, box-shadow;
-    transition-duration: var(--transition-speed);
-    transition-timing-function: ease;
-  }
-
-  /* Button dan form styling dipindahkan ke variabel tema */
-  .btn-primary {
-    color: #fff;
-    transition: all 0.5s ease;
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-2px);
-  }
-
-  [data-theme="light"] .btn-primary {
-    background-color: #0078b0;
-    border-color: #0078b0;
-  }
-
-  [data-theme="light"] .btn-primary:hover {
-    background-color: #005d8a;
-    border-color: #005d8a;
-  }
-
-  [data-theme="dark"] .btn-primary {
-    background-color: #0091d1;
-    border-color: #0091d1;
-  }
-
-  [data-theme="dark"] .btn-primary:hover {
-    background-color: #00a7f5;
-    border-color: #00a7f5;
-  }
-
-  /* Tab styling yang lebih konsisten */
-  .nav-tabs {
-    border-bottom: 2px solid rgba(0, 156, 222, 0.1);
-    margin-bottom: 25px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    transition: border-color 0.5s ease;
-  }
-
-  .nav-tabs .nav-item {
-    margin-bottom: -2px;
-  }
-
-  .nav-tabs .nav-link {
-    border: none;
-    border-bottom: 3px solid transparent;
-    background: transparent;
-    color: var(--pln-text-secondary);
-    font-weight: 500;
-    padding: 12px 20px;
-    border-radius: 8px 8px 0 0;
-    transition: all 0.5s ease;
-    font-size: 15px;
-    position: relative;
-    cursor: pointer;
-  }
-
-  .nav-tabs .nav-link:hover {
-    color: var(--pln-light-blue);
-    border-color: rgba(0, 156, 222, 0.5);
-    background: var(--pln-accent-bg);
-  }
-
-  .nav-tabs .nav-link.active {
-    color: var(--pln-light-blue);
-    border-color: var(--pln-light-blue);
-    background: var(--pln-accent-bg);
-    font-weight: 600;
-  }
-
-  .nav-tabs .nav-link .badge {
-    padding: 5px 8px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 11px;
-    transition: all 0.5s ease;
-    margin-left: 8px;
-    box-shadow: 0 2px 5px var(--pln-shadow);
-  }
-
-  .tab-content > .tab-pane {
-    display: none;
-  }
-
-  .tab-content > .active {
-    display: block;
-    animation: fadeIn 0.5s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* Badge styling untuk light dan dark mode */
-  .badge {
-    padding: 5px 10px;
-    border-radius: 30px;
-    font-weight: 500;
-    font-size: 0.75rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.5s ease;
-  }
-
-  .badge i {
-    margin-right: 3px;
-  }
-
-  /* Light mode badges */
-  [data-theme="light"] .badge-secondary {
-    background-color: #6c757d;
-    color: #fff;
-  }
-
-  [data-theme="light"] .badge-success {
-    background-color: #28a745;
-    color: #fff;
-  }
-
-  [data-theme="light"] .badge-primary {
-    background-color: #0078b0;
-    color: #fff;
-  }
-
-  [data-theme="light"] .badge-warning {
-    background-color: #ffc107;
-    color: #212529; /* Warna teks gelap untuk kontras dengan background kuning */
-  }
-
-  /* Dark mode badges */
-  [data-theme="dark"] .badge-warning {
-    background-color: #ffc107;
-    color: #212529; /* Tetap gelap agar terlihat kontras */
-  }
-
-  [data-theme="dark"] .badge-success {
-    background-color: #28a745;
-    color: #fff;
-  }
-
-  [data-theme="dark"] .badge-secondary {
-    background-color: #6c757d;
-    color: #fff;
-  }
-
-  [data-theme="dark"] .badge-primary {
-    background-color: #0078b0;
-    color: #fff;
-  }
-
-  /* Responsive design untuk mobile */
-  @media (max-width: 768px) {
-    .dashboard-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .grid-span-3,
-    .grid-span-4,
-    .grid-span-6,
-    .grid-span-8,
-    .grid-span-12 {
-      grid-column: span 1;
-    }
-
-    .chart-container {
-      height: 250px;
-    }
-
-    .stat-card {
-      margin-bottom: 15px;
-    }
-  }
-
-  /* Kinerja Tertinggi Card */
-  .top-performer-card {
-    border-left: 4px solid #28a745;
-    margin-bottom: 15px;
-    padding: 15px;
-    border-radius: 8px;
-    background-color: rgba(40, 167, 69, 0.05);
-    transition: all 0.3s ease;
-  }
-
-  .top-performer-card:hover {
-    transform: translateX(5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  }
-
-  .top-performer-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-
-  .top-performer-title {
-    font-weight: 600;
-    color: var(--pln-text);
-    font-size: 1rem;
-    margin: 0;
-  }
-
-  .top-performer-value {
-    font-weight: 700;
-    color: #28a745;
-    font-size: 1.1rem;
-  }
-
-  .top-performer-info {
-    font-size: 0.85rem;
-    color: var(--pln-text-secondary);
-  }
-
-  /* Task Overview Styling */
-  .task-overview {
-    margin-top: 20px;
-  }
-
-  .task-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--pln-border);
-  }
-
-  .task-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 15px;
-    flex-shrink: 0;
-  }
-
-  .task-icon.pending {
-    background-color: rgba(255, 193, 7, 0.2);
-    color: #ffc107;
-  }
-
-  .task-icon.completed {
-    background-color: rgba(40, 167, 69, 0.2);
-    color: #28a745;
-  }
-
-  .task-icon.urgent {
-    background-color: rgba(220, 53, 69, 0.2);
-    color: #dc3545;
-  }
-
-  .task-content {
-    flex: 1;
-  }
-
-  .task-title {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--pln-text);
-    margin: 0 0 5px 0;
-  }
-
-  .task-meta {
-    display: flex;
-    font-size: 0.8rem;
-    color: var(--pln-text-secondary);
-  }
-
-  .task-meta span {
-    margin-right: 15px;
-    display: flex;
-    align-items: center;
-  }
-
-  .task-meta i {
-    margin-right: 5px;
-    font-size: 0.75rem;
-  }
-
-  .task-status {
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 500;
-  }
-
-  .task-status.pending {
-    background-color: rgba(255, 193, 7, 0.2);
-    color: #ffc107;
-  }
-
-  .task-status.completed {
-    background-color: rgba(40, 167, 69, 0.2);
-    color: #28a745;
-  }
-
-  .task-status.urgent {
-    background-color: rgba(220, 53, 69, 0.2);
-    color: #dc3545;
-  }
-</style>
+<link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 @endsection
 
 @section('content')
@@ -862,107 +55,128 @@
       </div>
     </div>
   </div>
-
-  <!-- Statistik Ringkasan -->
-  <div class="dashboard-grid">
-    <div class="grid-span-3">
-      <div class="card stat-card">
-        <div class="stat-header">
-          <h3 class="stat-title">NKO Score</h3>
-          <div class="stat-icon">
-            <i class="fas fa-chart-line"></i>
-          </div>
+  <!-- Informasi Input Progress -->
+  <div class="dashboard-grid mb-4">
+    <div class="grid-span-12">
+      <div class="card">
+        <div class="card-header bg-info text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-info-circle mr-2"></i> Status Input Data Bulan {{ date('F', mktime(0, 0, 0, $bulan, 1)) }} {{ $tahun }}
+          </h5>
         </div>
-        <div class="stat-value">{{ $data['nko'] ?? 0 }}%</div>
-        <p class="stat-description">Nilai Kinerja Organisasi</p>
-      </div>
-    </div>
-
-    <div class="grid-span-3">
-      <div class="card stat-card">
-        <div class="stat-header">
-          <h3 class="stat-title">Pilar</h3>
-          <div class="stat-icon">
-            <i class="fas fa-layer-group"></i>
-          </div>
-        </div>
-        <div class="stat-value">{{ count($data['pilar'] ?? []) }}</div>
-        <p class="stat-description">Total Pilar Kinerja</p>
-      </div>
-    </div>
-
-    <div class="grid-span-3">
-      <div class="card stat-card">
-        <div class="stat-header">
-          <h3 class="stat-title">Kinerja Tinggi</h3>
-          <div class="stat-icon">
-            <i class="fas fa-arrow-up"></i>
-          </div>
-        </div>
-        <div class="stat-value">{{ collect($data['pilar'] ?? [])->where('nilai', '>=', 80)->count() }}</div>
-        <p class="stat-description">Pilar dengan Kinerja ≥ 80%</p>
-      </div>
-    </div>
-
-    <div class="grid-span-3">
-      <div class="card stat-card">
-        <div class="stat-header">
-          <h3 class="stat-title">Perlu Perhatian</h3>
-          <div class="stat-icon">
-            <i class="fas fa-exclamation-triangle"></i>
-          </div>
-        </div>
-        <div class="stat-value">{{ collect($data['pilar'] ?? [])->where('nilai', '<', 70)->count() }}</div>
-        <p class="stat-description">Pilar dengan Kinerja < 70%</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Dashboard Overview -->
-  <div class="dashboard-grid">
-    <div class="grid-span-6">
-      <div class="card chart-card">
-        <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Gauge NKO</h3>
-        <div class="d-flex flex-column align-items-center justify-content-center">
-          <div style="position: relative; height: 200px; width: 300px;">
-            <canvas id="gaugeChart"></canvas>
-            <div id="gauge-center-text" style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-              <h3 class="mb-0 fw-bold">{{ $data['nko'] }}%</h3>
-              <p class="mb-0 small text-muted">NKO Score</p>
+        <div class="card-body">
+          <div class="row">
+            @php
+              $totalIndikator = collect($data['pilar'] ?? [])->sum('total_indikator');
+              $totalInput = collect($data['pilar'] ?? [])->sum('jumlah_input');
+              $persentaseInput = $totalIndikator > 0 ? round(($totalInput / $totalIndikator) * 100, 1) : 0;
+            @endphp
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="text-primary mb-1">{{ $totalInput }}</h4>
+                <p class="text-muted mb-0">Indikator Terinput</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="text-secondary mb-1">{{ $totalIndikator }}</h4>
+                <p class="text-muted mb-0">Total Indikator</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="text-info mb-1">{{ $persentaseInput }}%</h4>
+                <p class="text-muted mb-0">Progress Input</p>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="text-center">
+                <h4 class="text-success mb-1">
+                  @if(isset($data['nko']) && $data['nko'] > 0)
+                    {{ number_format($data['nko'], 1) }}%
+                  @else
+                    0%
+                  @endif
+                </h4>
+                <p class="text-muted mb-0">Rata-rata Kinerja</p>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <div class="grid-span-6">
-      <div class="card chart-card">
-        <h3 class="chart-title"><i class="fas fa-chart-line"></i> Trend Kinerja {{ $tahun }}</h3>
-        <div class="chart-container medium">
-          <canvas id="trendChart"></canvas>
+            @if($persentaseInput < 100)
+            <div class="alert alert-warning alert-sm py-2 px-3 mt-3 mb-0 d-flex align-items-center" style="font-size: 0.85rem;">
+                <i class="fas fa-exclamation-triangle me-2" style="font-size: 1rem;"></i>
+                <div>
+                <strong>Perhatian:</strong> Masih ada {{ $totalIndikator - $totalInput }} indikator yang belum diinput untuk bulan ini.
+                Nilai kinerja pilar dihitung berdasarkan rata-rata dari semua indikator (termasuk yang belum diinput = 0%).
+                </div>
+            </div>
+            @endif
+
         </div>
       </div>
     </div>
   </div>
+
+
+    <!-- Dashboard Overview -->
+    <div class="dashboard-grid">
+    <div class="grid-span-6">
+        <div class="card chart-card p-0 overflow-hidden">
+        <!-- Header -->
+        <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
+            <i class="fas fa-chart-pie mr-2"></i>
+            <h5 class="mb-0">Gauge NKO</h5>
+        </div>
+
+        <!-- Gauge Content -->
+        <div class="d-flex flex-column align-items-center justify-content-center py-4">
+            <div style="position: relative; height: 250px; width: 250px;">
+            <canvas id="gaugeChart"></canvas>
+            <div id="gauge-center-text" style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                <h3 class="mb-0 fw-bold">{{ $data['nko'] }}%</h3>
+                <p class="mb-0 small text-muted">NKO Score</p>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+        <div class="grid-span-6">
+        <div class="card chart-card p-0 overflow-hidden">
+            <!-- Header -->
+        <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
+            <i class="fas fa-chart-line"></i>
+            <h5 class="mb-0">Trend Kinerja {{ $tahun }}</h5>
+            </div>
+
+            <!-- Chart Content -->
+        <div class="chart-container w-100" style="height: 350px; padding: 1.5rem;">
+            <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+        </div>
+    </div>
+
 
   <!-- Tab Navigation -->
   <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="semua-tab" data-bs-toggle="tab" data-bs-target="#semua" type="button" role="tab" aria-controls="semua" aria-selected="true">
-        <i class="fas fa-table me-2"></i>Semua Pilar
+        <i class="fas fa-table me-2"></i>Semua Perspektif
         <span class="badge badge-secondary">{{ count($data['pilar'] ?? []) }}</span>
       </button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="tinggi-tab" data-bs-toggle="tab" data-bs-target="#kinerja-tinggi" type="button" role="tab" aria-controls="kinerja-tinggi" aria-selected="false">
-        <i class="fas fa-arrow-up me-2"></i>Kinerja Tinggi
-        <span class="badge badge-success">{{ collect($data['pilar'] ?? [])->where('nilai', '>=', 80)->count() }}</span>
+        <i class="fas fa-arrow-up me-2"></i>Kinerja Mencapai Target
+        <span class="badge badge-success">{{ collect(value: $data['pilar'] ?? [])->where('nilai', '>=', 100)->count() }}</span>
       </button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="rendah-tab" data-bs-toggle="tab" data-bs-target="#kinerja-rendah" type="button" role="tab" aria-controls="kinerja-rendah" aria-selected="false">
         <i class="fas fa-arrow-down me-2"></i>Perlu Perhatian
-        <span class="badge badge-warning">{{ collect($data['pilar'] ?? [])->where('nilai', '<', 70)->count() }}</span>
+        <span class="badge badge-warning">{{ collect($data['pilar'] ?? [])->where('nilai', '<=', 100)->count() }}</span>
       </button>
     </li>
   </ul>
@@ -972,86 +186,106 @@
     <!-- Tab Semua Pilar -->
     <div class="tab-pane fade show active" id="semua" role="tabpanel" aria-labelledby="semua-tab">
       <div class="dashboard-grid">
-        <div class="grid-span-6">
-          <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-chart-radar"></i> Perbandingan Antar Pilar</h3>
-            <div class="chart-container medium">
-              <canvas id="radarChart"></canvas>
+        <!-- Perbandingan Antar Perspektif -->
+            <div class="grid-span-6">
+            <div class="card chart-card p-0 overflow-hidden">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                <i class="fas fa-chart-radar me-2"></i>
+                <h5 class="mb-0">Perbandingan Antar Perspektif</h5>
+                </div>
+                <div class="d-flex justify-content-center align-items-center py-4">
+                <div style="width: 100%; max-width: 500px; height: 500px; position: relative;">
+                    <canvas id="radarChart"></canvas>
+                </div>
+                </div>
             </div>
-          </div>
-        </div>
+            </div>
 
-        <div class="grid-span-6">
-          <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-table"></i> Daftar Semua Pilar</h3>
-            <div class="table-responsive">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Nama Pilar</th>
-                    <th>Nilai (%)</th>
-                    <th>Status</th>
-                    <th>Tindakan</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @forelse($data['pilar'] ?? [] as $index => $pilar)
-                    <tr class="data-row">
-                      <td>{{ $pilar['nama'] }}</td>
-                      <td>
-                        @if($pilar['nilai'] >= 80)
-                          <strong class="text-success">{{ $pilar['nilai'] }}%</strong>
-                          <span class="performance-indicator high">
-                            <i class="fas fa-arrow-up"></i> {{ $pilar['nilai'] }}
-                          </span>
-                        @elseif($pilar['nilai'] >= 70)
-                          <strong class="text-primary">{{ $pilar['nilai'] }}%</strong>
-                          <span class="performance-indicator medium">
-                            <i class="fas fa-minus"></i> {{ $pilar['nilai'] }}
-                          </span>
-                        @else
-                          <strong class="text-warning">{{ $pilar['nilai'] }}%</strong>
-                          <span class="performance-indicator low">
-                            <i class="fas fa-arrow-down"></i> {{ $pilar['nilai'] }}
-                          </span>
-                        @endif
-                      </td>
-                      <td>
-                        @if($pilar['nilai'] >= 80)
-                          <span class="badge badge-success">
-                            <i class="fas fa-check-circle mr-1"></i> Kinerja Tinggi
-                          </span>
-                        @elseif($pilar['nilai'] >= 70)
-                          <span class="badge badge-primary">
-                            <i class="fas fa-info-circle mr-1"></i> Kinerja Baik
-                          </span>
-                        @else
-                          <span class="badge badge-warning">
-                            <i class="fas fa-exclamation-circle mr-1"></i> Perlu Perhatian
-                          </span>
-                        @endif
-                      </td>
-                      <td>
-                        <a href="{{ route('dataKinerja.pilar', $index + 1) }}" class="btn btn-sm btn-primary">
-                          <i class="fas fa-eye mr-1"></i> Detail
-                        </a>
-                      </td>
-                    </tr>
-                  @empty
+            <!-- Daftar Semua Perspektif -->
+            <div class="grid-span-6">
+            <div class="card chart-card p-0 overflow-hidden">
+                <div class="card-header bg-primary text-white d-flex align-items-center">
+                <i class="fas fa-table me-2"></i>
+                <h5 class="mb-0">Daftar Semua Perspektif</h5>
+                </div>
+                <div class="table-responsive p-3">
+                <table class="data-table table">
+                    <thead>
                     <tr>
-                      <td colspan="4" class="text-center py-4">
-                        <div class="empty-state">
-                          <i class="fas fa-database text-muted mb-3" style="font-size: 2.5rem;"></i>
-                          <p class="text-muted">Tidak ada data pilar untuk ditampilkan.</p>
-                        </div>
-                      </td>
+                        <th>Nama Perspektif</th>
+                        <th>Nilai (%)</th>
+                        <th>Progress Input</th>
+                        <th>Status</th>
+                        <th>Tindakan</th>
                     </tr>
-                  @endforelse
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody>
+                    @forelse($data['pilar'] ?? [] as $index => $pilar)
+                        <tr class="data-row">
+                        <td>{{ $pilar['nama'] ?? 'Tidak dikenal' }}</td>
+                        <td>
+                            @if(($pilar['nilai'] ?? 0) >= 100)
+                            <strong class="text-success">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
+                            @elseif(($pilar['nilai'] ?? 0) >= 95)
+                            <strong class="text-warning">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
+                            @else
+                            <strong class="text-danger">{{ number_format($pilar['nilai'] ?? 0, 2) }}%</strong>
+                            @endif
+                        </td>
+                        <td>
+                            @php
+                            $jumlahInput = $pilar['jumlah_input'] ?? 0;
+                            $totalIndikator = $pilar['total_indikator'] ?? 1;
+                            $persentaseInput = $totalIndikator > 0 ? round(($jumlahInput / $totalIndikator) * 100, 1) : 0;
+                            @endphp
+                            <div class="d-flex align-items-center">
+                            <div class="progress me-2" style="width: 60px; height: 8px;">
+                                <div class="progress-bar bg-info" role="progressbar" style="width: {{ $persentaseInput }}%"></div>
+                            </div>
+                            <small class="text-muted">{{ $jumlahInput }}/{{ $totalIndikator }}</small>
+                            </div>
+                        </td>
+                        <td>
+                            @if(($pilar['nilai'] ?? 0) >= 110)
+                            <span class="badge badge-success">
+                                <i class="fas fa-check-circle mr-1"></i> Kinerja Tinggi
+                            </span>
+                            @elseif(($pilar['nilai'] ?? 0) >= 100)
+                            <span class="badge badge-primary">
+                                <i class="fas fa-info-circle mr-1"></i> Kinerja Baik
+                            </span>
+                            @elseif(($pilar['jumlah_input'] ?? 0) == 0)
+                            <span class="badge badge-secondary">
+                                <i class="fas fa-minus-circle mr-1"></i> Belum Ada Input
+                            </span>
+                            @else
+                            <span class="badge badge-warning">
+                                <i class="fas fa-exclamation-circle mr-1"></i> Perlu Perhatian
+                            </span>
+                            @endif
+                        </td>
+                        <td>
+                            <a href="{{ route('dataKinerja.pilar', $index + 1) }}" class="btn btn-xs btn-primary px-2 py-1" style="font-size: 0.75rem;">
+                            <i class="fas fa-eye mr-1"></i> Detail
+                            </a>
+                        </td>
+                        </tr>
+                    @empty
+                        <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <div class="empty-state">
+                            <i class="fas fa-database text-muted mb-3" style="font-size: 2.5rem;"></i>
+                            <p class="text-muted">Tidak ada data pilar untuk ditampilkan.</p>
+                            </div>
+                        </td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+                </div>
             </div>
-          </div>
-        </div>
+            </div>
+
       </div>
     </div>
 
@@ -1060,7 +294,7 @@
       <div class="dashboard-grid">
         <div class="grid-span-12">
           <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Pilar dengan Kinerja Tinggi</h3>
+            <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Perspektif dengan Kinerja Tinggi</h3>
             <div class="chart-container medium">
               <canvas id="highPerformanceChart"></canvas>
             </div>
@@ -1068,14 +302,14 @@
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Nama Pilar</th>
+                    <th>Perspektif</th>
                     <th>Nilai (%)</th>
                     <th>Status</th>
                     <th>Tindakan</th>
                   </tr>
                 </thead>
                 <tbody>
-                  @forelse(collect($data['pilar'] ?? [])->where('nilai', '>=', 80) as $index => $pilar)
+                  @forelse(collect($data['pilar'] ?? [])->where('nilai', '>=', 100) as $index => $pilar)
                   <tr class="data-row">
                     <td>{{ $pilar['nama'] }}</td>
                     <td>
@@ -1106,7 +340,7 @@
                     <td colspan="4" class="text-center py-4">
                       <div class="empty-state">
                         <i class="fas fa-chart-line text-muted mb-3" style="font-size: 2.5rem;"></i>
-                        <p class="text-muted">Tidak ada pilar dengan kinerja tinggi saat ini.</p>
+                        <p class="text-muted">Tidak ada Perspektif dengan kinerja tinggi saat ini.</p>
                       </div>
                     </td>
                   </tr>
@@ -1124,7 +358,7 @@
       <div class="dashboard-grid">
         <div class="grid-span-12">
           <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-exclamation-triangle"></i> Pilar yang Perlu Perhatian</h3>
+            <h3 class="chart-title"><i class="fas fa-exclamation-triangle"></i> Perspektif yang Perlu Perhatian</h3>
             <div class="chart-container medium">
               <canvas id="lowPerformanceChart"></canvas>
             </div>
@@ -1132,21 +366,21 @@
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Nama Pilar</th>
+                    <th>Perspektif</th>
                     <th>Nilai (%)</th>
                     <th>Status</th>
                     <th>Tindakan</th>
                   </tr>
                 </thead>
                 <tbody>
-                  @forelse(collect($data['pilar'] ?? [])->where('nilai', '<', 70) as $index => $pilar)
+                  @forelse(collect($data['pilar'] ?? [])->where('nilai', '<', 100) as $index => $pilar)
                   <tr class="data-row">
                     <td>{{ $pilar['nama'] }}</td>
                     <td>
                       <strong class="text-warning">{{ $pilar['nilai'] }}%</strong>
-                      <span class="performance-indicator low">
+                      {{-- <span class="performance-indicator low">
                         <i class="fas fa-arrow-down"></i> {{ $pilar['nilai'] }}
-                      </span>
+                      </span> --}}
                     </td>
                     <td>
                       <span class="badge badge-warning">
@@ -1160,7 +394,7 @@
                         });
                         $pilarId = $pilarId !== false ? $pilarId + 1 : 1;
                       @endphp
-                      <a href="{{ route('dataKinerja.pilar', $pilarId) }}" class="btn btn-sm btn-primary">
+                      <a href="{{ route('dataKinerja.pilar', $pilarId) }}" class="btn btn-primary btn-xs">
                         <i class="fas fa-eye mr-1"></i> Detail
                       </a>
                     </td>
@@ -1189,7 +423,7 @@
     <div class="grid-span-8">
       <div class="card">
         <div class="card-header bg-primary text-white">
-          <h5 class="card-title"><i class="fas fa-trophy"></i> Kinerja Tertinggi</h5>
+          <h5 class="card-title"><i class="fas fa-trophy"></i> Kinerja Mencapai Target</h5>
           <div>
             <button class="btn btn-sm btn-light" id="refreshTopPerformers">
               <i class="fas fa-sync-alt"></i>
@@ -1457,9 +691,9 @@
 
     // Determine color based on value
     let gaugeColor = '#F44336'; // Red for low values
-    if (nkoValue >= 70) {
+    if (nkoValue >= 100) {
       gaugeColor = chartConfig.successBorder; // Green for high values
-    } else if (nkoValue >= 50) {
+    } else if (nkoValue >= 95) {
       gaugeColor = chartConfig.warningBorder; // Yellow for medium values
     }
 
@@ -1518,104 +752,94 @@
   }
 
   // Trend Chart
-  function initTrendChart(chartConfig = getChartConfig()) {
-    const trendCtx = document.getElementById('trendChart');
-    if (!trendCtx) return;
+// Trend Chart
+function initTrendChart(chartConfig = getChartConfig()) {
+  const trendCtx = document.getElementById('trendChart');
+  if (!trendCtx) return;
 
-    const ctx = trendCtx.getContext('2d');
-    // Simulasikan data tren (ini dapat diganti dengan data aktual)
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-    const currentMonth = {{ $bulan }};
-    const trendData = [];
+  const ctx = trendCtx.getContext('2d');
 
-    // Generate trend data up to current month
-    for (let i = 1; i <= 12; i++) {
-      if (i <= currentMonth) {
-        // Generate random values within ±10% of final NKO value for past months
-        const min = Math.max({{ $data['nko'] }} - 10, 0);
-        const max = Math.min({{ $data['nko'] }} + 5, 100);
-        const randomValue = (i < currentMonth)
-          ? (Math.random() * (max - min) + min).toFixed(1)
-          : {{ $data['nko'] }};
-        trendData.push(randomValue);
-      } else {
-        trendData.push(null); // Future months have null values
-      }
-    }
+  // Ambil data dari Laravel
+  const trendDataRaw = @json($nkoTrend ?? []);
 
-    // Destroy existing chart if exists
-    if (chartInstances.trendChart) {
-      chartInstances.trendChart.destroy();
-    }
+  const months = trendDataRaw.map(item => item.bulan);
+  const values = trendDataRaw.map(item => item.nko !== null ? Math.min(item.nko, 110) : null);
 
-    chartInstances.trendChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: months,
-        datasets: [{
-          label: 'Nilai Kinerja',
-          data: trendData,
-          backgroundColor: chartConfig.primaryColor,
-          borderColor: chartConfig.primaryBorder,
-          borderWidth: 2,
-          pointBackgroundColor: chartConfig.primaryBorder,
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-          pointRadius: 5,
-          tension: 0.3,
-          fill: true
-        }]
+  // Destroy existing chart if exists
+  if (chartInstances.trendChart) {
+    chartInstances.trendChart.destroy();
+  }
+
+  chartInstances.trendChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Nilai Kinerja',
+        data: values,
+        backgroundColor: chartConfig.primaryColor,
+        borderColor: chartConfig.primaryBorder,
+        borderWidth: 2,
+        pointBackgroundColor: chartConfig.primaryBorder,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        tension: 0.3,
+        fill: true,
+        spanGaps: false // penting agar null tidak digambar
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          backgroundColor: chartConfig.tooltipBg,
+          titleColor: chartConfig.tooltipText,
+          bodyColor: chartConfig.tooltipText,
+          padding: 12,
+          borderColor: chartConfig.tooltipBorder,
+          borderWidth: 1,
+          callbacks: {
+            label: function (context) {
+              if (context.parsed.y === null) {
+                return 'Belum ada data';
+              }
+              return `NKO: ${context.parsed.y.toFixed(2)}%`;
+            }
+          }
+        }
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
+      scales: {
+        x: {
+          grid: {
+            color: chartConfig.gridColor
           },
-          tooltip: {
-            backgroundColor: chartConfig.tooltipBg,
-            titleColor: chartConfig.tooltipText,
-            bodyColor: chartConfig.tooltipText,
-            titleFont: {
-              size: 14,
-              weight: 'bold'
-            },
-            bodyFont: {
-              size: 13
-            },
-            padding: 12,
-            displayColors: false,
-            borderColor: chartConfig.tooltipBorder,
-            borderWidth: 1
+          ticks: {
+            color: chartConfig.textColor
           }
         },
-        scales: {
-          x: {
-            grid: {
-              color: chartConfig.gridColor
-            },
-            ticks: {
-              color: chartConfig.textColor
-            }
+        y: {
+          beginAtZero: true,
+          max: 110,
+          grid: {
+            color: chartConfig.gridColor
           },
-          y: {
-            beginAtZero: true,
-            max: 100,
-            grid: {
-              color: chartConfig.gridColor
-            },
-            ticks: {
-              color: chartConfig.textColor,
-              callback: function(value) {
-                return value + '%';
-              }
+          ticks: {
+            color: chartConfig.textColor,
+            callback: function (value) {
+              return value + '%';
             }
           }
         }
       }
-    });
-  }
+    }
+  });
+}
+
 
   // Radar Chart untuk perbandingan antar pilar
   function initRadarChart(chartConfig = getChartConfig()) {
@@ -1656,7 +880,7 @@
           scales: {
             r: {
               beginAtZero: true,
-              max: 100,
+              max: 110,
               ticks: {
                 stepSize: 20,
                 backdropColor: 'transparent',
@@ -1720,12 +944,12 @@
     const highPerformanceCtx = document.getElementById('highPerformanceChart');
     if (!highPerformanceCtx) return;
 
-    const highPilar = @json(collect($data['pilar'] ?? [])->where('nilai', '>=', 80)->values()->all());
+    const highPilar = @json(collect($data['pilar'] ?? [])->where('nilai', '>=', 100)->values()->all());
 
     if (highPilar.length > 0) {
       const labels = highPilar.map(pilar => pilar.nama);
       const values = highPilar.map(pilar => pilar.nilai);
-      const targetValues = highPilar.map(() => 80); // Target 80%
+      const targetValues = highPilar.map(() => 100);
 
       // Destroy existing chart if exists
       if (chartInstances.highPerformanceChart) {
@@ -1765,7 +989,7 @@
           scales: {
             y: {
               beginAtZero: true,
-              max: 100,
+              max: 110,
               grid: {
                 color: chartConfig.gridColor
               },
@@ -1832,12 +1056,12 @@
     const lowPerformanceCtx = document.getElementById('lowPerformanceChart');
     if (!lowPerformanceCtx) return;
 
-    const lowPilar = @json(collect($data['pilar'] ?? [])->where('nilai', '<', 70)->values()->all());
+    const lowPilar = @json(collect($data['pilar'] ?? [])->where('nilai', '<', 100)->values()->all());
 
     if (lowPilar.length > 0) {
       const labels = lowPilar.map(pilar => pilar.nama);
       const values = lowPilar.map(pilar => pilar.nilai);
-      const targetValues = lowPilar.map(() => 70); // Target 70%
+      const targetValues = lowPilar.map(() => 100); // Target 70%
 
       // Destroy existing chart if exists
       if (chartInstances.lowPerformanceChart) {
@@ -1878,7 +1102,7 @@
           scales: {
             x: {
               beginAtZero: true,
-              max: 100,
+              max: 110,
               grid: {
                 color: chartConfig.gridColor
               },

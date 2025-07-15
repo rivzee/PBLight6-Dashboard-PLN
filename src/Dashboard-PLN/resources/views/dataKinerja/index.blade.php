@@ -3,395 +3,58 @@
 @section('title', 'Data Kinerja')
 
 @section('styles')
-<style>
-    /* Main Container */
-    .dashboard-content {
-        max-width: 1800px;
-        margin: 0 auto;
-        padding: 0 15px;
-    }
-
-    /* Grid System */
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(12, 1fr);
-        grid-gap: 20px;
-        margin-bottom: 30px;
-    }
-
-    .grid-span-3 {
-        grid-column: span 3;
-    }
-
-    .grid-span-4 {
-        grid-column: span 4;
-    }
-
-    .grid-span-6 {
-        grid-column: span 6;
-    }
-
-    .grid-span-8 {
-        grid-column: span 8;
-    }
-
-    .grid-span-12 {
-        grid-column: span 12;
-    }
-
-    @media (max-width: 1200px) {
-        .grid-span-3 {
-            grid-column: span 6;
-        }
-        .grid-span-4 {
-            grid-column: span 6;
-        }
-        .grid-span-6 {
-            grid-column: span 12;
-        }
-        .grid-span-8 {
-            grid-column: span 12;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .dashboard-grid {
-            grid-template-columns: 1fr;
-        }
-        .grid-span-3, .grid-span-4, .grid-span-6, .grid-span-8, .grid-span-12 {
-            grid-column: span 1;
-        }
-    }
-
-    /* Section Divider */
-    .section-divider {
-        display: flex;
-        align-items: center;
-        margin: 40px 0 20px;
-        position: relative;
-    }
-
-    .section-divider h2 {
-        font-size: 18px;
-        font-weight: 600;
-        color: var(--pln-text, #333);
-        margin: 0;
-        padding-right: 15px;
-        background: #f8f9fc;
-        position: relative;
-        z-index: 1;
-        display: flex;
-        align-items: center;
-    }
-
-    .section-divider h2 i {
-        margin-right: 10px;
-        color: var(--pln-light-blue, #00c6ff);
-    }
-
-    .section-divider::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: #e3e6f0;
-    }
-
-    /* Card Components */
-    .card {
-        background: var(--pln-accent-bg, #ffffff);
-        border-radius: 16px;
-        border: 1px solid var(--pln-border, #e8e8e8);
-        box-shadow: 0 8px 20px var(--pln-shadow, rgba(0,0,0,0.1));
-        position: relative;
-        overflow: hidden;
-        height: 100%;
-        transition: all 0.3s ease;
-    }
-
-    .card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, var(--pln-blue, #007bff), var(--pln-light-blue, #00c6ff));
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px var(--pln-shadow, rgba(0,0,0,0.15));
-    }
-
-    /* Stat Card */
-    .stat-card {
-        padding: 20px;
-    }
-
-    .stat-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-
-    .stat-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--pln-text, #333);
-        margin: 0;
-    }
-
-    .stat-icon {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, var(--pln-blue, #007bff), var(--pln-light-blue, #00c6ff));
-        color: white;
-        font-size: 20px;
-        box-shadow: 0 5px 15px rgba(0, 156, 222, 0.3);
-    }
-
-    .stat-value {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--pln-text, #333);
-        margin: 15px 0 5px;
-    }
-
-    .stat-description {
-        font-size: 13px;
-        color: var(--pln-text-secondary, #6c757d);
-        margin: 0;
-    }
-
-    /* Chart Card */
-    .chart-card {
-        padding: 25px;
-    }
-
-    .chart-title {
-        font-size: 18px;
-        color: var(--pln-light-blue, #00c6ff);
-        margin-bottom: 20px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-    }
-
-    .chart-title i {
-        margin-right: 10px;
-    }
-
-    /* Chart Container */
-    .chart-container {
-        position: relative;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-    }
-
-    .chart-container.large {
-        height: 450px;
-    }
-
-    .chart-container.medium {
-        height: 400px;
-    }
-
-    .chart-container.small {
-        height: 300px;
-    }
-
-    .loading-chart {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100%;
-        color: var(--pln-text-secondary, #6c757d);
-        padding: 20px;
-    }
-
-    /* Table Styling */
-    .data-table-container {
-        padding: 0;
-        overflow: hidden;
-    }
-
-    .data-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        margin-bottom: 0;
-    }
-
-    .data-table thead th {
-        background: linear-gradient(90deg, var(--pln-blue, #007bff), var(--pln-light-blue, #00c6ff));
-        color: #fff;
-        font-weight: 600;
-        text-align: left;
-        padding: 15px;
-        font-size: 14px;
-        border: none;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-    }
-
-    .data-table tbody tr {
-        background-color: var(--pln-accent-bg, #ffffff);
-        transition: all 0.2s ease;
-    }
-
-    .data-table tbody tr:hover {
-        background-color: rgba(0, 156, 222, 0.05);
-    }
-
-    .data-table td {
-        padding: 12px 15px;
-        border-top: 1px solid var(--pln-border, #e8e8e8);
-        font-size: 14px;
-        vertical-align: middle;
-    }
-
-    .data-table .badge {
-        padding: 5px 10px;
-        border-radius: 12px;
-        font-weight: 500;
-        font-size: 12px;
-    }
-
-    /* Progress Bar */
-    .progress {
-        height: 8px;
-        background-color: var(--pln-surface, #f0f0f0);
-        border-radius: 4px;
-        overflow: hidden;
-        margin: 10px 0;
-    }
-
-    .progress-bar {
-        height: 100%;
-        border-radius: 4px;
-        transition: width 0.5s ease-in-out;
-    }
-
-    /* Card with scrollable content */
-    .scrollable-card {
-        max-height: 500px;
-        overflow-y: auto;
-    }
-
-    .scrollable-card::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .scrollable-card::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0.05);
-        border-radius: 10px;
-    }
-
-    .scrollable-card::-webkit-scrollbar-thumb {
-        background: var(--pln-light-blue, #00c6ff);
-        border-radius: 10px;
-    }
-
-    /* Filter Bar */
-    .filter-bar {
-        background: var(--pln-accent-bg, #ffffff);
-        border-radius: 16px;
-        padding: 15px;
-        margin-bottom: 20px;
-        border: 1px solid var(--pln-border, #e8e8e8);
-        box-shadow: 0 4px 15px var(--pln-shadow, rgba(0,0,0,0.1));
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .filter-form {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .filter-form select {
-        min-width: 120px;
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('css/dataKinerja.css') }}">
 @endsection
 
 @section('content')
 <div class="dashboard-content">
     <!-- Filter -->
     <div class="row mb-4">
+        <!-- Filter Form -->
         <div class="col-md-8">
-            <div class="card shadow-sm">
+            <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <form action="{{ route('dataKinerja.index') }}" method="get" class="form-inline">
-                        <div class="row align-items-center">
-                            <div class="col-md-4 mb-2 mb-md-0">
-                                <label for="tahun" class="mr-2">Tahun:</label>
+                    <form action="{{ route('dataKinerja.index') }}" method="get">
+                        <div class="row g-3 align-items-end">
+                            <!-- Tahun -->
+                            <div class="col-md-4">
+                                <label for="tahun" class="form-label">Tahun</label>
                                 <select name="tahun" id="tahun" class="form-control">
                                     @php
                                         $currentYear = date('Y');
                                         $startYear = $currentYear - 5;
-                                        $endYear = $currentYear;
                                     @endphp
-
-                                    @for($year = $endYear; $year >= $startYear; $year--)
+                                    @for($year = $currentYear; $year >= $startYear; $year--)
                                         <option value="{{ $year }}" {{ $tahun == $year ? 'selected' : '' }}>{{ $year }}</option>
                                     @endfor
                                 </select>
                             </div>
 
-                            <div class="col-md-4 mb-2 mb-md-0">
-                                <label for="bulan" class="mr-2">Bulan:</label>
+                            <!-- Bulan -->
+                            <div class="col-md-4">
+                                <label for="bulan" class="form-label">Bulan</label>
                                 <select name="bulan" id="bulan" class="form-control">
                                     @php
                                         $namaBulan = [
-                                            1 => 'Januari',
-                                            2 => 'Februari',
-                                            3 => 'Maret',
-                                            4 => 'April',
-                                            5 => 'Mei',
-                                            6 => 'Juni',
-                                            7 => 'Juli',
-                                            8 => 'Agustus',
-                                            9 => 'September',
-                                            10 => 'Oktober',
-                                            11 => 'November',
-                                            12 => 'Desember'
+                                            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                                            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                                            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
                                         ];
                                     @endphp
-
                                     @foreach($namaBulan as $value => $nama)
                                         <option value="{{ $value }}" {{ $bulan == $value ? 'selected' : '' }}>{{ $nama }}</option>
                                     @endforeach
                                 </select>
                             </div>
 
-                            <div class="col-md-4 mb-2 mb-md-0">
-                                <label for="status_verifikasi" class="mr-2">Status:</label>
-                                <select name="status_verifikasi" id="status_verifikasi" class="form-control">
-                                    <option value="all" {{ $statusVerifikasi == 'all' ? 'selected' : '' }}>Semua Data</option>
-                                    <option value="verified" {{ $statusVerifikasi == 'verified' ? 'selected' : '' }}>Terverifikasi</option>
-                                    <option value="unverified" {{ $statusVerifikasi == 'unverified' ? 'selected' : '' }}>Belum Terverifikasi</option>
-                                </select>
-                            </div>
 
-                            <div class="col-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-filter mr-1"></i> Filter
+                            <!-- Tombol -->
+                            <div class="col-md-4 d-flex justify-content-start">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="fas fa-filter me-1"></i> Filter
                                 </button>
-                                <a href="{{ route('dataKinerja.index') }}" class="btn btn-outline-secondary ml-2">
-                                    <i class="fas fa-sync-alt mr-1"></i> Reset
+                                <a href="{{ route('dataKinerja.index') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-sync-alt me-1"></i> Reset
                                 </a>
                             </div>
                         </div>
@@ -399,17 +62,22 @@
                 </div>
             </div>
         </div>
+
+        <!-- Ringkasan Bulan -->
         <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
+            <div class="card shadow-sm h-100">
+                <div class="card-body d-flex flex-column justify-content-center h-100">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Data Bulan: <strong>{{ date('F Y', mktime(0, 0, 0, $bulan, 1, $tahun)) }}</strong></h5>
+                        <h6 class="mb-0">Data Bulan:
+                            <strong>{{ date('F Y', mktime(0, 0, 0, $bulan, 1, $tahun)) }}</strong>
+                        </h6>
                         <span class="badge bg-primary text-white">{{ $totalIndikator }} Indikator</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 
     @include('components.alert')
 
@@ -423,7 +91,7 @@
                         <i class="fas fa-chart-line"></i>
                     </div>
                 </div>
-<div class="stat-value">{{ number_format($nilaiNKO, 2) }}%</div>
+                <div class="stat-value">{{ number_format($nilaiNKO, 2) }}</div>
                 <p class="stat-description">Nilai Kinerja Organisasi</p>
             </div>
         </div>
@@ -460,13 +128,13 @@
         <div class="grid-span-3">
             <div class="card stat-card">
                 <div class="stat-header">
-                    <h3 class="stat-title">Target {{ $tahun }}</h3>
+                    <h3 class="stat-title">Target </h3>
                     <div class="stat-icon">
                         <i class="fas fa-bullseye"></i>
                     </div>
                 </div>
-                <div class="stat-value">100%</div>
-                <p class="stat-description">Target Kinerja</p>
+                <div class="stat-value">{{ number_format($target, 0) }}%</div>
+                <p class="stat-description">Target Nilai Kinerja Organiasi</p>
             </div>
         </div>
     </div>
@@ -474,114 +142,69 @@
     <!-- Chart Tren NKO -->
     <div class="grid-span-12">
         <div class="card chart-card">
-            <h3 class="chart-title"><i class="fas fa-chart-line"></i> Tren NKO {{ $tahun }}</h3>
-            <div id="nkoTrendChart" class="chart-container large">
-                <div class="loading-chart">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
-                    <p class="mt-2">Memuat data...</p>
-                </div>
+            <h3 class="chart-title">
+                <i class="fas fa-chart-line"></i> Tren NKO {{ $tahun }}
+            </h3>
+            <div class="chart-container large position-relative">
+                <!-- Elemen canvas Chart -->
+                <canvas id="nkoTrendChart" height="300"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Section: Analisis Status Indikator -->
-    <div class="section-divider">
-        <h2><i class="fas fa-chart-pie"></i>Status & Komposisi Indikator</h2>
-    </div>
-
-    <!-- Grid untuk chart status -->
-    <div class="dashboard-grid">
-        <div class="grid-span-6">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Komposisi Indikator</h3>
-                <div id="indikatorCompositionChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid-span-6">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-map"></i> Pemetaan Status Indikator</h3>
-                <div id="statusMappingChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Section: Analisis Tren & Prediksi -->
-    <div class="section-divider">
-        <h2><i class="fas fa-chart-line"></i>Tren & Prediksi</h2>
-    </div>
-
-    <div class="dashboard-grid">
-        <div class="grid-span-6">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-history"></i> Tren Historis</h3>
-                <div id="historicalTrendChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="grid-span-6">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-line"></i> Proyeksi {{ $tahun }}</h3>
-                <div id="forecastChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Section: Analisis Per-Pilar -->
     <div class="section-divider">
-        <h2><i class="fas fa-layer-group"></i>Analisis Per-Pilar</h2>
+        <h2><i class="fas fa-layer-group"></i> Analisis Per-Perspektif</h2>
     </div>
 
-    <div class="dashboard-grid">
-        <div class="grid-span-12">
-            <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Kinerja Per-Pilar</h3>
-                <div id="pilarChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
+    <div class="section-wrapper">
+        <div class="section-header">
+        </div>
+
+        <div class="card pilar-card">
+            <h3 class="chart-title"><i class="fas fa-chart-pie"></i> Nilai Kinerja Per-Perspektif</h3>
+
+            @if($pilars->isEmpty())
+                <div class="text-center text-muted py-4">
+                    <em>Belum ada data perspektif untuk periode ini.</em>
                 </div>
-            </div>
+            @else
+                @foreach($pilars->chunk(3) as $chunk)
+                    <div class="pillar-container">
+                        @foreach($chunk as $index => $pilar)
+                            @php
+                                $globalIndex = $loop->parent->index * 3 + $index;
+                            @endphp
+                            <a href="{{ route('dataKinerja.pilar', $pilar->id) }}" class="pillar-item-link">
+                                <div class="pillar-item">
+                                    <div class="pillar-title">{{ strtoupper($pilar->nama) }}</div>
+                                    <div class="pillar-value text-primary">{{ number_format($pilar->nilai, 1) }}%</div>
+                                    <div class="circle-progress">
+                                        <canvas id="pilarChart{{ $globalIndex }}"></canvas>
+                                        <div class="circle-progress-value">{{ number_format($pilar->nilai, 1) }}%</div>
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @endforeach
+            @endif
         </div>
     </div>
 
+
     <!-- Section: Analisis Per-Bidang -->
     <div class="section-divider">
-        <h2><i class="fas fa-building"></i>Analisis Per-Bidang</h2>
+        <h2><i class="fas fa-building"></i> Analisis Per-Bidang</h2>
     </div>
 
     <div class="dashboard-grid">
         <div class="grid-span-12">
             <div class="card chart-card">
                 <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Kinerja Per-Bidang</h3>
-                <div id="bidangChart" class="chart-container medium">
-                    <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
-                        <span>Memuat data...</span>
-                    </div>
+                <div class="chart-container medium position-relative">
+                    <canvas id="bidangChart" height="280"></canvas>
                 </div>
             </div>
         </div>
@@ -595,7 +218,7 @@
     <div class="dashboard-grid">
         <div class="grid-span-6">
             <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-arrow-up"></i> Indikator Tertinggi</h3>
+                <h3 class="chart-title"><i class="fas fa-arrow-up"></i> Indikator Mencapai Target</h3>
                 <div class="table-responsive">
                     <table class="data-table">
                         <thead>
@@ -631,7 +254,7 @@
 
         <div class="grid-span-6">
             <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-arrow-down"></i> Indikator Terendah</h3>
+                <h3 class="chart-title"><i class="fas fa-arrow-down"></i> Indikator Perlu Perhatian</h3>
                 <div class="table-responsive">
                     <table class="data-table">
                         <thead>
@@ -675,632 +298,434 @@
         <div class="grid-span-12">
             <div class="card chart-card scrollable-card">
                 <h3 class="chart-title"><i class="fas fa-calendar-week"></i> Perkembangan Per Bulan</h3>
-                <div class="table-responsive">
-                    <table class="data-table">
+                <div class="perkembangan-table-container">
+                    <table class="perkembangan-table">
                         <thead>
                             <tr>
                                 <th>Bulan</th>
                                 <th>NKO</th>
-                                <th>Status</th>
-                                <th>Tercapai</th>
-                                <th>Total</th>
-                                <th>Persentase</th>
+                                <th>Indikator Tercapai</th>
+                                <th>Total Indikator</th>
+                                <th>Persentase Tercapai (%)</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @if(isset($analisisData['perkembangan']) && is_array($analisisData['perkembangan']))
-                                @foreach($analisisData['perkembangan'] as $perkembangan)
+                            @foreach ($analisisData['perkembangan'] as $data)
                                 <tr>
-                                    <td>{{ $perkembangan['bulan'] ?? '-' }}</td>
-                                    <td>{{ $perkembangan['nko'] ?? 0 }}</td>
-                                    <td>
-                                        @if(isset($perkembangan['nko']))
-                                            @if($perkembangan['nko'] >= 90)
-                                                <span class="badge bg-success text-white">Sangat Baik</span>
-                                            @elseif($perkembangan['nko'] >= 80)
-                                                <span class="badge bg-info text-white">Baik</span>
-                                            @elseif($perkembangan['nko'] >= 70)
-                                                <span class="badge bg-warning text-white">Cukup</span>
-                                            @else
-                                                <span class="badge bg-danger text-white">Perlu Perhatian</span>
-                                            @endif
-                                        @else
-                                            <span class="badge bg-secondary text-white">Tidak Ada Data</span>
-                                        @endif
-                                    </td>
-                                    <td>{{ $perkembangan['tercapai'] ?? 0 }}</td>
-                                    <td>{{ $perkembangan['total'] ?? 0 }}</td>
-                                    <td>
-                                        <div class="progress">
-                                            <div class="progress-bar bg-info" role="progressbar" style="width: {{ $perkembangan['persentase'] ?? 0 }}%"></div>
-                                        </div>
-                                        <small>{{ $perkembangan['persentase'] ?? 0 }}%</small>
-                                    </td>
+                                    <td>{{ $data['bulan'] }}</td>
+                                    <td>{{ $data['nko'] }}</td>
+                                    <td>{{ $data['tercapai'] }}</td>
+                                    <td>{{ $data['total'] }}</td>
+                                    <td>{{ $data['persentase'] }}%</td>
                                 </tr>
-                                @endforeach
-                            @else
-                                <tr>
-                                    <td colspan="6" class="text-center">Tidak ada data perkembangan tersedia</td>
-                                </tr>
-                            @endif
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+
 </div>
 @endsection
 
 @section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM Content Loaded - Initializing charts');
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('DOM Loaded - Init charts');
 
-        // Validasi data sebelum inisialisasi chart
-        const trendNKOData = @json($trendNKO);
-        const indikatorCompositionData = @json($indikatorComposition);
-        const statusMappingData = @json($statusMapping);
-        const historicalTrendData = @json($historicalTrend);
-        const forecastData = @json($forecastData);
-        const pilarData = @json($pilarData);
-        const bidangData = @json($bidangData);
+        const trendNKOData = @json($trendNKO ?? []);
+        const indikatorCompositionData = @json($indikatorComposition ?? []);
+        const statusMappingData = @json($statusMapping ?? []);
+        const historicalTrendData = @json($historicalTrend ?? []);
+        const forecastData = @json($forecastData ?? []);
+        const pilarData = @json($pilarData ?? []);
+        const bidangData = @json($bidangData ?? []);
+        const perkembanganPerBulan = @json($analisisData['perkembangan']);
 
-        console.log('Trend NKO Data:', trendNKOData);
-        console.log('Indikator Composition Data:', indikatorCompositionData);
-        console.log('Status Mapping Data:', statusMappingData);
-        console.log('Historical Trend Data:', historicalTrendData);
-        console.log('Forecast Data:', forecastData);
-        console.log('Pilar Data:', pilarData);
-        console.log('Bidang Data:', bidangData);
+        console.log({ trendNKOData, indikatorCompositionData, statusMappingData });
 
-        // Script untuk inisialisasi seluruh chart
-
-        // Inisialisasi Chart Tren NKO
-        initNkoTrendChart();
-
-        // Inisialisasi Chart Komposisi Indikator
-        initIndikatorCompositionChart();
-
-        // Inisialisasi Chart Status Mapping
-        initStatusMappingChart();
-
-        // Inisialisasi Chart Tren Historis
-        initHistoricalTrendChart();
-
-        // Inisialisasi Chart Forecast
-        initForecastChart();
-
-        // Inisialisasi Chart Per-Pilar
-        initPilarChart();
-
-        // Inisialisasi Chart Per-Bidang
-        initBidangChart();
+        initNkoTrendChart(trendNKOData);
+        initIndikatorCompositionChart(indikatorCompositionData);
+        initStatusMappingChart(statusMappingData);
+        initHistoricalTrendChart(historicalTrendData);
+        initForecastChart(forecastData);
+        initPilarChart(pilarData);
+        initBidangChart(bidangData);
+        initPilarProgressCards(pilarProgressData);
+        initPerkembanganChart(perkembanganPerBulan);
     });
+    function initPilarProgressCards(data) {
+        if (!Array.isArray(data)) return;
 
-    function initNkoTrendChart() {
+        data.forEach((pilar, index) => {
+            const canvas = document.getElementById(`pilarChart${index}`);
+            if (!canvas || typeof pilar.nilai !== 'number') return;
+
+            new Chart(canvas, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [pilar.nilai, 100 - pilar.nilai],
+                        backgroundColor: ['#e74a3b', '#e6e6e6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutout: '80%',
+                    responsive: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+        });
+    }
+
+    function initNkoTrendChart(data) {
         const ctx = document.getElementById('nkoTrendChart');
-        const chartData = @json($trendNKO);
+        if (!ctx || !data.length) return;
 
-        console.log('Initializing NKO Trend Chart with data:', chartData);
+        const labels = data.map(item => item.bulan);
+        const values = data.map(item => item.nko);
 
-        // Validasi data
-        if (!ctx) {
-            console.error('NKO Trend Chart: Missing chart element');
-            return;
-        }
-
-        if (!chartData || !Array.isArray(chartData) || chartData.length === 0) {
-            console.error('NKO Trend Chart: Invalid or empty data');
-
-            // Tampilkan pesan error di chart container
-            if (ctx.querySelector('.loading-chart')) {
-                ctx.querySelector('.loading-chart').innerHTML = `
-                    <div class="text-center py-5">
-                        <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                        <p>Tidak ada data tren NKO yang tersedia.</p>
-                    </div>
-                `;
-            }
-            return;
-        }
-
-        if (typeof Chart === 'undefined') {
-            console.error('NKO Trend Chart: Chart.js library not loaded');
-            return;
-        }
-
-        // Hapus loading indicator
-        if (ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').remove();
-        }
-
-        // Siapkan data untuk chart
-        const labels = chartData.map(item => item.bulan);
-        const values = chartData.map(item => item.nilai);
-
-        console.log('NKO Chart Labels:', labels);
-        console.log('NKO Chart Values:', values);
-
-        // Cek apakah ada instance chart yang sudah ada
-        if (window.nkoChart) {
-            window.nkoChart.destroy();
-        }
-
-        // Buat chart baru
-        window.nkoChart = new Chart(ctx, {
+        new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
+                labels,
                 datasets: [{
-                    label: 'Nilai NKO',
+                    label: 'NKO',
                     data: values,
                     borderColor: '#4e73df',
-                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
-                    borderWidth: 3,
-                    pointBackgroundColor: '#4e73df',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                    pointHoverBackgroundColor: '#2e59d9',
-                    pointHoverBorderColor: '#fff',
-                    pointHoverBorderWidth: 2,
-                    tension: 0.3,
-                    fill: true
+                    backgroundColor: 'rgba(78,115,223,0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, max: 100 },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+    function initNkoTrendChart(data) {
+        const ctx = document.getElementById('nkoTrendChart');
+        if (!ctx || !data.length) return;
+
+        const labels = data.map(item => item.bulan);
+        const values = data.map(item => item.nko);
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'NKO',
+                    data: values,
+                    borderColor: '#4e73df',
+                    backgroundColor: 'rgba(78,115,223,0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        titleFont: {
-                            family: "'Poppins', sans-serif",
-                            size: 14
-                        },
-                        bodyFont: {
-                            family: "'Poppins', sans-serif",
-                            size: 13
-                        },
-                        padding: 12,
-                        displayColors: false,
-                        callbacks: {
-                            label: function(context) {
-                                return `Nilai NKO: ${context.raw.toFixed(2)}`;
-                            }
-                        }
-                    }
-                },
                 scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 110
+                    },
                     x: {
                         grid: {
                             display: false
-                        },
-                        ticks: {
-                            font: {
-                                family: "'Poppins', sans-serif",
-                                size: 12
-                            }
                         }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)',
-                            drawBorder: false
-                        },
-                        ticks: {
-                            font: {
-                                family: "'Poppins', sans-serif",
-                                size: 12
-                            },
-                            callback: function(value) {
-                                return value + '%';
-                            }
-                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true
                     }
                 }
             }
         });
     }
 
-    // Implementasi fungsi untuk chart lainnya dengan validasi data
-    function initIndikatorCompositionChart() {
+
+    function initIndikatorCompositionChart(data) {
         const ctx = document.getElementById('indikatorCompositionChart');
-        const chartData = @json($indikatorComposition);
+        if (!ctx || !data) return;
 
-        // Validasi data
-        if (!ctx || !chartData || !chartData.length || !window.Chart) {
-            console.error('Indikator Composition Chart: Missing element, data, or Chart library');
-            return;
-        }
+        const labels = Object.keys(data);
+        const values = Object.values(data);
 
-        // Hapus loading indicator
-        if (ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').remove();
-        }
-
-        // Siapkan data untuk chart
-        const labels = chartData.map(item => item.status);
-        const values = chartData.map(item => item.jumlah);
-
-        // Buat chart baru
         new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: labels,
+                labels,
                 datasets: [{
                     data: values,
-                    backgroundColor: [
-                        '#1cc88a', // Tercapai
-                        '#f6c23e', // Perlu Perhatian
-                        '#e74a3b', // Tidak Tercapai
-                    ],
-                    borderWidth: 0,
-                    hoverOffset: 10
+                    backgroundColor: ['#1cc88a', '#f6c23e', '#e74a3b']
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%',
                 plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            font: {
-                                family: "'Poppins', sans-serif",
-                                size: 12
-                            }
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        titleFont: {
-                            family: "'Poppins', sans-serif",
-                            size: 14
-                        },
-                        bodyFont: {
-                            family: "'Poppins', sans-serif",
-                            size: 13
-                        },
-                        padding: 12,
-                        displayColors: true
-                    }
+                    legend: { position: 'bottom' }
                 }
             }
         });
     }
 
-    // Fungsi untuk Status Mapping Chart dengan validasi data
-    function initStatusMappingChart() {
+    function initStatusMappingChart(data) {
         const ctx = document.getElementById('statusMappingChart');
-        if (ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').remove();
-        }
-
-        const mappingData = @json($statusMapping ?? []);
-
-        // Validasi data
-        if (!mappingData || mappingData.length === 0) {
-            showNoDataMessage(ctx, 'Tidak ada data status mapping');
-            return;
-        }
+        if (!ctx || !data.length) return;
 
         new Chart(ctx, {
             type: 'polarArea',
             data: {
-                labels: mappingData.map(item => item.status),
+                labels: data.map(d => d.status),
                 datasets: [{
-                    data: mappingData.map(item => item.count),
+                    data: data.map(d => d.count),
                     backgroundColor: [
                         'rgba(78, 115, 223, 0.8)',
                         'rgba(28, 200, 138, 0.8)',
-                        'rgba(54, 185, 204, 0.8)',
                         'rgba(246, 194, 62, 0.8)',
                         'rgba(231, 74, 59, 0.8)'
-                    ],
-                    borderWidth: 1
+                    ]
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        ticks: {
-                            display: false
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'right'
-                    }
-                }
-            }
+            options: { responsive: true }
         });
     }
 
-    // Fungsi untuk Historical Trend Chart dengan validasi data
-    function initHistoricalTrendChart() {
+    function initHistoricalTrendChart(data) {
         const ctx = document.getElementById('historicalTrendChart');
-        if (ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').remove();
-        }
+        if (!ctx || !data.length) return;
 
-        const historicalData = @json($historicalTrend ?? []);
-
-        // Validasi data
-        if (!historicalData || historicalData.length === 0) {
-            showNoDataMessage(ctx, 'Tidak ada data tren historis');
-            return;
-        }
+        const labels = data.map(item => item.bulan);
+        const values = data.map(item => item.nko);
 
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: historicalData.map(item => item.tahun || item.label),
+                labels,
                 datasets: [{
                     label: 'Tren Historis',
-                    data: historicalData.map(item => item.nilai || item.value),
-                    backgroundColor: 'rgba(78, 115, 223, 0.2)',
-                    borderColor: 'rgba(78, 115, 223, 1)',
-                    borderWidth: 3,
-                    pointRadius: 5,
-                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    data: values,
+                    backgroundColor: 'rgba(78,115,223,0.2)',
+                    borderColor: 'rgba(78,115,223,1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { responsive: true }
+        });
+    }
+
+    function initForecastChart(data) {
+        const ctx = document.getElementById('forecastChart');
+        if (!ctx || !data.length) return;
+
+        const labels = data.map(d => d.bulan);
+        const values = data.map(d => d.nko);
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Forecast',
+                    data: values,
+                    borderColor: '#f6c23e',
+                    backgroundColor: 'rgba(246, 194, 62, 0.2)',
+                    borderDash: [5, 5],
+                    borderWidth: 2,
                     tension: 0.3,
-                    fill: true
+                    fill: false
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: {
-                        beginAtZero: false,
-                        min: 0,
-                        max: 100,
-                        grid: {
-                            drawBorder: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
+                    y: { beginAtZero: true, max: 110 },
+                    x: { grid: { display: false } }
                 },
                 plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
+                    legend: { display: true },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `Prediksi: ${ctx.parsed.y.toFixed(2)}%`
+                        }
                     }
                 }
             }
         });
     }
-
-    // Fungsi untuk Forecast Chart dengan validasi data
-    function initForecastChart() {
-        const ctx = document.getElementById('forecastChart');
-        if (ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').remove();
-        }
-
-        const forecastData = @json($forecastData ?? []);
-
-        // Validasi data
-        if (!forecastData || forecastData.length === 0) {
-            showNoDataMessage(ctx, 'Tidak ada data proyeksi');
-            return;
-        }
-
-        // Pisahkan data aktual dan proyeksi
-        const labels = forecastData.map(item => item.bulan || item.label);
-        const actualData = forecastData.map(item => {
-            if (item.tipe === 'Aktual' || item.type === 'actual') {
-                return item.nilai || item.value;
-            }
-            return null;
-        });
-        const projectionData = forecastData.map(item => {
-            if (item.tipe === 'Forecast' || item.type === 'forecast') {
-                return item.nilai || item.value;
-            }
-            return null;
-        });
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Aktual',
-                        data: actualData,
-                        backgroundColor: 'rgba(78, 115, 223, 0.2)',
-                        borderColor: 'rgba(78, 115, 223, 1)',
-                        borderWidth: 3,
-                        pointRadius: 5,
-                        pointBackgroundColor: 'rgba(78, 115, 223, 1)',
-                        tension: 0.3,
-                        fill: false
-                    },
-                    {
-                        label: 'Proyeksi',
-                        data: projectionData,
-                        backgroundColor: 'rgba(246, 194, 62, 0.2)',
-                        borderColor: 'rgba(246, 194, 62, 1)',
-                        borderWidth: 3,
-                        borderDash: [5, 5],
-                        pointRadius: 5,
-                        pointBackgroundColor: 'rgba(246, 194, 62, 1)',
-                        tension: 0.3,
-                        fill: false
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        min: 0,
-                        max: 100,
-                        grid: {
-                            drawBorder: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
-                }
-            }
-        });
-    }
-
-    // Fungsi untuk Pilar Chart dengan validasi data
-    function initPilarChart() {
+    function initPilarChart(data) {
         const ctx = document.getElementById('pilarChart');
-        if (ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').remove();
-        }
+        if (!ctx || Object.keys(data).length === 0) return;
 
-        const pilarData = @json($pilarData ?? []);
-
-        // Validasi data
-        if (!pilarData || pilarData.length === 0) {
-            showNoDataMessage(ctx, 'Tidak ada data pilar');
-            return;
-        }
+        const labels = Object.keys(data);
+        const values = Object.values(data);
 
         new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: pilarData.map(item => item.nama),
+                labels,
                 datasets: [{
                     label: 'Nilai Pilar',
-                    data: pilarData.map(item => item.nilai),
-                    backgroundColor: [
-                        'rgba(78, 115, 223, 0.8)',
-                        'rgba(28, 200, 138, 0.8)',
-                        'rgba(54, 185, 204, 0.8)',
-                        'rgba(246, 194, 62, 0.8)',
-                        'rgba(231, 74, 59, 0.8)',
-                        'rgba(111, 66, 193, 0.8)'
-                    ],
-                    borderWidth: 1
+                    data: values,
+                    backgroundColor: '#36b9cc'
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        grid: {
-                            drawBorder: false
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
+                    y: { beginAtZero: true, max: 100 }
                 }
             }
         });
     }
 
-    // Fungsi untuk Bidang Chart dengan validasi data
-    function initBidangChart() {
+    function initBidangChart(data) {
         const ctx = document.getElementById('bidangChart');
-        if (ctx.querySelector('.loading-chart')) {
-            ctx.querySelector('.loading-chart').remove();
-        }
+        if (!ctx || Object.keys(data).length === 0) return;
 
-        const bidangData = @json($bidangData ?? []);
-
-        // Validasi data
-        if (!bidangData || bidangData.length === 0) {
-            showNoDataMessage(ctx, 'Tidak ada data bidang');
-            return;
-        }
+        const labels = Object.keys(data);
+        const values = Object.values(data);
 
         new Chart(ctx, {
-            type: 'horizontalBar',
+            type: 'bar',
             data: {
-                labels: bidangData.map(item => item.nama),
+                labels,
                 datasets: [{
                     label: 'Nilai Bidang',
-                    data: bidangData.map(item => item.nilai),
-                    backgroundColor: 'rgba(54, 185, 204, 0.8)',
-                    borderWidth: 1
+                    data: values,
+                    backgroundColor: '#4e73df'
                 }]
             },
             options: {
                 indexAxis: 'y',
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: false, // agar menyesuaikan container
                 scales: {
                     x: {
                         beginAtZero: true,
-                        max: 100,
-                        grid: {
-                            drawBorder: false
-                        }
-                    },
-                    y: {
-                        grid: {
-                            display: false
-                        }
+                        max: 100
                     }
                 },
                 plugins: {
                     legend: {
-                        display: false
+                        position: 'top'
                     }
                 }
             }
         });
     }
+    function initPerkembanganChart(data) {
+        const ctx = document.getElementById('perkembanganChart');
+        if (!ctx || !data.length) return;
 
-    // Fungsi untuk menampilkan pesan tidak ada data
-    function showNoDataMessage(container, message) {
-        const messageElement = document.createElement('div');
-        messageElement.className = 'text-center py-5';
-        messageElement.innerHTML = `
-            <i class="fas fa-chart-bar fa-3x text-secondary mb-3"></i>
-            <p class="text-secondary">${message}</p>
-        `;
-        container.appendChild(messageElement);
+        const labels = data.map(p => p.bulan);
+        const values = data.map(p => p.persentase);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '% Tercapai',
+                    data: values,
+                    backgroundColor: '#1e90ff',
+                    borderRadius: 5,
+                    maxBarThickness: 40
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 110,
+                        ticks: {
+                            callback: (value) => `${value}%`
+                        }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: true }
+                }
+            }
+        });
     }
+
+
+
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const canvasList = document.querySelectorAll('.circle-progress canvas');
+
+        canvasList.forEach(canvas => {
+        const ctx = canvas.getContext('2d');
+        const valueText = canvas.parentElement.querySelector('.circle-progress-value')?.innerText || '0';
+        const nilai = parseFloat(valueText.replace('%', '')) || 0;
+
+        const width = canvas.width = 80;
+        const height = canvas.height = 80;
+        const radius = 35;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const lineWidth = 6;
+        const startAngle = -0.5 * Math.PI;
+        const endAngle = startAngle + (2 * Math.PI * (nilai / 100));
+
+        // Tentukan warna berdasarkan nilai sesuai ketentuan
+        let color = '#cccccc'; // Default: Abu-abu jika belum ada nilai
+
+        if (nilai === 0) {
+            color = '#cccccc'; // Belum dilakukan pengukuran
+        } else if (nilai < 95) {
+            color = '#dc3545'; // Merah
+        } else if (nilai >= 95 && nilai < 100) {
+            color = '#ffc107'; // Kuning
+        } else if (nilai >= 100) {
+            color = '#28a745'; // Hijau
+        }
+
+        // Background lingkaran abu-abu
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+        ctx.strokeStyle = '#e6ecf2';
+        ctx.lineWidth = lineWidth;
+        ctx.stroke();
+
+        // Progress
+        if (nilai > 0) {
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        }
+    });
+
+    });
+</script>
+
 @endsection

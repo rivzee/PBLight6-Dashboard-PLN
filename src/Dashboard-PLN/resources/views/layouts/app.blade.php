@@ -7,1276 +7,32 @@ use Illuminate\Support\Str;
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>@yield('title', 'Dashboard PLN')</title>
+  <link rel="stylesheet" href="{{ asset('css/layouts.css') }}">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <style>
-    :root {
-      /* Common variables for both themes */
-      --pln-blue: #0a4d85;
-      --pln-light-blue: #009cde;
 
-      /* Dark theme variables (default) */
-      --pln-bg: #0f172a;
-      --pln-surface: #1e293b;
-      --pln-surface-2: #334155;
-      --pln-text: #f8fafc;
-      --pln-text-secondary: rgba(248, 250, 252, 0.7);
-      --pln-border: rgba(248, 250, 252, 0.1);
-      --pln-shadow: rgba(0, 0, 0, 0.25);
-      --pln-accent-bg: rgba(10, 77, 133, 0.15);
-      --pln-header-bg: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
-      --sidebar-width: 70px;
-      --sidebar-expanded: 260px;
-      --sidebar-bg: #0a0f1e;
-      --transition-speed: 0.35s;
-    }
-
-    /* Light theme variables */
-    [data-theme="light"] {
-      --pln-bg: #f5f7fa;
-      --pln-surface: #ffffff;
-      --pln-surface-2: #f0f2f5;
-      --pln-text: #333333;
-      --pln-text-secondary: rgba(0, 0, 0, 0.6);
-      --pln-border: rgba(0, 0, 0, 0.1);
-      --pln-shadow: rgba(0, 0, 0, 0.1);
-      --pln-accent-bg: rgba(10, 77, 133, 0.05);
-      --pln-header-bg: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
-      --sidebar-bg: #0a4d85;
-    }
-
-    * {
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      background: var(--pln-bg);
-      color: var(--pln-text);
-      transition: background-color var(--transition-speed) ease,
-                  color var(--transition-speed) ease;
-    }
-
-    .container-fluid {
-      display: flex;
-      min-height: 100vh;
-      padding: 0;
-      width: 100%;
-    }
-
-    .dashboard-header {
-      width: 100%;
-      padding: 15px 25px;
-      background: var(--pln-header-bg);
-      color: #fff;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: fixed;
-      top: 0;
-      left: var(--sidebar-width);
-      height: 70px;
-      z-index: 10;
-      width: calc(100% - var(--sidebar-width));
-      box-shadow: 0 2px 15px var(--pln-shadow);
-      transition: left var(--transition-speed) ease,
-                  width var(--transition-speed) ease;
-    }
-
-    /* Layouts untuk header */
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    /* Tombol toggle sidebar */
-    .sidebar-toggle {
-      display: none;
-      background: transparent;
-      border: none;
-      color: white;
-      font-size: 18px;
-      cursor: pointer;
-      padding: 8px;
-      margin-right: 10px;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
-
-    .sidebar-toggle:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    /* Tombol ikon di topbar */
-    .topbar-icon-btn {
-      position: relative;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 50%;
-      cursor: pointer;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    .topbar-icon-btn:hover {
-      background: rgba(0, 0, 0, 0.3);
-      transform: translateY(-2px);
-    }
-
-    .topbar-icon-btn i {
-      font-size: 16px;
-      color: white;
-    }
-
-    /* Sidebar yang lebih modern */
-    .sidebar {
-      width: var(--sidebar-width);
-      background: var(--sidebar-bg);
-      position: fixed;
-      height: 100%;
-      left: 0;
-      top: 0;
-      z-index: 100;
-      transition: all var(--transition-speed) ease;
-      overflow: hidden;
-      box-shadow: 2px 0 20px var(--pln-shadow);
-    }
-
-    .sidebar:hover {
-      width: var(--sidebar-expanded);
-    }
-
-    .sidebar-logo {
-      padding: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      height: 70px;
-      background: rgba(0,0,0,0.2);
-      overflow: hidden;
-      white-space: nowrap;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .sidebar-logo img {
-      height: 40px;
-      min-width: 40px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      margin-right: 15px;
-      transition: transform 0.3s ease;
-    }
-
-    .sidebar:hover .sidebar-logo img {
-      transform: scale(1.05);
-    }
-
-    .logo-text {
-      opacity: 0;
-      transform: translateX(-20px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    .sidebar:hover .logo-text {
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    .logo-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin: 0;
-      color: #fff;
-      letter-spacing: 1px;
-    }
-
-    .logo-subtitle {
-      font-size: 11px;
-      margin: 0;
-      color: rgba(255,255,255,0.7);
-      line-height: 1.2;
-    }
-
-    /* Sidebar menu yang lebih baik */
-    .sidebar-menu {
-      list-style: none;
-      padding: 0;
-      margin: 1rem 0;
-    }
-
-    .sidebar-menu li {
-      width: 100%;
-      margin-bottom: 0.5rem;
-    }
-
-    .sidebar-menu a {
-      display: flex;
-      align-items: center;
-      padding: 12px 15px;
-      text-decoration: none;
-      color: rgba(255, 255, 255, 0.7);
-      transition: all 0.3s ease;
-      border-radius: 8px;
-      margin: 0 8px;
-      position: relative;
-    }
-
-    .sidebar-menu a:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-    }
-
-    .sidebar-menu a.active {
-      background: rgba(var(--accent-color-rgb), 0.2);
-      color: rgb(var(--accent-color-rgb));
-      font-weight: 600;
-    }
-
-    .sidebar-menu a.active::before {
-      content: '';
-      position: absolute;
-      left: -8px;
-      top: 50%;
-      transform: translateY(-50%);
-      height: 70%;
-      width: 4px;
-      background: rgb(var(--accent-color-rgb));
-      border-radius: 0 4px 4px 0;
-    }
-
-    .sidebar-menu .icon {
-      min-width: 24px;
-      margin-right: 10px;
-      font-size: 1.1rem;
-    }
-
-    .sidebar-menu .menu-text {
-      display: none;
-      white-space: nowrap;
-    }
-
-    .sidebar:hover .menu-text {
-      display: inline-block;
-    }
-
-    /* Date display yang lebih modern */
-    .date-display {
-      color: white;
-      font-size: 14px;
-      background: rgba(0,0,0,0.25);
-      padding: 8px 15px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(5px);
-      border: 1px solid rgba(255,255,255,0.1);
-      transition: all 0.3s ease;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .date-display:hover {
-      background: rgba(0,0,0,0.35);
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .date-display:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-    }
-
-    .date-display i {
-      margin-right: 8px;
-      color: var(--pln-light-blue);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { opacity: 0.7; }
-      50% { opacity: 1; }
-      100% { opacity: 0.7; }
-    }
-
-    .date-info {
-      margin-right: 8px;
-    }
-
-    .time-display {
-      display: none;
-    }
-
-    .time-colon {
-      display: none;
-    }
-
-    .time-seconds {
-      display: none;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    .header-text {
-      line-height: 1.2;
-    }
-
-    .header-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin: 0;
-      color: white;
-      letter-spacing: 0.5px;
-    }
-
-    .header-subtitle {
-      font-size: 12px;
-      margin: 0;
-      opacity: 0.9;
-      color: white;
-    }
-
-    .main {
-      margin-top: 70px;
-      margin-left: var(--sidebar-width);
-      padding: 25px;
-      width: calc(100% - var(--sidebar-width));
-      transition: margin-left var(--transition-speed) ease,
-                  width var(--transition-speed) ease;
-    }
-
-    /* Logout button yang lebih modern */
-    .logout-btn {
-      position: absolute;
-      bottom: 20px;
-      left: 0;
-      width: 100%;
-      background: none;
-      border: none;
-      display: flex;
-      align-items: center;
-      color: white;
-      padding: 12px 15px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      opacity: 0.8;
-    }
-
-    .logout-btn:hover {
-      background: linear-gradient(to right, rgba(220, 53, 69, 0.2), rgba(220, 53, 69, 0.3));
-      opacity: 1;
-    }
-
-    .logout-icon {
-      margin-right: 15px;
-      width: 20px;
-      text-align: center;
-    }
-
-    .logout-text {
-      opacity: 0;
-      transform: translateX(-10px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    .sidebar:hover .logout-text {
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    @media (max-width: 1200px) {
-      .pillar-container {
-        justify-content: center;
-      }
-    }
-
-    @media (max-width: 992px) {
-      :root {
-        --sidebar-width: 0px;
-      }
-
-      .sidebar {
-        width: 0;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-        z-index: 1001;
-      }
-
-      .sidebar.expanded {
-        width: var(--sidebar-expanded);
-      }
-
-      .main, .dashboard-header {
-        margin-left: 0;
-        width: 100%;
-      }
-
-      .sidebar-toggle {
-        display: block;
-      }
-
-      .header-left {
-        flex: 1;
-      }
-
-      .header-title {
-        font-size: 16px;
-      }
-
-      .header-subtitle {
-        font-size: 11px;
-      }
-
-      .profile-name {
-        max-width: 100px;
-      }
-
-      .notification-dropdown {
-        right: -50px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .date-display {
-        display: none;
-      }
-
-      .header-right {
-        gap: 8px;
-      }
-
-      .theme-switch-wrapper {
-        margin-right: 8px;
-      }
-
-      .profile-name {
-        display: none;
-      }
-
-      .notification-dropdown {
-        width: 280px;
-        right: -10px;
-      }
-    }
-
-    @media (max-width: 576px) {
-      .theme-switch-wrapper {
-        display: none;
-      }
-
-      .notification-dropdown {
-        width: 250px;
-        right: -70px;
-      }
-    }
-
-    /* Toggle switch untuk tema */
-    .theme-switch-wrapper {
-      display: flex;
-      align-items: center;
-      margin-right: 15px;
-    }
-
-    .theme-switch {
-      display: inline-block;
-      height: 24px;
-      position: relative;
-      width: 50px;
-    }
-
-    .theme-switch input {
-      display: none;
-    }
-
-    .slider {
-      background-color: #111;
-      bottom: 0;
-      cursor: pointer;
-      left: 0;
-      position: absolute;
-      right: 0;
-      top: 0;
-      transition: .4s;
-      border-radius: 34px;
-      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .slider:before {
-      background-color: #fff;
-      bottom: 3px;
-      content: "";
-      height: 16px;
-      left: 4px;
-      position: absolute;
-      transition: .4s;
-      width: 16px;
-      border-radius: 50%;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
-
-    input:checked + .slider {
-      background-color: var(--pln-light-blue);
-    }
-
-    input:checked + .slider:before {
-      transform: translateX(26px);
-    }
-
-    .theme-icon {
-      color: white;
-      margin: 0 8px;
-      font-size: 16px;
-    }
-
-    /* Smooth transition untuk semua elemen */
-    * {
-      transition-property: background-color, color, border-color, box-shadow;
-      transition-duration: var(--transition-speed);
-      transition-timing-function: ease;
-    }
-
-    /* Styling untuk tanggal dan hari libur */
-    .holiday-text {
-      color: #ff6b6b !important;
-      font-weight: 600;
-    }
-
-    .weekend-text {
-      color: #ff9f43 !important;
-      font-weight: 600;
-    }
-
-    .holiday-badge {
-      display: inline-block;
-      font-size: 10px;
-      background: rgba(255, 107, 107, 0.2);
-      color: #ff6b6b;
-      padding: 2px 6px;
-      border-radius: 8px;
-      margin-left: 8px;
-      font-weight: 600;
-      border: 1px solid rgba(255, 107, 107, 0.3);
-    }
-
-    .weekend-badge {
-      display: inline-block;
-      font-size: 10px;
-      background: rgba(255, 159, 67, 0.2);
-      color: #ff9f43;
-      padding: 2px 6px;
-      border-radius: 8px;
-      margin-left: 8px;
-      font-weight: 600;
-      border: 1px solid rgba(255, 159, 67, 0.3);
-    }
-
-    .date-tooltip {
-      position: absolute;
-      top: calc(100% + 10px);
-      right: 0;
-      background: var(--pln-surface);
-      border-radius: 8px;
-      padding: 12px;
-      min-width: 200px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-      border: 1px solid var(--pln-border);
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-10px);
-      transition: all 0.3s ease;
-      z-index: 1000;
-    }
-
-    .date-display.show-tooltip .date-tooltip {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-
-    .date-tooltip:before {
-      content: '';
-      position: absolute;
-      top: -6px;
-      right: 20px;
-      width: 12px;
-      height: 12px;
-      background: var(--pln-surface);
-      transform: rotate(45deg);
-      border-top: 1px solid var(--pln-border);
-      border-left: 1px solid var(--pln-border);
-    }
-
-    .tooltip-title {
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: var(--pln-light-blue);
-      font-size: 14px;
-    }
-
-    .tooltip-info {
-      font-size: 12px;
-      color: var(--pln-text-secondary);
-      margin-bottom: 5px;
-    }
-
-    /* Badge notifikasi - Improved */
-    .notification-badge {
-      display: none;
-      position: absolute;
-      top: 6px;
-      right: 8px;
-      background: linear-gradient(135deg, #e74c3c, #ff6b6b);
-      color: white;
-      font-size: 0.65rem;
-      min-width: 20px;
-      height: 20px;
-      border-radius: 50px;
-      text-align: center;
-      justify-content: center;
-      align-items: center;
-      font-weight: bold;
-      padding: 0 6px;
-      box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      transform-origin: center center;
-      z-index: 5;
-    }
-
-    /* Badge notifikasi untuk menu dropdown */
-    .notification-badge-menu {
-      display: none;
-      background: linear-gradient(135deg, #e74c3c, #ff6b6b);
-      color: white;
-      font-size: 0.65rem;
-      min-width: 20px;
-      height: 20px;
-      border-radius: 50px;
-      text-align: center;
-      line-height: 20px;
-      font-weight: bold;
-      padding: 0 6px;
-      box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      margin-left: auto;
-    }
-
-    /* User Profile Menu */
-    .user-profile-menu {
-      position: relative;
-      margin-right: 15px;
-    }
-
-    .profile-trigger {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      padding: 8px 15px;
-      border-radius: 30px;
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-      position: relative;
-    }
-
-    .profile-trigger:hover {
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    .profile-img {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .profile-icon {
-      width: 30px;
-      height: 30px;
-      background: var(--pln-blue);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 14px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .profile-name {
-      margin: 0 10px;
-      font-size: 14px;
-      color: white;
-      font-weight: 500;
-      max-width: 150px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .profile-trigger i.fa-chevron-down {
-      font-size: 10px;
-      color: rgba(255, 255, 255, 0.7);
-      transition: transform 0.3s ease;
-    }
-
-    .profile-menu {
-      position: absolute;
-      top: calc(100% + 15px);
-      right: 0;
-      width: 240px;
-      background: var(--pln-surface);
-      border-radius: 12px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--pln-border);
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-10px);
-      transition: all 0.3s ease;
-      z-index: 1000;
-      overflow: hidden;
-    }
-
-    /* Tampilkan menu saat hover pada profil */
-    .user-profile-menu:hover .profile-menu {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-
-    /* Tampilkan tanda panah saat hover */
-    .user-profile-menu:hover .profile-trigger i.fa-chevron-down {
-      transform: rotate(180deg);
-    }
-
-    .profile-menu.show {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-
-    .profile-menu-header {
-      padding: 15px;
-      border-bottom: 1px solid var(--pln-border);
-      background: rgba(0, 0, 0, 0.05);
-    }
-
-    .profile-title {
-      margin: 0;
-      font-weight: 600;
-      font-size: 14px;
-      color: var(--pln-text);
-    }
-
-    .profile-subtitle {
-      margin: 5px 0 0;
-      font-size: 12px;
-      color: var(--pln-text-secondary);
-    }
-
-    .profile-menu-items {
-      padding: 10px 0;
-    }
-
-    .profile-menu-item {
-      display: flex;
-      align-items: center;
-      padding: 10px 15px;
-      color: var(--pln-text);
-      transition: all 0.3s ease;
-      text-decoration: none;
-      font-size: 14px;
-    }
-
-    .profile-menu-item:hover {
-      background: rgba(0, 0, 0, 0.05);
-      color: var(--pln-light-blue);
-    }
-
-    .profile-menu-item i {
-      margin-right: 10px;
-      font-size: 16px;
-      width: 20px;
-      text-align: center;
-      color: var(--pln-text-secondary);
-    }
-
-    .profile-menu-item:hover i {
-      color: var(--pln-light-blue);
-    }
-
-    .divider {
-      height: 1px;
-      background: var(--pln-border);
-      margin: 8px 0;
-    }
-
-    .logout-btn-menu {
-      width: 100%;
-      text-align: left;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--pln-text);
-      font-size: 14px;
-    }
-
-    .logout-btn-menu:hover {
-      color: #e74c3c;
-    }
-
-    .logout-btn-menu:hover i {
-      color: #e74c3c;
-    }
-
-    /* Animasi badge - Enhanced */
-    @keyframes pulse {
-      0% { transform: scale(1); box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4); }
-      50% { transform: scale(1.2); box-shadow: 0 2px 12px rgba(231, 76, 60, 0.7); }
-      100% { transform: scale(1); box-shadow: 0 2px 8px rgba(231, 76, 60, 0.4); }
-    }
-
-    .notification-badge:not(:empty) {
-      animation: pulse 1.5s infinite;
-    }
-
-    /* Hover effect for notification menu item */
-    .sidebar-menu a:hover .notification-badge {
-      background: linear-gradient(135deg, #ff6b6b, #e74c3c);
-    }
-
-    /* Animasi Logout Modern */
-    @keyframes fadeOutScale {
-      0% {
-        opacity: 1;
-        transform: scale(1);
-      }
-      70% {
-        opacity: 0.7;
-        transform: scale(1.05);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(0.95);
-      }
-    }
-
-    @keyframes spinFade {
-      0% {
-        transform: rotate(0deg);
-        opacity: 1;
-      }
-      100% {
-        transform: rotate(180deg);
-        opacity: 0;
-      }
-    }
-
-    .logout-animation {
-      animation: fadeOutScale 0.5s ease forwards;
-    }
-
-    .logout-icon-animation {
-      display: inline-block;
-      animation: spinFade 0.5s ease forwards;
-    }
-
-    /* Overlay saat logout */
-    .logout-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(5px);
-      z-index: 9999;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
-
-    .logout-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .logout-message {
-      color: white;
-      font-size: 1.5rem;
-      margin-top: 20px;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.5s ease;
-    }
-
-    .logout-overlay.active .logout-message {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .logout-spinner {
-      width: 60px;
-      height: 60px;
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top: 4px solid var(--pln-light-blue);
-      animation: spin 1s linear infinite;
-      opacity: 0;
-      transform: scale(0.7);
-      transition: all 0.5s ease;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .logout-overlay.active .logout-spinner {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    /* Modal Profil Styles */
-    .profile-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(5px);
-      z-index: 9999;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
-      display: none; /* Diatur melalui JS */
-    }
-
-    .profile-modal.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .profile-modal-content {
-      width: 90%;
-      max-width: 600px;
-      background: var(--pln-surface);
-      border-radius: 16px;
-      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
-      transform: translateY(20px) scale(0.95);
-      transition: all 0.3s ease;
-      border: 1px solid var(--pln-border);
-    }
-
-    .profile-modal.active .profile-modal-content {
-      transform: translateY(0) scale(1);
-    }
-
-    .profile-modal-header {
-      padding: 20px 25px;
-      background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--pln-border);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .profile-modal-header::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.2), transparent 70%);
-      z-index: 1;
-    }
-
-    .profile-modal-title {
-      color: white;
-      font-size: 1.4rem;
-      font-weight: 600;
-      margin: 0;
-      position: relative;
-      z-index: 2;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .profile-modal-close {
-      background: rgba(0, 0, 0, 0.2);
-      border: none;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
-      z-index: 2;
-    }
-
-    .profile-modal-close:hover {
-      background: rgba(0, 0, 0, 0.3);
-      transform: rotate(90deg);
-    }
-
-    .profile-modal-body {
-      padding: 25px;
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-
-    .profile-tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--pln-border);
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .profile-tab {
-      background: none;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 20px;
-      color: var(--pln-text-secondary);
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      white-space: nowrap;
-    }
-
-    .profile-tab:hover {
-      color: var(--pln-light-blue);
-      background: rgba(0, 0, 0, 0.05);
-    }
-
-    .profile-tab.active {
-      background: var(--pln-light-blue);
-      color: white;
-      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
-    }
-
-    .profile-tab-content {
-      display: none;
-      animation: fadeIn 0.3s ease forwards;
-    }
-
-    .profile-tab-content.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 25px;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
-      border: none;
-      border-radius: 30px;
-      padding: 10px 20px;
-      font-weight: 600;
-      color: white;
-      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-    }
-
-    .btn-primary i {
-      margin-right: 8px;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
-    }
-
-    .profile-photo-preview {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      margin: 0 auto 20px;
-      overflow: hidden;
-      border: 5px solid var(--pln-border);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      background: var(--pln-accent-bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .profile-photo-preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .profile-photo-placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3rem;
-      color: var(--pln-text-secondary);
-      background: var(--pln-accent-bg);
-    }
-
-    .profile-photo-upload-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .photo-upload-btn {
-      background: var(--pln-light-blue);
-      color: white;
-      padding: 8px 15px;
-      border-radius: 20px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      transition: all 0.3s ease;
-    }
-
-    .photo-upload-btn:hover {
-      background: var(--pln-blue);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .photo-input {
-      display: none;
-    }
-
-    .photo-filename {
-      font-size: 0.85rem;
-      color: var(--pln-text-secondary);
-    }
-
-    .password-input-group {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .password-toggle {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: var(--pln-text-secondary);
-      cursor: pointer;
-    }
-
-    .password-strength {
-      margin-top: 15px;
-    }
-
-    .strength-bar {
-      height: 5px;
-      background: rgba(0, 0, 0, 0.1);
-      border-radius: 10px;
-      margin-bottom: 5px;
-      overflow: hidden;
-    }
-
-    .strength-progress {
-      height: 100%;
-      width: 0;
-      border-radius: 10px;
-      transition: all 0.3s ease;
-      background: linear-gradient(90deg, #dc3545, #ffc107, #28a745);
-      background-size: 300% 100%;
-    }
-
-    .strength-text {
-      font-size: 0.8rem;
-      color: var(--pln-text-secondary);
-    }
-
-    @media (max-width: 576px) {
-      .profile-modal-content {
-        width: 95%;
-      }
-
-      .profile-tabs {
-        gap: 5px;
-      }
-
-      .profile-tab {
-        padding: 8px 12px;
-        font-size: 0.9rem;
-      }
-
-      .profile-modal-body {
-        padding: 15px;
-      }
-    }
   </style>
   @yield('styles')
 </head>
+<script>
+  function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.classList.toggle('expanded');
+    }
+  }
+</script>
+
 <body data-theme="dark">
   <div class="container-fluid">
     <!-- Sidebar yang lebih modern -->
     <div class="sidebar">
       <div class="sidebar-logo">
-        <img src="/images/logoPLN.jpg" alt="Logo PLN" class="logo-pln">
+        <img src="/images/logo_pln.png" alt="Logo PLN" class="logo-pln">
         <div class="logo-text">
           <h1 class="logo-title">PLN</h1>
           <p class="logo-subtitle">Mandau Cipta Tenaga Nusantara</p>
@@ -1294,29 +50,25 @@ use Illuminate\Support\Str;
   {{-- Menu untuk Master Admin (Asisten Manajer) --}}
         @if(Auth::user()->role == 'asisten_manager')
         <li>
+          <a href="{{route('dataKinerja.index')}}" class="{{ request()->routeIs('dataKinerja.*') ? 'active' : '' }}">
+            <i class="fas fa-chart-bar icon"></i>
+            <span class="menu-text">Data Kinerja</span>
+          </a>
+        </li>
+        <li>
           <a href="{{route('akun.index')}}" class="{{ request()->routeIs('akun.*') ? 'active' : '' }}">
             <i class="fas fa-users icon"></i>
             <span class="menu-text">Data Akun</span>
           </a>
         </li>
-        <li>
-          <a href="{{ route('verifikasi.index') }}" class="{{ request()->routeIs('verifikasi.*') ? 'active' : '' }}">
-            <i class="fas fa-check-circle icon"></i>
-            <span class="menu-text">Verifikasi</span>
-          </a>
-        </li>
+
          <li>
           <a href="{{ route('tahunPenilaian.index') }}" class="{{ request()->routeIs('tahunPenilaian.*') ? 'active' : '' }}">
             <i class="fas fa-calendar-alt icon"></i>
             <span class="menu-text">Tahun Penilaian</span>
           </a>
         </li>
-        <li>
-          <a href="{{route('dataKinerja.index')}}" class="{{ request()->routeIs('dataKinerja.*') ? 'active' : '' }}">
-            <i class="fas fa-chart-bar icon"></i>
-            <span class="menu-text">Data Kinerja</span>
-          </a>
-        </li>
+
         <li>
           <a href="{{route('targetKinerja.index')}}" class="{{ request()->routeIs('targetKinerja.*') ? 'active' : '' }}">
             <i class="fas fa-bullseye icon"></i>
@@ -1327,6 +79,12 @@ use Illuminate\Support\Str;
           <a href="{{route('realisasi.index')}}" class="{{ request()->routeIs('realisasi.*') ? 'active' : '' }}">
             <i class="fas fa-tasks icon"></i>
             <span class="menu-text">Data Realisasi</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ route('verifikasi.index') }}" class="{{ request()->routeIs('verifikasi.*') ? 'active' : '' }}">
+            <i class="fas fa-check-circle icon"></i>
+            <span class="menu-text">Verifikasi</span>
           </a>
         </li>
         <li>
@@ -1351,12 +109,6 @@ use Illuminate\Support\Str;
             <span class="menu-text">Data Realisasi</span>
           </a>
         </li>
-        <li>
-          <a href="#" class="{{ request()->routeIs('kpi.index') ? 'active' : '' }}">
-            <i class="fas fa-chart-line icon"></i>
-            <span class="menu-text">Laporan KPI</span>
-          </a>
-        </li>
 
         @endif
 
@@ -1367,25 +119,243 @@ use Illuminate\Support\Str;
             <span class="menu-text">Ekspor PDF</span>
           </a>
         </li>
+        <li>
+          <a href="{{ route('lokasi.index') }}" class="{{ request()->routeIs('lokasi.*') ? 'active' : '' }}">
+            <i class="fas fa-map-marker-alt icon"></i>
+            <span class="menu-text">Lokasi</span>
+          </a>
+        </li>
       </ul>
     </div>
 
     <!-- Header yang lebih modern -->
     <div class="dashboard-header">
+      <!-- Tombol hamburger -->
+      <button class="sidebar-toggle d-md-none" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+
       <div class="header-text">
         <h1 class="header-title">@yield('page_title', 'Dashboard PLN')</h1>
         <p class="header-subtitle">PT PLN MANDAU CIPTA TENAGA NUSANTARA</p>
       </div>
 
       <div class="header-right">
-        <!-- Toggle tema -->
-        <div class="theme-switch-wrapper">
-          <i class="fas fa-moon theme-icon"></i>
-          <label class="theme-switch">
-            <input type="checkbox" id="theme-toggle">
-            <span class="slider"></span>
-          </label>
-          <i class="fas fa-sun theme-icon"></i>
+
+        <!-- Tombol notifikasi -->
+        <div class="topbar-icon-btn notification-btn" id="notificationBtn" style="position: relative;">
+          <i class="fas fa-bell"></i>
+          @if(Auth::check() && Auth::user()->role === 'asisten_manager')
+            @php
+              // Hitung SEMUA notifikasi yang perlu ditangani
+              $unverifiedCount = App\Models\Realisasi::where('diverifikasi', false)->count();
+              $unapprovedCount = App\Models\TargetKPI::where('disetujui', false)->count();
+              $totalNotifications = $unverifiedCount + $unapprovedCount;
+            @endphp
+
+            {{-- SATU badge untuk SEMUA notifikasi --}}
+            @if($totalNotifications > 0)
+              <span class="notification-badge
+                @if($unverifiedCount > 0 && $unapprovedCount > 0)
+                  mixed-notifications
+                @elseif($unverifiedCount > 0)
+                  realisasi-notifications
+                @else
+                  target-notifications
+                @endif"
+                id="main-notification-badge">
+                {{ $totalNotifications }}
+              </span>
+            @endif
+          @endif
+
+          <!-- Dropdown notifikasi - DIPERBAIKI -->
+          <div class="notification-dropdown" id="notificationDropdown">
+              <div class="notification-header">
+                  <h5><i class="fas fa-bell"></i> Notifikasi</h5>
+                  <button class="close-btn" id="closeNotification"><i class="fas fa-times"></i></button>
+              </div>
+            <div class="notification-body">
+            @if(Auth::check() && Auth::user()->role === 'asisten_manager')
+                @php
+                // Dapatkan data realisasi dan target yang perlu ditangani dengan error handling
+                try {
+                    $unverifiedRealisasi = App\Models\Realisasi::with(['indikator', 'user'])
+                        ->where('diverifikasi', false)
+                        ->latest()
+                        ->get();
+                } catch (\Exception $e) {
+                    \Log::error('Error fetching unverified realisasi: ' . $e->getMessage());
+                    $unverifiedRealisasi = collect([]);
+                }
+
+                try {
+                    $unapprovedTargets = App\Models\TargetKPI::with(['indikator', 'user'])
+                        ->where('disetujui', false)
+                        ->latest()
+                        ->get();
+                } catch (\Exception $e) {
+                    \Log::error('Error fetching unapproved targets: ' . $e->getMessage());
+                    $unapprovedTargets = collect([]);
+                }
+
+                // Hitung total untuk statistik
+                $totalUnverified = $unverifiedRealisasi->count();
+                $totalUnapproved = $unapprovedTargets->count();
+                $totalNotifications = $totalUnverified + $totalUnapproved;
+
+                // Ambil 5 item pertama untuk ditampilkan
+                $unverifiedItems = $unverifiedRealisasi->take(5);
+                $unapprovedItems = $unapprovedTargets->take(5);
+
+                // Debug: Log data types untuk troubleshooting
+                if ($unverifiedItems->count() > 0) {
+                    $firstItem = $unverifiedItems->first();
+                    \Log::info('Debug Realisasi Item:', [
+                        'nilai_type' => gettype($firstItem->nilai),
+                        'nilai_value' => $firstItem->nilai,
+                        'indikator_exists' => isset($firstItem->indikator),
+                        'user_exists' => isset($firstItem->user)
+                    ]);
+                }
+
+                if ($unapprovedItems->count() > 0) {
+                    $firstTarget = $unapprovedItems->first();
+                    \Log::info('Debug Target Item:', [
+                        'target_type' => gettype($firstTarget->target_bulanan),
+                        'target_value' => $firstTarget->target_bulanan,
+                        'indikator_exists' => isset($firstTarget->indikator),
+                        'user_exists' => isset($firstTarget->user)
+                    ]);
+                }
+                @endphp
+
+                <!-- Header Statistik -->
+                @if($totalNotifications > 0)
+                <div class="notification-stats">
+                    <div class="stats-item">
+                        <span class="stats-number">{{ $totalUnverified }}</span>
+                        <span class="stats-label">Realisasi</span>
+                    </div>
+                    <div class="stats-divider"></div>
+                    <div class="stats-item">
+                        <span class="stats-number">{{ $totalUnapproved }}</span>
+                        <span class="stats-label">Target</span>
+                    </div>
+                    <div class="stats-divider"></div>
+                    <div class="stats-item">
+                        <span class="stats-number total">{{ $totalNotifications }}</span>
+                        <span class="stats-label">Total</span>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Section: Realisasi yang Perlu Diverifikasi -->
+                @if($unverifiedItems->count() > 0)
+                <div class="notification-section urgent-section">
+                    <div class="section-header">
+                        <i class="fas fa-exclamation-triangle text-danger"></i>
+                        <h6>Realisasi Perlu Diverifikasi</h6>
+                        <span class="section-badge urgent">{{ $totalUnverified }}</span>
+                    </div>
+
+                    @foreach($unverifiedItems as $item)
+                    @php
+                        try {
+                            $verifikasiUrl = route('verifikasi.show', $item->id);
+                        } catch (\Exception $e) {
+                            // Fallback ke halaman verifikasi index jika route show tidak ada
+                            $verifikasiUrl = route('verifikasi.index') . '?item=' . $item->id;
+                            \Log::warning('Verifikasi.show route not found, using fallback:', ['id' => $item->id, 'fallback_url' => $verifikasiUrl]);
+                        }
+                        \Log::info('Verifikasi URL generated:', ['id' => $item->id, 'url' => $verifikasiUrl]);
+                    @endphp
+                    <a href="{{ $verifikasiUrl }}" class="notification-item urgent-item"
+                       data-id="{{ $item->id }}"
+                       data-type="realisasi"
+                       title="Klik untuk verifikasi realisasi ID: {{ $item->id }}">
+                        <div class="notification-icon bg-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="notification-content">
+                            <p class="notification-title">
+                                {{ $item->indikator->kode ?? 'N/A' }} - {{ Str::limit($item->indikator->nama ?? 'Indikator tidak ditemukan', 40) }}
+                            </p>
+                            <p class="notification-info">
+                                <i class="fas fa-user"></i> {{ $item->user->name ?? 'User tidak ditemukan' }}
+                                <span class="notification-value">
+                                    <i class="fas fa-chart-line"></i>
+                                    @php
+                                        try {
+                                            $nilai = $item->nilai ?? 0;
+                                            // Handle jika nilai adalah array atau object
+                                            if (is_array($nilai) || is_object($nilai)) {
+                                                $nilai = 0;
+                                            }
+                                            // Handle jika nilai adalah string yang tidak valid
+                                            if (!is_numeric($nilai)) {
+                                                $nilai = 0;
+                                            }
+                                            $formattedNilai = number_format((float)$nilai, 0, ',', '.');
+                                        } catch (\Exception $e) {
+                                            $formattedNilai = '0';
+                                            \Log::error('Error formatting nilai: ' . $e->getMessage());
+                                        }
+                                    @endphp
+                                    {{ $formattedNilai }}
+                                </span>
+                            </p>
+                            <p class="notification-time">
+                                <i class="fas fa-clock"></i> {{ $item->created_at->diffForHumans() }}
+                                @if($item->created_at->diffInHours() > 24)
+                                    <span class="priority-urgent">URGENT</span>
+                                @elseif($item->created_at->diffInHours() > 8)
+                                    <span class="priority-high">TINGGI</span>
+                                @endif
+                            </p>
+                        </div>
+                        <div class="notification-action">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </a>
+                    @endforeach
+
+                    @if($totalUnverified > 5)
+                    <a href="{{ route('verifikasi.index') }}" class="notification-more urgent">
+                        <i class="fas fa-tasks"></i> Verifikasi {{ $totalUnverified - 5 }} lainnya
+                    </a>
+                    @endif
+                </div>
+                @endif
+
+
+                <!-- Empty State -->
+                @if($totalNotifications === 0)
+                <div class="notification-empty">
+                    <div class="empty-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="empty-content">
+                        <h6>Semua Sudah Terverifikasi</h6>
+                        <p>Tidak ada realisasi atau target yang perlu ditinjau</p>
+                    </div>
+                </div>
+                @endif
+
+            @else
+                <!-- Non-admin users -->
+                <div class="notification-empty">
+                    <div class="empty-icon">
+                        <i class="fas fa-bell-slash"></i>
+                    </div>
+                    <div class="empty-content">
+                        <h6>Tidak Ada Notifikasi</h6>
+                        <p>Anda tidak memiliki akses notifikasi</p>
+                    </div>
+                </div>
+            @endif
+            </div>
+          </div>
         </div>
 
         <!-- Tanggal & jam -->
@@ -1494,7 +464,6 @@ use Illuminate\Support\Str;
             @endif
             <span class="profile-name">{{ Auth::user()->name }}</span>
             <i class="fas fa-chevron-down"></i>
-            <span class="notification-badge" id="notification-count"></span>
           </div>
           <div class="profile-menu" id="profile-menu">
             <div class="profile-menu-header">
@@ -1563,12 +532,6 @@ use Illuminate\Support\Str;
               <label for="email" class="form-label">Email</label>
               <input type="email" class="form-control" id="email" name="email" value="{{ Auth::user()->email }}">
             </div>
-
-            <div class="form-group">
-              <label for="phone" class="form-label">Nomor Telepon</label>
-              <input type="text" class="form-control" id="phone" name="phone" value="{{ Auth::user()->phone ?? '' }}">
-            </div>
-
             <div class="form-actions">
               <button type="submit" class="btn-primary">
                 <i class="fas fa-save"></i> Simpan Perubahan
@@ -1582,14 +545,15 @@ use Illuminate\Support\Str;
             @csrf
 
             <div class="profile-photo-preview">
-              @if(Auth::user()->profile_photo)
-                <img src="{{ Storage::url(Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}" id="photoPreview">
-              @else
+            @if(Auth::user()->profile_photo && Storage::disk('public')->exists(Auth::user()->profile_photo))
+                <img src="{{ Storage::url(Auth::user()->profile_photo) }}" alt="{{ Auth::user()->name }}" id="photoPreview" style="max-width: 200px;">
+            @else
                 <div class="profile-photo-placeholder">
-                  <i class="fas fa-user"></i>
+                <i class="fas fa-user"></i>
                 </div>
-              @endif
+            @endif
             </div>
+
 
             <div class="profile-photo-upload-container">
               <label for="profile_photo" class="photo-upload-btn">
@@ -1613,7 +577,7 @@ use Illuminate\Support\Str;
             <input type="hidden" name="update_type" value="password">
 
             <!-- Tampilkan pesan sukses yang lebih menonjol -->
-            @if(session('success'))
+            {{-- @if(session('success'))
             <div class="alert alert-success mb-4" style="background: linear-gradient(135deg, #28a745, #5cb85c); color: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);">
               <div class="d-flex align-items-center mb-2">
                 <i class="fas fa-check-circle mr-2" style="font-size: 20px;"></i>
@@ -1627,7 +591,7 @@ use Illuminate\Support\Str;
                 </ol>
               </p>
             </div>
-            @endif
+            @endif --}}
 
             <!-- Success message yang akan ditampilkan via JavaScript -->
             <div id="manual-success-message" style="display:none;" class="alert alert-success mb-4" style="background: linear-gradient(135deg, #28a745, #5cb85c); color: white; border-radius: 10px; padding: 15px; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);">
@@ -1649,6 +613,7 @@ use Illuminate\Support\Str;
             <div class="alert alert-danger mb-3">
                 <ul class="mb-0">
                     @foreach($errors->all() as $error)
+
                     <li>{{ $error }}</li>
                     @endforeach
                 </ul>
@@ -1727,20 +692,13 @@ use Illuminate\Support\Str;
       });
     }
 
-    const themeToggle = document.getElementById('theme-toggle');
     const body = document.body;
-    const currentTheme = localStorage.getItem('theme') || 'dark';
-    body.setAttribute('data-theme', currentTheme);
+    body.setAttribute('data-theme', 'light');
+    localStorage.setItem('theme', 'light');
 
-    if (currentTheme === 'light') {
-      themeToggle.checked = true;
-    }
 
-    themeToggle.addEventListener('change', function () {
-      const newTheme = this.checked ? 'light' : 'dark';
-      body.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-    });
+
+
 
     const logoutForm = document.querySelector('.logout-form');
     const logoutButton = document.querySelector('.logout-btn-menu');
@@ -1749,8 +707,9 @@ use Illuminate\Support\Str;
     if (logoutForm && logoutButton) {
       logoutForm.addEventListener('submit', function (e) {
         e.preventDefault();
+        let submitted = false;
         const logoutIcon = logoutButton.querySelector('i');
-        logoutIcon.classList.add('logout-icon-animation');
+        if (logoutIcon) logoutIcon.classList.add('logout-icon-animation');
         logoutButton.classList.add('logout-animation');
 
         const profileMenu = document.getElementById('profile-menu');
@@ -1759,12 +718,25 @@ use Illuminate\Support\Str;
           profileMenu.style.visibility = 'hidden';
         }
 
+        // Animasi overlay muncul
         setTimeout(function () {
-          logoutOverlay.classList.add('active');
+          if (logoutOverlay) logoutOverlay.classList.add('active');
+          // Setelah overlay muncul, submit form setelah 1.5 detik
           setTimeout(function () {
-            logoutForm.submit();
+            if (!submitted) {
+              submitted = true;
+              logoutForm.submit();
+            }
           }, 1500);
         }, 300);
+
+        // Fallback: submit form jika overlay gagal tampil dalam 2 detik
+        setTimeout(function () {
+          if (!submitted) {
+            submitted = true;
+            logoutForm.submit();
+          }
+        }, 2000);
       });
     }
 
@@ -1966,8 +938,6 @@ use Illuminate\Support\Str;
     });
   </script>
 
-  @yield('scripts')
-
   <!-- Script untuk alert password -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -2048,5 +1018,191 @@ use Illuminate\Support\Str;
       }
     });
   </script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+
+  <script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Notification Badge Debug dan Setup
+      const notificationBadge = document.querySelector('.notification-badge');
+
+      console.log('🔔 NOTIFICATION BADGE DEBUG:');
+
+      @if(Auth::check() && Auth::user()->role === 'asisten_manager')
+        @php
+          $debugUnverified = App\Models\Realisasi::where('diverifikasi', false)->count();
+          $debugUnapproved = App\Models\TargetKPI::where('disetujui', false)->count();
+          $debugTotal = $debugUnverified + $debugUnapproved;
+          $allRealisasi = App\Models\Realisasi::count();
+        @endphp
+
+        console.log('� Data dari Backend:');
+        console.log('- Total realisasi di database:', {{ $allRealisasi }});
+        console.log('- Realisasi belum diverifikasi:', {{ $debugUnverified }});
+        console.log('- Target belum disetujui:', {{ $debugUnapproved }});
+        console.log('- Total notifikasi seharusnya:', {{ $debugTotal }});
+
+        if (notificationBadge) {
+          const realisasiCount = parseInt(notificationBadge.getAttribute('data-realisasi')) || 0;
+          const targetCount = parseInt(notificationBadge.getAttribute('data-target')) || 0;
+          const badgeText = notificationBadge.textContent.trim();
+
+          console.log('🎯 Badge Element Found:');
+          console.log('- Badge text:', badgeText);
+          console.log('- Data realisasi:', realisasiCount);
+          console.log('- Data target:', targetCount);
+          console.log('- Badge classes:', notificationBadge.className);
+          console.log('- Badge visible:', window.getComputedStyle(notificationBadge).display !== 'none');
+
+          // Verification check
+          if ({{ $debugTotal }} > 0 && badgeText === '') {
+            console.error('❌ MASALAH: Ada notifikasi tapi badge kosong!');
+          } else if ({{ $debugTotal }} === 0 && badgeText !== '') {
+            console.error('❌ MASALAH: Tidak ada notifikasi tapi badge terisi!');
+          } else if (parseInt(badgeText) === {{ $debugTotal }}) {
+            console.log('✅ Badge berfungsi dengan benar!');
+          } else {
+            console.warn('⚠️ Badge count tidak match dengan data backend');
+          }
+
+        } else {
+          console.log('❌ Badge element tidak ditemukan');
+          if ({{ $debugTotal }} > 0) {
+            console.error('❌ MASALAH SERIUS: Ada notifikasi tapi badge tidak ada!');
+            console.log('🔧 Kemungkinan penyebab:');
+            console.log('   - CSS display:none');
+            console.log('   - JavaScript error');
+            console.log('   - HTML tidak ter-render');
+          }
+        }
+      @else
+        console.log('👤 User bukan asisten_manager, badge tidak ditampilkan');
+      @endif
+
+      // Dropdown debugging
+      @if(Auth::check() && Auth::user()->role === 'asisten_manager')
+        console.log('\n📋 Dropdown Debug:');
+
+        // Cek dropdown elements
+        const dropdownSections = document.querySelectorAll('.notification-section');
+        console.log('- Dropdown sections ditemukan:', dropdownSections.length);
+
+        // Tampilkan detail setiap section
+        dropdownSections.forEach((section, index) => {
+          const header = section.querySelector('h6');
+          const items = section.querySelectorAll('.notification-item');
+          console.log(`  Section ${index + 1}: "${header?.textContent || 'No header'}" (${items.length} items)`);
+        });
+
+        // Check specific sections
+        const urgentSection = document.querySelector('.urgent-section');
+        if ({{ $debugUnverified }} > 0) {
+          if (urgentSection) {
+            console.log('✅ Urgent section (realisasi) ditemukan');
+          } else {
+            console.error('❌ MASALAH: Ada realisasi tapi urgent-section tidak ditemukan!');
+          }
+        }
+
+        console.log('📊 Tips: Silakan input realisasi/target baru untuk test badge');
+      @endif
+
+      // Notifikasi dropdown
+      const notificationBtn = document.getElementById('notificationBtn');
+      const notificationDropdown = document.getElementById('notificationDropdown');
+      const closeNotification = document.getElementById('closeNotification');
+
+      if (notificationBtn && notificationDropdown) {
+        // Event listener sederhana untuk toggle dropdown
+        notificationBtn.addEventListener('click', function(e) {
+          // Hanya cegah jika klik pada bell icon, bukan pada dropdown content
+          if (e.target.classList.contains('fa-bell') || e.target === this) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const isShown = notificationDropdown.classList.contains('show');
+
+            if (isShown) {
+              notificationDropdown.classList.remove('show');
+              console.log('🔔 Notifikasi ditutup');
+            } else {
+              notificationDropdown.classList.add('show');
+              console.log('🔔 Notifikasi dibuka');
+            }
+          }
+        });
+
+        // Event listener untuk tombol close
+        if (closeNotification) {
+          closeNotification.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            notificationDropdown.classList.remove('show');
+            console.log('🔔 Notifikasi ditutup via tombol close');
+          });
+        }
+
+        // Klik di luar untuk menutup dropdown
+        document.addEventListener('click', function(e) {
+          if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
+            notificationDropdown.classList.remove('show');
+          }
+        });
+
+        // SIMPLE: Event listener untuk semua link notifikasi
+        setTimeout(() => {
+          const notificationLinks = document.querySelectorAll('.notification-item');
+          console.log('� Setting up ' + notificationLinks.length + ' notification links');
+
+          notificationLinks.forEach((link, index) => {
+            link.addEventListener('click', function(e) {
+              console.log('🔗 Link clicked:', this.href);
+
+              // Tutup dropdown
+              notificationDropdown.classList.remove('show');
+
+              // Force navigation jika diperlukan
+              setTimeout(() => {
+                if (this.href && this.href !== '#') {
+                  window.location.href = this.href;
+                }
+              }, 50);
+            });
+          });
+        }, 500);
+      } else {
+        console.error('🚨 Elemen notifikasi tidak ditemukan:', {
+          btn: !!notificationBtn,
+          dropdown: !!notificationDropdown
+        });
+      }
+
+      // DEBUGGING: Test semua link di halaman
+      setTimeout(() => {
+        const allNotificationLinks = document.querySelectorAll('.notification-item');
+        console.log('🔍 DEBUGGING: Total notification links found:', allNotificationLinks.length);
+
+        allNotificationLinks.forEach((link, index) => {
+          console.log(`Link ${index}:`, {
+            href: link.href,
+            id: link.getAttribute('data-id'),
+            type: link.getAttribute('data-type'),
+            visible: link.offsetParent !== null,
+            clickable: getComputedStyle(link).pointerEvents !== 'none'
+          });
+
+          // Test manual click
+          link.addEventListener('contextmenu', function(e) {
+            console.log('🖱️ RIGHT CLICK test pada:', this.href);
+          });
+        });
+      }, 1000);
+    });
+  </script>
+
+  @yield('scripts')
+
 </body>
 </html>

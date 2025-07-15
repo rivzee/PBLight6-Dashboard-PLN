@@ -10,322 +10,239 @@ use App\Models\TargetKPI;
 use App\Models\TahunPenilaian;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class TargetKinerjaController extends Controller
 {
-    /**
-     * Memastikan user telah login
-     */
     public function __construct()
     {
         $this->middleware('auth');
     }
 
-    /**
-     * Menampilkan daftar target KPI
-     */
     public function index(Request $request)
     {
-        // Hanya master admin dan admin yang boleh mengakses
         $user = Auth::user();
         if (!$user->isMasterAdmin() && !$user->isAdmin()) {
             return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses untuk fitur ini.');
         }
 
-        // Ambil tahun penilaian aktif atau dari request
         $tahunPenilaianId = $request->tahun_penilaian_id;
-        $tahunPenilaian = null;
-
-        if ($tahunPenilaianId) {
-            $tahunPenilaian = TahunPenilaian::find($tahunPenilaianId);
-        }
+        $tahunPenilaian = $tahunPenilaianId
+            ? TahunPenilaian::find($tahunPenilaianId)
+            : TahunPenilaian::where('is_aktif', true)->first() ?? TahunPenilaian::orderBy('tahun', 'desc')->first();
 
         if (!$tahunPenilaian) {
-            // Coba cari tahun penilaian aktif
-            $tahunPenilaian = TahunPenilaian::where('is_aktif', true)->first();
-
-            // Jika masih tidak ditemukan, coba cari tahun penilaian terbaru
-            if (!$tahunPenilaian) {
-                $tahunPenilaian = TahunPenilaian::orderBy('tahun', 'desc')->first();
-
-                // Jika sama sekali tidak ada tahun penilaian, tampilkan halaman target kinerja dengan pesan
-                if (!$tahunPenilaian) {
-                    // Jika user adalah master admin
-                    if ($user->isMasterAdmin()) {
-                        // Tampilkan halaman kosong dengan pesan error
-                        $pilars = collect([]);
-                        $totalIndikators = 0;
-                        session()->flash('error', 'Tidak ada tahun penilaian yang tersedia. Silakan buat tahun penilaian terlebih dahulu.');
-                        return view('targetKinerja.index', compact('pilars', 'tahunPenilaian', 'totalIndikators'));
-                    } else {
-                        // Jika user admin bidang, tampilkan halaman kosong dengan pesan error
-                        $bidang = $user->getBidang();
-                        if (!$bidang) {
-                            return redirect()->route('dashboard')->with('error', 'Bidang tidak ditemukan untuk admin ini.');
-                        }
-                        $indikators = collect([]);
-                        session()->flash('error', 'Tidak ada tahun penilaian yang tersedia. Silakan hubungi administrator.');
-                        return view('targetKinerja.index_admin', compact('indikators', 'bidang', 'tahunPenilaian'));
-                    }
-                }
-
-                // Tampilkan peringatan bahwa tidak ada tahun aktif
-                session()->flash('warning', 'Tidak ada tahun penilaian aktif. Menggunakan tahun penilaian terbaru (' . $tahunPenilaian->tahun . ').');
+            if ($user->isMasterAdmin()) {
+                session()->flash('error', 'Tidak ada tahun penilaian. Silakan buat terlebih dahulu.');
+                return view('targetKinerja.index', [
+                    'pilars' => collect([]),
+                    'tahunPenilaian' => null,
+                    'totalIndikators' => 0
+                ]);
+            } else {
+                session()->flash('error', 'Tidak ada tahun penilaian. Hubungi administrator.');
+                return view('targetKinerja.index_admin', [
+                    'indikators' => collect([]),
+                    'bidang' => $user->getBidang(),
+                    'tahunPenilaian' => null
+                ]);
             }
         }
 
-        // Jika user adalah master admin, ambil semua indikator
         if ($user->isMasterAdmin()) {
-            // Ambil semua pilar dengan relasinya dalam satu query
-            $pilars = Pilar::with([
-                'indikators' => function($query) {
-                    $query->with('bidang')->orderBy('kode');
-                }
-            ])->orderBy('urutan')->get();
+            $pilars = Pilar::with(['indikators' => function ($q) {
+                $q->with('bidang')->orderBy('kode');
+            }])->orderBy('urutan')->get();
 
-            // Cek apakah pilars tidak kosong
-            if ($pilars->isEmpty()) {
-                return redirect()->route('dashboard')->with('error', 'Data pilar belum tersedia. Silakan hubungi administrator.');
-            }
-
-            // Tambahkan data target ke tiap indikator
             foreach ($pilars as $pilar) {
                 foreach ($pilar->indikators as $indikator) {
-                    $target = $indikator->getTarget($tahunPenilaian->id);
-                    $indikator->target_data = $target;
+                    $indikator->target_data = $indikator->getTarget($tahunPenilaian->id);
                 }
             }
 
-            // Hitung total indikator untuk memastikan semua data diambil
-            $totalIndikators = $pilars->sum(function($pilar) {
-                return $pilar->indikators->count();
-            });
-
-            // Log untuk debugging
-            \Log::info("Total Pilar: " . $pilars->count());
-            \Log::info("Total Indikator: " . $totalIndikators);
+            $totalIndikators = $pilars->sum(fn($p) => $p->indikators->count());
 
             return view('targetKinerja.index', compact('pilars', 'tahunPenilaian', 'totalIndikators'));
-        }
-
-        // Jika user adalah admin bidang, hanya ambil indikator di bidangnya
-        else {
+        } else {
             $bidang = $user->getBidang();
-            if (!$bidang) {
-                return redirect()->route('dashboard')->with('error', 'Bidang tidak ditemukan untuk admin ini.');
-            }
+            if (!$bidang) return redirect()->route('dashboard')->with('error', 'Bidang tidak ditemukan.');
 
-            $indikators = Indikator::where('bidang_id', $bidang->id)
-                ->orderBy('kode')
-                ->get();
-
-            // Tambahkan data target ke tiap indikator
+            $indikators = Indikator::where('bidang_id', $bidang->id)->orderBy('kode')->get();
             foreach ($indikators as $indikator) {
-                $target = $indikator->getTarget($tahunPenilaian->id);
-                $indikator->target_data = $target;
+                $indikator->target_data = $indikator->getTarget($tahunPenilaian->id);
             }
 
             return view('targetKinerja.index_admin', compact('indikators', 'bidang', 'tahunPenilaian'));
         }
     }
 
-    /**
-     * Menampilkan form untuk membuat target KPI baru
-     */
     public function create(Request $request)
     {
-        // Hanya master admin dan admin yang boleh mengakses
         $user = Auth::user();
         if (!$user->isMasterAdmin() && !$user->isAdmin()) {
-            return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses untuk fitur ini.');
+            return redirect()->route('dashboard')->with('error', 'Tidak memiliki akses.');
         }
 
-        $indikatorId = $request->indikator_id;
-        $tahunPenilaianId = $request->tahun_penilaian_id;
-
-        if (!$indikatorId || !$tahunPenilaianId) {
-            return redirect()->route('targetKinerja.index')->with('error', 'Parameter tidak lengkap.');
+        $indikator = Indikator::findOrFail($request->indikator_id);
+        $tahunPenilaian = TahunPenilaian::findOrFail($request->tahun_penilaian_id);
+        // CEK: hanya tahun aktif yang bisa input target
+        if (!$tahunPenilaian->is_aktif) {
+            return redirect()->route('targetKinerja.index')
+                ->with('error', 'Target hanya bisa diinput pada tahun penilaian yang aktif.');
+        }
+        if ($user->isAdmin() && $indikator->bidang_id !== $user->getBidang()->id) {
+            return redirect()->route('targetKinerja.index')->with('error', 'Indikator tidak sesuai bidang.');
         }
 
-        $indikator = Indikator::findOrFail($indikatorId);
-        $tahunPenilaian = TahunPenilaian::findOrFail($tahunPenilaianId);
-
-        // Cek apakah user adalah admin dan memiliki akses ke indikator ini
-        if ($user->isAdmin()) {
-            $bidang = $user->getBidang();
-            if (!$bidang || $bidang->id != $indikator->bidang_id) {
-                return redirect()->route('targetKinerja.index')->with('error', 'Anda tidak memiliki akses untuk indikator ini.');
-            }
-        }
-
-        // Cek apakah target sudah ada
-        $existingTarget = TargetKPI::where('indikator_id', $indikatorId)
-            ->where('tahun_penilaian_id', $tahunPenilaianId)
-            ->first();
+        $existingTarget = TargetKPI::where('indikator_id', $indikator->id)
+            ->where('tahun_penilaian_id', $tahunPenilaian->id)->first();
 
         if ($existingTarget) {
-            return redirect()->route('targetKinerja.edit', ['targetKinerja' => $existingTarget->id])
-                ->with('info', 'Target untuk indikator ini sudah ada.');
+            return redirect()->route('targetKinerja.edit', $existingTarget->id)
+                ->with('info', 'Target sudah ada. Silakan perbarui.');
         }
 
         return view('targetKinerja.create', compact('indikator', 'tahunPenilaian'));
     }
 
-    /**
-     * Menyimpan target KPI baru
-     */
     public function store(Request $request)
     {
-        // Hanya master admin dan admin yang boleh mengakses
         $user = Auth::user();
         if (!$user->isMasterAdmin() && !$user->isAdmin()) {
-            return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses untuk fitur ini.');
+            return redirect()->route('dashboard')->with('error', 'Tidak memiliki akses.');
         }
 
         $request->validate([
             'indikator_id' => 'required|exists:indikators,id',
             'tahun_penilaian_id' => 'required|exists:tahun_penilaians,id',
-            'target_tahunan' => 'required|numeric|min:0',
-            'target_bulanan' => 'nullable|array',
-            'target_bulanan.*' => 'nullable|numeric|min:0',
-            'keterangan' => 'nullable|string',
+            'target_bulanan' => 'required|array|size:12',
+            'target_bulanan.*' => 'required|numeric|min:0|max:10000000000',
         ]);
+        $tahunPenilaian = TahunPenilaian::findOrFail($request->tahun_penilaian_id);
 
+        // CEK: hanya tahun aktif yang bisa input target
+        if (!$tahunPenilaian->is_aktif) {
+            return redirect()->route('targetKinerja.index')
+                ->with('error', 'Target hanya bisa diinput pada tahun penilaian yang aktif.');
+        }
         $indikator = Indikator::findOrFail($request->indikator_id);
 
-        // Cek apakah user adalah admin dan memiliki akses ke indikator ini
-        if ($user->isAdmin()) {
-            $bidang = $user->getBidang();
-            if (!$bidang || $bidang->id != $indikator->bidang_id) {
-                return redirect()->route('targetKinerja.index')->with('error', 'Anda tidak memiliki akses untuk indikator ini.');
-            }
+        if ($user->isAdmin() && $indikator->bidang_id !== $user->getBidang()->id) {
+            return redirect()->route('targetKinerja.index')->with('error', 'Indikator tidak sesuai bidang.');
         }
 
-        // Cek apakah target sudah ada
         $existingTarget = TargetKPI::where('indikator_id', $request->indikator_id)
-            ->where('tahun_penilaian_id', $request->tahun_penilaian_id)
-            ->first();
+            ->where('tahun_penilaian_id', $request->tahun_penilaian_id)->first();
 
         if ($existingTarget) {
-            return redirect()->route('targetKinerja.edit', ['targetKinerja' => $existingTarget->id])
-                ->with('info', 'Target untuk indikator ini sudah ada dan telah diperbarui.');
+            return redirect()->route('targetKinerja.edit', $existingTarget->id)
+                ->with('info', 'Target sudah ada.');
         }
 
-        // Buat target baru
+        $targetBulanan = [];
+        for ($i = 0; $i < 12; $i++) {
+            $targetBulanan[$i] = round(floatval($request->target_bulanan[$i]), 3);
+        }
+
+        // Target tahunan diambil dari target bulan Desember (index 11)
+        $targetTahunan = $targetBulanan[11];
+
         TargetKPI::create([
             'indikator_id' => $request->indikator_id,
             'tahun_penilaian_id' => $request->tahun_penilaian_id,
             'user_id' => $user->id,
-            'target_tahunan' => $request->target_tahunan,
-            'target_bulanan' => $request->target_bulanan,
-            'keterangan' => $request->keterangan,
-            'disetujui' => false,
+            'target_tahunan' => $targetTahunan,
+            'target_bulanan' => $targetBulanan,
+            'disetujui' => true,
+            'disetujui_oleh' => $user->id,
+            'disetujui_pada' => now(),
         ]);
-
-        // Update nilai target di indikator juga
-        $indikator->update(['target' => $request->target_tahunan]);
 
         return redirect()->route('targetKinerja.index', ['tahun_penilaian_id' => $request->tahun_penilaian_id])
             ->with('success', 'Target berhasil disimpan.');
     }
 
-    /**
-     * Menampilkan form untuk mengedit target KPI
-     */
     public function edit($id)
     {
-        // Hanya master admin dan admin yang boleh mengakses
         $user = Auth::user();
-        if (!$user->isMasterAdmin() && !$user->isAdmin()) {
-            return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses untuk fitur ini.');
-        }
-
         $target = TargetKPI::with(['indikator.bidang', 'tahunPenilaian'])->findOrFail($id);
 
-        // Cek apakah user adalah admin dan memiliki akses ke indikator ini
-        if ($user->isAdmin()) {
-            $bidang = $user->getBidang();
-            if (!$bidang || $bidang->id != $target->indikator->bidang_id) {
-                return redirect()->route('targetKinerja.index')->with('error', 'Anda tidak memiliki akses untuk indikator ini.');
-            }
+        // Cek akses untuk admin
+        if ($user->isAdmin() && $target->indikator->bidang_id !== $user->getBidang()->id) {
+            return redirect()->route('targetKinerja.index')->with('error', 'Tidak memiliki akses.');
         }
 
-        // Jika target sudah disetujui dan user bukan master admin, jangan izinkan edit
+        // Cegah update jika tahun penilaian tidak aktif
+        if (!$target->tahunPenilaian->is_aktif) {
+            return redirect()->route('targetKinerja.index', ['tahun_penilaian_id' => $target->tahun_penilaian_id])
+                ->with('error', 'Target hanya dapat diubah pada tahun penilaian yang aktif.');
+        }
+        // Cegah edit jika sudah disetujui dan bukan master admin
         if ($target->disetujui && !$user->isMasterAdmin()) {
             return redirect()->route('targetKinerja.index', ['tahun_penilaian_id' => $target->tahun_penilaian_id])
-                ->with('error', 'Target yang sudah disetujui tidak dapat diubah.');
+                ->with('error', 'Target sudah disetujui, tidak bisa diubah.');
         }
 
-        $indikator = $target->indikator;
-        $tahunPenilaian = $target->tahunPenilaian;
-
-        return view('targetKinerja.edit', compact('target', 'indikator', 'tahunPenilaian'));
+        // Tampilkan form edit seperti create
+        return view('targetKinerja.edit', [
+            'indikator' => $target->indikator,
+            'tahunPenilaian' => $target->tahunPenilaian,
+            'target' => $target,
+        ]);
     }
 
-    /**
-     * Menyimpan perubahan target KPI
-     */
     public function update(Request $request, $id)
     {
-        // Hanya master admin dan admin yang boleh mengakses
         $user = Auth::user();
-        if (!$user->isMasterAdmin() && !$user->isAdmin()) {
-            return redirect()->route('dashboard')->with('error', 'Anda tidak memiliki akses untuk fitur ini.');
-        }
-
         $target = TargetKPI::with('indikator')->findOrFail($id);
 
-        // Cek apakah user adalah admin dan memiliki akses ke indikator ini
-        if ($user->isAdmin()) {
-            $bidang = $user->getBidang();
-            if (!$bidang || $bidang->id != $target->indikator->bidang_id) {
-                return redirect()->route('targetKinerja.index')->with('error', 'Anda tidak memiliki akses untuk indikator ini.');
-            }
+        // Cek akses admin terhadap bidang indikator
+        if ($user->isAdmin() && $target->indikator->bidang_id !== $user->getBidang()->id) {
+            return redirect()->route('targetKinerja.index')->with('error', 'Tidak memiliki akses.');
         }
 
-        // Jika target sudah disetujui dan user bukan master admin, jangan izinkan update
-        if ($target->disetujui && !$user->isMasterAdmin()) {
+        // Cegah update jika tahun penilaian tidak aktif
+        if (!$target->tahunPenilaian->is_aktif) {
             return redirect()->route('targetKinerja.index', ['tahun_penilaian_id' => $target->tahun_penilaian_id])
-                ->with('error', 'Target yang sudah disetujui tidak dapat diubah.');
+                ->with('error', 'Target hanya dapat diubah pada tahun penilaian yang aktif.');
+        }
+        // Validasi input target bulanan
+        $request->validate([
+            'target_bulanan' => 'required|array|size:12',
+            'target_bulanan.*' => 'required|numeric|min:0|max:10000000000',
+        ]);
+
+        // Proses dan simpan target bulanan
+        $targetBulanan = [];
+        for ($i = 0; $i < 12; $i++) {
+            $targetBulanan[$i] = round(floatval($request->target_bulanan[$i]), 3);
         }
 
-        $request->validate([
-            'target_tahunan' => 'required|numeric|min:0',
-            'target_bulanan' => 'nullable|array',
-            'target_bulanan.*' => 'nullable|numeric|min:0',
-            'keterangan' => 'nullable|string',
-        ]);
+        // Target tahunan = target bulan Desember (kumulatif)
+        $targetTahunan = $targetBulanan[11];
 
-        // Update target
+        // Update data target
         $target->update([
-            'target_tahunan' => $request->target_tahunan,
-            'target_bulanan' => $request->target_bulanan,
-            'keterangan' => $request->keterangan,
-            'user_id' => $user->id, // Update user yang terakhir mengedit
+            'target_tahunan' => $targetTahunan,
+            'target_bulanan' => $targetBulanan,
+            'user_id' => $user->id,
+            'disetujui' => true,
+            'disetujui_oleh' => $user->id,
+            'disetujui_pada' => now(),
         ]);
-
-        // Update nilai target di indikator juga
-        $target->indikator->update(['target' => $request->target_tahunan]);
 
         return redirect()->route('targetKinerja.index', ['tahun_penilaian_id' => $target->tahun_penilaian_id])
             ->with('success', 'Target berhasil diperbarui.');
     }
 
-    /**
-     * Menyetujui target KPI
-     */
+
     public function approve($id)
     {
-        // Hanya master admin yang boleh menyetujui
         $user = Auth::user();
         if (!$user->isMasterAdmin()) {
             return redirect()->route('dashboard')->with('error', 'Hanya Master Admin yang dapat menyetujui target.');
         }
 
         $target = TargetKPI::findOrFail($id);
-
-        // Update status persetujuan
         $target->update([
             'disetujui' => true,
             'disetujui_oleh' => $user->id,
@@ -336,20 +253,14 @@ class TargetKinerjaController extends Controller
             ->with('success', 'Target berhasil disetujui.');
     }
 
-    /**
-     * Membatalkan persetujuan target KPI
-     */
     public function unapprove($id)
     {
-        // Hanya master admin yang boleh membatalkan persetujuan
         $user = Auth::user();
         if (!$user->isMasterAdmin()) {
-            return redirect()->route('dashboard')->with('error', 'Hanya Master Admin yang dapat membatalkan persetujuan target.');
+            return redirect()->route('dashboard')->with('error', 'Hanya Master Admin yang dapat membatalkan persetujuan.');
         }
 
         $target = TargetKPI::findOrFail($id);
-
-        // Update status persetujuan
         $target->update([
             'disetujui' => false,
             'disetujui_oleh' => null,
@@ -359,15 +270,83 @@ class TargetKinerjaController extends Controller
         return redirect()->route('targetKinerja.index', ['tahun_penilaian_id' => $target->tahun_penilaian_id])
             ->with('success', 'Persetujuan target berhasil dibatalkan.');
     }
+
     public function verifikasi($id)
-{
-    $target = TargetKPI::findOrFail($id);
-    $target->disetujui = true;
-    $target->verifikasi_oleh = Auth::id();
-    $target->verifikasi_pada = now();
-    $target->save();
+    {
+        $target = TargetKPI::findOrFail($id);
+        $target->update([
+            'disetujui' => true,
+            'verifikasi_oleh' => Auth::id(),
+            'verifikasi_pada' => now(),
+        ]);
 
-    return redirect()->back()->with('success', 'Target berhasil diverifikasi.');
-}
+        return redirect()->back()->with('success', 'Target berhasil diverifikasi.');
+    }
 
+    /**
+     * Update weights for all indicators
+     */
+    public function updateWeights()
+    {
+        $user = Auth::user();
+        if (!$user->isMasterAdmin()) {
+            return redirect()->route('dashboard')->with('error', 'Hanya Master Admin yang dapat mengubah bobot indikator.');
+        }
+
+        $weights = [
+            'A1' => 8, 'A2' => 8, 'A3' => 5, 'A4' => 9, 'A5' => 9, 'A6' => 10, 'A7' => 4, 'A8' => 4, 'A9' => 2,
+            'B1' => 12, 'B2' => 6, 'B3' => 2, 'C1' => 10, 'D1' => 5, 'E1' => 2, 'E2' => 2, 'E3' => 2, 'E4' => 2, 'E5' => 2,
+            'F1' => 4, 'F2' => 10,
+        ];
+
+        try {
+            foreach ($weights as $kode => $bobot) {
+                $indikator = Indikator::where('kode', $kode)->first();
+                if ($indikator) {
+                    $indikator->update(['bobot' => $bobot]);
+                }
+            }
+
+            return redirect()->route('targetKinerja.index')
+                ->with('success', 'Bobot indikator berhasil diperbarui.');
+        } catch (\Exception $e) {
+            return redirect()->route('targetKinerja.index')
+                ->with('error', 'Terjadi kesalahan saat memperbarui bobot indikator: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get target bulanan untuk bulan tertentu
+     */
+    public function getTargetBulanan($indikatorId, $tahunPenilaianId, $bulan)
+    {
+        $targetKPI = TargetKPI::where('indikator_id', $indikatorId)
+            ->where('tahun_penilaian_id', $tahunPenilaianId)
+            ->first();
+
+        if (!$targetKPI || !$targetKPI->target_bulanan) {
+            return 0;
+        }
+
+        $targetBulanan = $targetKPI->target_bulanan;
+        $bulanIndex = $bulan - 1;
+
+        return isset($targetBulanan[$bulanIndex]) ? $targetBulanan[$bulanIndex] : 0;
+    }
+
+    /**
+     * Get all monthly targets untuk indikator dan tahun tertentu
+     */
+    public function getAllTargetBulanan($indikatorId, $tahunPenilaianId)
+    {
+        $targetKPI = TargetKPI::where('indikator_id', $indikatorId)
+            ->where('tahun_penilaian_id', $tahunPenilaianId)
+            ->first();
+
+        if (!$targetKPI || !$targetKPI->target_bulanan) {
+            return array_fill(0, 12, 0);
+        }
+
+        return $targetKPI->target_bulanan;
+    }
 }

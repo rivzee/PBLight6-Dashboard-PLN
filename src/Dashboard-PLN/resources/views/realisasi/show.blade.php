@@ -4,212 +4,7 @@
 @section('page_title', 'DETAIL REALISASI KPI')
 
 @section('styles')
-<style>
-    /* Main Container */
-    .dashboard-content {
-        max-width: 1800px;
-        margin: 0 auto;
-        padding: 0 15px;
-    }
-
-    /* Page Header - Modern UI */
-    .page-header {
-        background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
-        color: white;
-        border-radius: 12px;
-        padding: 20px 25px;
-        margin-bottom: 25px;
-        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .page-header h2 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin: 0;
-    }
-
-    .page-header-subtitle {
-        margin-top: 5px;
-        font-weight: 400;
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-
-    .page-header-actions {
-        display: flex;
-        gap: 10px;
-    }
-
-    .page-header-badge {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 5px 12px;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        display: flex;
-        align-items: center;
-    }
-
-    .page-header-badge i {
-        margin-right: 5px;
-    }
-
-    /* Card Styling - Support Dark/Light Mode */
-    .detail-card {
-        border-radius: 16px;
-        box-shadow: 0 8px 20px var(--pln-shadow);
-        background-color: var(--pln-surface);
-        margin-bottom: 25px;
-        overflow: hidden;
-        color: var(--pln-text);
-    }
-
-    .detail-card .card-header {
-        background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
-        color: white;
-        padding: 15px 20px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border: none;
-    }
-
-    .detail-card .card-body {
-        padding: 20px;
-    }
-
-    /* Info Section Styling */
-    .info-section {
-        margin-bottom: 25px;
-    }
-
-    .info-section h4 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        margin-bottom: 15px;
-        color: var(--pln-blue);
-        border-bottom: 1px solid var(--pln-border);
-        padding-bottom: 10px;
-    }
-
-    /* Status Badge */
-    .status-badge {
-        padding: 5px 15px;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-    }
-
-    .status-badge i {
-        margin-right: 5px;
-    }
-
-    .status-badge.verified {
-        background-color: rgba(40, 167, 69, 0.15);
-        color: #28a745;
-    }
-
-    .status-badge.pending {
-        background-color: rgba(255, 193, 7, 0.15);
-        color: #ffc107;
-    }
-
-    /* Table Styling */
-    .info-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        color: var(--pln-text);
-    }
-
-    .info-table th, .info-table td {
-        padding: 12px 15px;
-        border-bottom: 1px solid var(--pln-border);
-    }
-
-    .info-table th {
-        font-weight: 600;
-        color: var(--pln-text-secondary);
-        background-color: var(--pln-accent-bg);
-        width: 30%;
-    }
-
-    /* Progress Bar */
-    .progress-visual {
-        height: 20px;
-        background: var(--pln-accent-bg);
-        border-radius: 10px;
-        position: relative;
-        overflow: hidden;
-        margin: 10px 0;
-    }
-
-    .progress-bar-custom {
-        position: absolute;
-        left: 0;
-        top: 0;
-        height: 100%;
-        transition: width 0.5s ease;
-    }
-
-    .progress-label {
-        position: absolute;
-        right: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-weight: bold;
-        color: white;
-        text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
-        z-index: 2;
-    }
-
-    /* Action Buttons */
-    .detail-actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
-        justify-content: center;
-    }
-
-    .btn-action {
-        padding: 10px 25px;
-        border-radius: 50px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-    }
-
-    .btn-action i {
-        margin-right: 8px;
-    }
-
-    .btn-action:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px var(--pln-shadow);
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        .page-header-actions {
-            width: 100%;
-            justify-content: flex-start;
-            margin-top: 10px;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('css/realisasi.css') }}">
 @endsection
 
 @section('content')
@@ -219,11 +14,8 @@
         <div>
             <h2><i class="fas fa-chart-bar me-2"></i>Detail Realisasi KPI</h2>
             <div class="page-header-subtitle">
-                Informasi lengkap realisasi untuk periode:
+                Informasi lengkap realisasi bulanan untuk periode:
                 {{ \Carbon\Carbon::create(null, $nilaiKPI->bulan, 1)->locale('id')->monthName }} {{ $nilaiKPI->tahun }}
-                @if($nilaiKPI->periode_tipe == 'mingguan')
-                (Minggu {{ $nilaiKPI->minggu }})
-                @endif
             </div>
         </div>
         <div class="page-header-actions">
@@ -236,7 +28,7 @@
                     <i class="fas fa-clock"></i> Menunggu Verifikasi
                 </div>
             @endif
-            <a href="{{ route('realisasi.index') }}" class="btn btn-light">
+            <a href="{{ route('realisasi.index', ['tahun' => $nilaiKPI->tahun, 'bulan' => $nilaiKPI->bulan]) }}" class="btn btn-light">
                 <i class="fas fa-arrow-left me-1"></i> Kembali
             </a>
         </div>
@@ -276,9 +68,44 @@
                                 <td>{{ $nilaiKPI->indikator->bidang->nama }}</td>
                             </tr>
                             <tr>
-                                <th>Target</th>
-                                <td>{{ number_format($nilaiKPI->indikator->target, 2) }}</td>
+                                <th>Target Bulanan</th>
+                                <td>{{ number_format($realisasi->target ?? 0, 2) }} {{ $nilaiKPI->indikator->satuan }}</td>
                             </tr>
+                            <tr>
+                                <th>Jenis Polaritas</th>
+                                <td>
+                                    @if($realisasi->jenis_polaritas == 'positif')
+                                        <span class="badge bg-success">Positif</span>
+                                    @else
+                                        <span class="badge bg-warning">Negatif</span>
+                                    @endif
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Nilai Polaritas</th>
+                                <td>{{ number_format($realisasi->nilai_polaritas ?? 0, 2) }}%</td>
+                            </tr>
+                            <tr>
+                                <th>Arah Pencapaian</th>
+                                <td>
+                                    @php
+                                        $arrow = '→';
+                                        if ($realisasi->jenis_polaritas == 'positif') {
+                                            $arrow = ($nilaiKPI->nilai / $realisasi->target) * 100 >= 100 ? '↑' : '↓';
+                                        } elseif ($realisasi->jenis_polaritas == 'negatif') {
+                                            $arrow = $nilaiKPI->nilai <= $realisasi->target ? '↑' : '↓';
+                                        } elseif ($realisasi->jenis_polaritas == 'netral') {
+                                            $arrow = abs($nilaiKPI->nilai - $realisasi->target) / $realisasi->target <= 0.05 ? '→' : '↓';
+                                        }
+
+                                        $arrowIcon = $arrow == '↑' ? '<i class="fas fa-arrow-up text-success"></i>' :
+                                                    ($arrow == '↓' ? '<i class="fas fa-arrow-down text-danger"></i>' :
+                                                    '<i class="fas fa-arrows-alt-h text-info"></i>');
+                                    @endphp
+                                    {!! $arrowIcon !!}
+                                </td>
+                            </tr>
+
                             @if($nilaiKPI->indikator->deskripsi)
                             <tr>
                                 <th>Deskripsi</th>
@@ -297,14 +124,11 @@
                                 <th>Periode</th>
                                 <td>
                                     {{ \Carbon\Carbon::create(null, $nilaiKPI->bulan, 1)->locale('id')->monthName }} {{ $nilaiKPI->tahun }}
-                                    @if($nilaiKPI->periode_tipe == 'mingguan')
-                                    (Minggu {{ $nilaiKPI->minggu }})
-                                    @endif
                                 </td>
                             </tr>
                             <tr>
-                                <th>Realisasi</th>
-                                <td>{{ number_format($nilaiKPI->nilai, 2) }}</td>
+                                <th>Realisasi Bulanan</th>
+                                <td>{{ number_format($nilaiKPI->nilai, 2) }} {{ $nilaiKPI->indikator->satuan }}</td>
                             </tr>
                             <tr>
                                 <th>Persentase</th>
@@ -376,7 +200,7 @@
             </div>
 
             <div class="detail-actions">
-                <a href="{{ route('realisasi.edit', $nilaiKPI->id) }}" class="btn btn-warning btn-action">
+                <a href="{{ route('realisasi.edit', ['id' => $nilaiKPI->id, 'tahun' => $nilaiKPI->tahun, 'bulan' => $nilaiKPI->bulan]) }}" class="btn btn-warning btn-action">
                     <i class="fas fa-edit"></i> Edit Realisasi
                 </a>
                 @if(auth()->user()->isMasterAdmin() && !$nilaiKPI->diverifikasi)
@@ -389,7 +213,7 @@
                         <i class="fas fa-times-circle"></i> Batalkan Verifikasi
                     </a>
                 @endif
-                <a href="{{ route('realisasi.index') }}" class="btn btn-secondary btn-action">
+                <a href="{{ route('realisasi.index', ['tahun' => $nilaiKPI->tahun, 'bulan' => $nilaiKPI->bulan]) }}" class="btn btn-secondary btn-action">
                     <i class="fas fa-arrow-left"></i> Kembali
                 </a>
             </div>

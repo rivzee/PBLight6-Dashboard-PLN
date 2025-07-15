@@ -19,6 +19,7 @@ class TargetKPI extends Model
         'user_id',
         'target_tahunan',
         'target_bulanan',
+        'polaritas',
         'keterangan',
         'disetujui',
         'disetujui_oleh',
@@ -56,25 +57,22 @@ class TargetKPI extends Model
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Relasi ke User yang menyetujui target
-     */
-    public function approver(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'disetujui_oleh');
-    }
+
 
     /**
      * Mendapatkan target untuk bulan tertentu (1-12)
      */
     public function getTargetBulan(int $bulan): float
-    {
-        if ($this->target_bulanan && isset($this->target_bulanan[$bulan - 1])) {
-            return (float) $this->target_bulanan[$bulan - 1];
-        }
+{
+    $index = $bulan - 1;
 
-        return $this->target_tahunan / 12;
+    if ($this->target_bulanan && isset($this->target_bulanan[$index])) {
+        return (float) $this->target_bulanan[$index];
     }
+
+    return $this->target_tahunan > 0 ? ($this->target_tahunan / 12) : 0;
+}
+
 
     /**
      * Menghitung persentase pencapaian target
@@ -87,7 +85,7 @@ class TargetKPI extends Model
             return 0;
         }
 
-        return min(100, ($nilai / $target) * 100);
+        return min(110, ($nilai / $target) * 100);
     }
 
     /**
@@ -100,4 +98,30 @@ class TargetKPI extends Model
 
         return 'Target KPI ' . $indikator . ' Tahun ' . $tahun;
     }
+
+    /**
+     * Mendapatkan target tahunan (dari target Desember)
+     */
+    public function getTargetTahunan(): float
+    {
+        if (!$this->target_bulanan || !is_array($this->target_bulanan)) {
+            return 0;
+        }
+
+        // Target tahunan diambil dari target bulan Desember (index 11)
+        return $this->target_bulanan[11] ?? 0;
+    }
+
+    /**
+     * Mendapatkan total target tahunan kumulatif (penjumlahan semua bulan)
+     */
+    public function getTargetTahunanKumulatif(): float
+    {
+        if (!$this->target_bulanan || !is_array($this->target_bulanan)) {
+            return 0;
+        }
+
+        return array_sum($this->target_bulanan);
+    }
+
 }

@@ -12,6 +12,7 @@ use App\Http\Controllers\RealisasiController;
 use App\Http\Controllers\VerifikasiController;
 use App\Http\Controllers\TargetKinerjaController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LokasiController;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Bidang;
 use App\Models\Indikator;
@@ -75,7 +76,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard/admin/sekretaris-perusahaan', function () {
         return view('dashboard.admin_sekretaris');
     })->name('dashboard.admin.sekretaris_perusahaan');
-
+    Route::get('/dashboard/admin/spi', function () {
+        return view('dashboard.admin_spi');
+    })->name('dashboard.admin.spi');
         // CRUD Akun - sudah dikonfigurasi di controller
     Route::resource('akun', AkunController::class);
 
@@ -86,13 +89,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dataKinerja/indikator/{id}', [DataKinerjaController::class, 'indikator'])->name('dataKinerja.indikator');
     Route::get('/dataKinerja/perbandingan', [DataKinerjaController::class, 'perbandingan'])->name('dataKinerja.perbandingan');
 
+    // Routes untuk Realisasi
     Route::middleware(['auth'])->group(function () {
         Route::get('/realisasi', [RealisasiController::class, 'index'])->name('realisasi.index');
         Route::get('/realisasi/{indikator}/create', [RealisasiController::class, 'create'])->name('realisasi.create');
         Route::post('/realisasi/{indikator}', [RealisasiController::class, 'store'])->name('realisasi.store');
         Route::get('/realisasi/{indikator}/edit', [RealisasiController::class, 'edit'])->name('realisasi.edit');
-    Route::put('/realisasi/{id}', [RealisasiController::class, 'update'])->name('realisasi.update');
-
+        Route::put('/realisasi/{id}', [RealisasiController::class, 'update'])->name('realisasi.update');
+        Route::delete('/realisasi/{id}', [RealisasiController::class, 'destroy'])->name('realisasi.destroy');
     });
 
     // Routes untuk Target Kinerja
@@ -103,6 +107,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/targetKinerja/{targetKinerja}', [TargetKinerjaController::class, 'update'])->name('targetKinerja.update');
     Route::get('/targetKinerja/{targetKinerja}/approve', [TargetKinerjaController::class, 'approve'])->name('targetKinerja.approve');
     Route::get('/targetKinerja/{targetKinerja}/unapprove', [TargetKinerjaController::class, 'unapprove'])->name('targetKinerja.unapprove');
+    Route::post('/targetKinerja/update-weights', [TargetKinerjaController::class, 'updateWeights'])->name('targetKinerja.updateWeights');
 
 
      // Resource controllers untuk fitur CRUD
@@ -111,23 +116,19 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tahunPenilaian/{id}/lock', [TahunPenilaianController::class, 'lock'])->name('tahunPenilaian.lock');
     Route::get('/tahunPenilaian/{id}/unlock', [TahunPenilaianController::class, 'unlock'])->name('tahunPenilaian.unlock');
 
+    // Routes untuk Ekspor PDF
      Route::get('/ekspor-pdf', [EksporPdfController::class, 'index'])->name('eksporPdf.index');
         Route::post('/ekspor-pdf/bidang', [EksporPdfController::class, 'eksporBidang'])->name('eksporPdf.bidang');
         Route::post('/ekspor-pdf/pilar', [EksporPdfController::class, 'eksporPilar'])->name('eksporPdf.pilar');
         Route::post('/ekspor-pdf/keseluruhan', [EksporPdfController::class, 'eksporKeseluruhan'])->name('eksporPdf.keseluruhan');
-
-
-     Route::resource('verifikasi', VerifikasiController::class)->except(['create', 'edit', 'store']);
-     Route::post('/verifikasi/massal', [VerifikasiController::class, 'verifikasiMassal'])->name('verifikasi.massal');
-     Route::put('/verifikasi/{id}', [VerifikasiController::class, 'update'])->name('verifikasi.update');
 
      // Log Aktivitas
     Route::prefix('aktivitas-log')->name('aktivitasLog.')->group(function () {
         Route::get('/', [AktivitasLogController::class, 'index'])->name('index');
         Route::get('/ekspor-csv', [AktivitasLogController::class, 'eksporCsv'])->name('eksporCsv');
         Route::post('/hapus-log-lama', [AktivitasLogController::class, 'hapusLogLama'])->name('hapusLogLama');
-        Route::delete('/{id}', [AktivitasLogController::class, 'destroy'])->name('destroy');
         Route::post('/hapus-multiple', [AktivitasLogController::class, 'hapusMultiple'])->name('hapusMultiple');
+        Route::delete('/{id}', [AktivitasLogController::class, 'destroy'])->name('destroy');
         Route::get('/{id}', [AktivitasLogController::class, 'show'])->name('show')->where('id', '[0-9]+');
     });
     // Profile routes langsung (tidak pakai prefix) - tidak perlu ada duplikasi
@@ -140,10 +141,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Tambahkan rute baru khusus untuk verifikasi massal
     Route::post('/verifikasi-massal', [VerifikasiController::class, 'verifikasiMassal'])->name('verifikasi.massal.alt');
-
-    // Rute untuk approval berjenjang
-    Route::post('/verifikasi/{id}/approve-pic', [VerifikasiController::class, 'approveByPic'])->name('verifikasi.approve.pic');
-    Route::post('/verifikasi/{id}/approve-manager', [VerifikasiController::class, 'approveByManager'])->name('verifikasi.approve.manager');
-
+    // Resource route untuk VerifikasiController
     Route::resource('verifikasi', VerifikasiController::class)->except(['create', 'edit', 'store']);
+
+    // Rute untuk Lokasi Kantor
+    Route::get('/lokasi-kantor', [LokasiController::class, 'index'])->name('lokasi.index');
 });

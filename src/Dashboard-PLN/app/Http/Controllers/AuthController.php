@@ -72,6 +72,13 @@ class AuthController extends Controller
                     'ip' => $request->ip()
                 ]);
 
+                // Tambahkan log aktivitas login secara eksplisit
+                \App\Models\AktivitasLog::logLogin(
+                    Auth::user(),
+                    $request->ip(),
+                    $request->userAgent()
+                );
+
                 // Cek apakah role pengguna diperbolehkan
                 $allowedRoles = [
                     'asisten_manager',
@@ -83,6 +90,7 @@ class AuthController extends Controller
                     'pic_human_capital',
                     'pic_k3l',
                     'pic_perencanaan_korporat',
+                    'pic_spi',
                     'karyawan',
                 ];
 

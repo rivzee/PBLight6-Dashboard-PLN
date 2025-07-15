@@ -4,410 +4,7 @@
 @section('page_title', 'TARGET KINERJA BIDANG')
 
 @section('styles')
-<style>
-    /* Main Container */
-    .dashboard-content {
-        max-width: 1800px;
-        margin: 0 auto;
-        padding: 0 15px;
-    }
-
-    /* Page Header - Modern UI */
-    .page-header {
-        background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
-        color: white;
-        border-radius: 12px;
-        padding: 20px 25px;
-        margin-bottom: 25px;
-        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .page-header h2 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin: 0;
-    }
-
-    .page-header-subtitle {
-        margin-top: 5px;
-        font-weight: 400;
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-
-    .page-header-actions {
-        display: flex;
-        gap: 10px;
-    }
-
-    .page-header-badge {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 5px 12px;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        display: flex;
-        align-items: center;
-    }
-
-    .page-header-badge i {
-        margin-right: 5px;
-    }
-
-    /* Grid System */
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(12, 1fr);
-        grid-gap: 20px;
-        margin-bottom: 30px;
-    }
-
-    .grid-span-3 {
-        grid-column: span 3;
-    }
-
-    .grid-span-4 {
-        grid-column: span 4;
-    }
-
-    .grid-span-6 {
-        grid-column: span 6;
-    }
-
-    .grid-span-8 {
-        grid-column: span 8;
-    }
-
-    .grid-span-12 {
-        grid-column: span 12;
-    }
-
-    /* Card Styling - Support Dark/Light Mode */
-    .stat-card {
-        background: var(--pln-surface);
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 25px;
-        position: relative;
-        overflow: hidden;
-        border: 1px solid var(--pln-border);
-        box-shadow: 0 8px 20px var(--pln-shadow);
-        transition: all 0.3s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px var(--pln-shadow);
-    }
-
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
-    }
-
-    .stat-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-
-    .stat-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--pln-text);
-        margin: 0;
-    }
-
-    .stat-icon {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
-        color: white;
-        font-size: 20px;
-        box-shadow: 0 5px 15px rgba(0, 156, 222, 0.3);
-    }
-
-    .stat-value {
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--pln-text);
-        margin: 15px 0 5px;
-    }
-
-    .stat-description {
-        font-size: 13px;
-        color: var(--pln-text-secondary);
-        margin: 0;
-    }
-
-    /* Card Pilar - Support Dark/Light Mode */
-    .pilar-card {
-        background: var(--pln-surface);
-        border-radius: 16px;
-        margin-bottom: 25px;
-        position: relative;
-        overflow: hidden;
-        border: 1px solid var(--pln-border);
-        box-shadow: 0 8px 20px var(--pln-shadow);
-        transition: all 0.3s ease;
-    }
-
-    .pilar-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px var(--pln-shadow);
-    }
-
-    .pilar-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
-    }
-
-    .pilar-card .card-header {
-        background: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
-        color: white;
-        border: none;
-        border-radius: 16px 16px 0 0;
-        padding: 15px 20px;
-    }
-
-    /* Table Styling - Support Dark/Light Mode */
-    .data-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        color: var(--pln-text);
-    }
-
-    .data-table th,
-    .data-table td {
-        padding: 15px;
-        border-bottom: 1px solid var(--pln-border);
-    }
-
-    .data-table th {
-        background-color: var(--pln-accent-bg);
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.05em;
-        color: var(--pln-text);
-    }
-
-    .data-table tbody tr:hover {
-        background-color: var(--pln-accent-bg);
-    }
-
-    /* Target Status - Support Dark/Light Mode */
-    .target-status {
-        display: flex;
-        align-items: center;
-        padding: 5px 10px;
-        border-radius: 50px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        margin-top: 5px;
-        white-space: nowrap;
-    }
-
-    .target-status.approved {
-        background-color: rgba(40, 167, 69, 0.15);
-        color: #28a745;
-    }
-
-    .target-status.pending {
-        background-color: rgba(255, 193, 7, 0.15);
-        color: #ffc107;
-    }
-
-    .target-status.missing {
-        background-color: rgba(220, 53, 69, 0.15);
-        color: #dc3545;
-    }
-
-    .target-status i {
-        margin-right: 5px;
-    }
-
-    /* Target Button Groups */
-    .target-actions {
-        display: flex;
-        gap: 5px;
-        flex-wrap: wrap;
-    }
-
-    .target-actions .btn {
-        border-radius: 50px;
-        padding: 5px 15px;
-        font-size: 0.75rem;
-        white-space: nowrap;
-    }
-
-    /* Tahun Selector - Support Dark/Light Mode */
-    .tahun-selector {
-        background-color: var(--pln-surface);
-        border-radius: 16px;
-        padding: 20px;
-        box-shadow: 0 8px 20px var(--pln-shadow);
-        margin-bottom: 20px;
-        color: var(--pln-text);
-        border: 1px solid var(--pln-border);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .tahun-selector::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, var(--pln-blue), var(--pln-light-blue));
-    }
-
-    .tahun-selector .btn-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-
-    .tahun-selector .btn {
-        border-radius: 50px;
-        padding: 8px 18px;
-    }
-
-    /* Monthly Target Preview */
-    .monthly-preview {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
-        margin-top: 8px;
-    overflow-x: auto;       /* scroll horizontal jika penuh */
-
-    }
-
-    .monthly-preview-item {
-        width: 22px;
-        height: 8px;
-        border-radius: 4px;
-        background-color: var(--pln-surface-2);
-            transition: height 0.2s ease;
-
-    }
-
-    .monthly-preview-item.filled {
-        background-color: var(--pln-light-blue);
-    }
-
-    .section-divider {
-        display: flex;
-        align-items: center;
-        margin: 30px 0 20px;
-        color: var(--pln-light-blue);
-    }
-
-    .section-divider h2 {
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin: 0;
-        color: var(--pln-text);
-    }
-
-    .section-divider i {
-        margin-right: 10px;
-        color: var(--pln-light-blue);
-    }
-
-    /* Alert Styles */
-    .alert-custom {
-        background-color: var(--pln-surface);
-        border-left: 4px solid;
-        border-radius: 8px;
-        padding: 15px 20px;
-        margin-bottom: 25px;
-        display: flex;
-        align-items: center;
-        box-shadow: 0 4px 12px var(--pln-shadow);
-    }
-
-    .alert-custom .alert-icon {
-        font-size: 24px;
-        margin-right: 15px;
-    }
-
-    .alert-custom.alert-info {
-        border-color: var(--pln-blue);
-    }
-
-    .alert-custom.alert-info .alert-icon {
-        color: var(--pln-blue);
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 992px) {
-        .dashboard-grid {
-            grid-template-columns: repeat(6, 1fr);
-        }
-
-        .grid-span-3 {
-            grid-column: span 3;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .dashboard-grid {
-            grid-template-columns: repeat(1, 1fr);
-        }
-
-        .grid-span-3,
-        .grid-span-4,
-        .grid-span-6,
-        .grid-span-8,
-        .grid-span-12 {
-            grid-column: span 1;
-        }
-
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-        }
-
-        .page-header-actions {
-            width: 100%;
-            justify-content: flex-start;
-            margin-top: 10px;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .stat-card {
-            padding: 15px;
-        }
-
-        .tahun-selector .btn {
-            font-size: 0.8rem;
-            padding: 6px 10px;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{{ asset('css/targetKinerja.css') }}">
 @endsection
 
 @section('content')
@@ -480,7 +77,7 @@
     <!-- Dashboard Stats dengan card yang lebih modern -->
     <div class="dashboard-grid">
         <!-- Total Indikator -->
-        <div class="grid-span-3">
+        <div class="grid-span-4">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-tasks"></i>
@@ -491,56 +88,32 @@
             </div>
         </div>
 
-        <!-- Target Disetujui -->
-        <div class="grid-span-3">
+        <!-- Target Sudah Diatur -->
+        <div class="grid-span-4">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-check-circle"></i>
                 </div>
-                <div class="stat-title">Target Disetujui</div>
+                <div class="stat-title">Target Sudah Diatur</div>
                 <div class="stat-value">
                     @php
-                        $totalApproved = 0;
+                        $totalSet = 0;
                         foreach($pilars as $pilar) {
                             foreach($pilar->indikators as $indikator) {
-                                if(isset($indikator->target_data) && $indikator->target_data->disetujui) {
-                                    $totalApproved++;
+                                if(isset($indikator->target_data)) {
+                                    $totalSet++;
                                 }
                             }
                         }
-                        echo $totalApproved;
+                        echo $totalSet;
                     @endphp
                 </div>
-                <div class="stat-description">Indikator dengan target disetujui</div>
-            </div>
-        </div>
-
-        <!-- Menunggu Persetujuan -->
-        <div class="grid-span-3">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-title">Menunggu Persetujuan</div>
-                <div class="stat-value">
-                    @php
-                        $totalPending = 0;
-                        foreach($pilars as $pilar) {
-                            foreach($pilar->indikators as $indikator) {
-                                if(isset($indikator->target_data) && !$indikator->target_data->disetujui) {
-                                    $totalPending++;
-                                }
-                            }
-                        }
-                        echo $totalPending;
-                    @endphp
-                </div>
-                <div class="stat-description">Indikator menunggu persetujuan</div>
+                <div class="stat-description">Indikator dengan target yang sudah diatur</div>
             </div>
         </div>
 
         <!-- Belum Diatur -->
-        <div class="grid-span-3">
+        <div class="grid-span-4">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-exclamation-triangle"></i>
@@ -566,7 +139,7 @@
 
     <!-- Accordion Pilar dengan desain yang lebih modern -->
     <div class="section-divider mb-4">
-        <h2><i class="fas fa-layer-group"></i> Target Per-Pilar</h2>
+        <h2><i class="fas fa-layer-group"></i> Target Perspektif</h2>
     </div>
 
     <!-- Tampilkan semua pilar secara berurutan dengan desain kartu yang lebih modern -->
@@ -585,11 +158,11 @@
                                 <th width="5%">No</th>
                                 <th width="10%">Kode</th>
                                 <th width="25%">Indikator</th>
+                                <th width="10%">Satuan</th>
                                 <th width="8%">Bobot</th>
-                                <th width="15%">Target Tahunan</th>
-                                <th width="15%">Target Bulanan</th>
-                                <th width="10%">Status</th>
-                                <th width="15%">Aksi</th>
+                                <th width="12%">Target Tahunan</th>
+                                <th width="18%">Target Bulanan</th>
+                                <th width="12%">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -607,10 +180,13 @@
                                             <div class="badge bg-warning rounded-pill">Tidak Aktif</div>
                                         @endif
                                     </td>
-                                    <td>{{ $indikator->bobot }}%</td>
+                                    <td class="text-center">
+                                        <span class="badge bg-secondary rounded-pill">{{ $indikator->satuan ?? '-' }}</span>
+                                    </td>
+                                    <td>{{ $indikator->bobot }}</td>
                                     <td>
                                         @if(isset($indikator->target_data))
-                                            <span class="font-weight-bold">{{ number_format($indikator->target_data->target_tahunan, 2) }}</span>
+                                            <span class="font-weight-bold">{{ number_format($indikator->target_data->target_tahunan, 2, ',', '.') }}</span>
                                         @else
                                             <span class="text-danger">Belum Diatur</span>
                                         @endif
@@ -628,42 +204,18 @@
                                             </div>
                                             <div class="small text-muted mt-1">
                                                 <i class="fas fa-info-circle"></i>
-                                                <a href="#" data-bs-toggle="modal" data-bs-target="#monthlyModal{{ $indikator->id }}">
-                                                    Lihat detail
+                                                <a href="#"
+                                                    class="lihat-target"
+                                                    data-kode="{{ $indikator->kode }}"
+                                                    data-nama="{{ $indikator->nama }}"
+                                                    data-satuan="{{ $indikator->satuan }}"
+                                                    data-bulanan='@json($indikator->target_data->target_bulanan)'
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#monthlyModal">
+                                                    Lihat detail bulanan
                                                 </a>
                                             </div>
 
-                                            <!-- Modal Target Bulanan -->
-                                            <div class="modal fade" id="monthlyModal{{ $indikator->id }}" tabindex="-1" aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-centered">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Target Bulanan: {{ $indikator->kode }}</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="table-responsive">
-                                                                <table class="table table-bordered">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>Bulan</th>
-                                                                            <th>Target</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        @foreach($bulanan as $index => $nilai)
-                                                                            <tr>
-                                                                                <td>{{ \Carbon\Carbon::create(null, $index+1, 1)->locale('id')->monthName }}</td>
-                                                                                <td>{{ number_format($nilai, 2) }}</td>
-                                                                            </tr>
-                                                                        @endforeach
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         @else
                                             <div class="monthly-preview">
                                                 @for($i = 0; $i < 12; $i++)
@@ -676,23 +228,6 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if(isset($indikator->target_data))
-                                            @if($indikator->target_data->disetujui)
-                                                <div class="target-status approved">
-                                                    <i class="fas fa-check-circle"></i> Disetujui
-                                                </div>
-                                            @else
-                                                <div class="target-status pending">
-                                                    <i class="fas fa-clock"></i> Menunggu
-                                                </div>
-                                            @endif
-                                        @else
-                                            <div class="target-status missing">
-                                                <i class="fas fa-exclamation-circle"></i> Belum Ada
-                                            </div>
-                                        @endif
-                                    </td>
-                                    <td>
                                         @if(!$tahunPenilaian->is_locked)
                                             <div class="target-actions">
                                                 @if(isset($indikator->target_data))
@@ -700,18 +235,6 @@
                                                        class="btn btn-sm btn-info">
                                                         <i class="fas fa-edit"></i> Edit
                                                     </a>
-
-                                                    @if(!$indikator->target_data->disetujui)
-                                                        <a href="{{ route('targetKinerja.approve', $indikator->target_data->id) }}"
-                                                           class="btn btn-sm btn-success">
-                                                            <i class="fas fa-check"></i> Setujui
-                                                        </a>
-                                                    @else
-                                                        <a href="{{ route('targetKinerja.unapprove', $indikator->target_data->id) }}"
-                                                           class="btn btn-sm btn-warning">
-                                                            <i class="fas fa-times"></i> Batal
-                                                        </a>
-                                                    @endif
                                                 @else
                                                     <a href="{{ route('targetKinerja.create', ['indikator_id' => $indikator->id, 'tahun_penilaian_id' => $tahunPenilaian->id]) }}"
                                                        class="btn btn-sm btn-primary">
@@ -728,7 +251,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center">Tidak ada indikator untuk pilar ini</td>
+                                    <td colspan="7" class="text-center">Tidak ada indikator untuk pilar ini</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -739,23 +262,207 @@
     @endforeach
     @endif
 </div>
+<div class="modal fade" id="monthlyModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-chart-line me-2" style="font-size: 0.9rem;"></i>
+          <span id="modal-title-text">Target Bulanan Detail</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-0">
+        <!-- Info Card -->
+        <div class="alert alert-info mx-3 mt-2 mb-2" style="background: linear-gradient(135deg, #d1ecf1, #bee5eb); border: none; border-radius: 6px; padding: 8px 12px;">
+          <div class="d-flex align-items-center">
+            <i class="fas fa-info-circle me-2 text-primary" style="font-size: 0.85rem;"></i>
+            <small class="mb-0" style="font-size: 0.75rem;">Target bulanan menunjukkan target yang harus dicapai pada bulan tersebut. <strong>Target tahunan = nilai Desember</strong></small>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive px-3 pb-3">
+          <table class="table modal-table">
+            <thead>
+              <tr>
+                <th width="50%">
+                  <i class="fas fa-calendar me-2" style="font-size: 0.7rem;"></i>Bulan
+                </th>
+                <th width="50%">
+                  <i class="fas fa-target me-2" style="font-size: 0.7rem;"></i>Target Bulanan
+                </th>
+              </tr>
+            </thead>
+            <tbody id="tbody-target">
+              <!-- Data akan diisi oleh JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-1"></i>Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
 @section('scripts')
 <script>
-    $(document).ready(function() {
-        console.log('Document ready!');
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize tooltips
+  document.querySelectorAll('[data-bs-toggle="tooltip"]')
+           .forEach(el => new bootstrap.Tooltip(el));
 
-        // Initialize tooltips
-        $('[data-bs-toggle="tooltip"]').tooltip();
+  const modal = document.getElementById('monthlyModal');
+  const tbody = modal.querySelector('#tbody-target');
+  const modalTitle = modal.querySelector('#modal-title-text');
 
-        // Tambahkan ID ke setiap pilar card untuk navigasi
-        $('.pilar-card').each(function(index) {
-            var pilarCode = $(this).find('.card-header strong').text();
-            if (pilarCode) {
-                $(this).attr('id', 'pilar-' + pilarCode);
-            }
-        });
+  // Debug: Check if all elements exist
+  console.log('Modal elements check:');
+  console.log('modal:', modal);
+  console.log('tbody:', tbody);
+  console.log('modalTitle:', modalTitle);
+
+  // Additional check
+  if (!modal) {
+    console.error('Modal #monthlyModal not found!');
+    return;
+  }
+
+  if (!tbody) {
+    console.error('tbody #tbody-target not found!');
+    console.log('Available tbody elements:', document.querySelectorAll('tbody'));
+    return;
+  }
+
+  console.log('All modal elements found successfully');
+
+  // Nama bulan dalam bahasa Indonesia
+  const namaBulan = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+
+  // Function untuk format angka dengan format Indonesia (koma untuk desimal, titik untuk ribuan)
+  // Tampilan tabel menggunakan 2 angka di belakang koma
+  function formatNumber(num) {
+    return Number(num).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  // Event listener untuk tombol "Lihat detail"
+  const detailButtons = document.querySelectorAll('.lihat-target');
+  console.log('Found detail buttons:', detailButtons.length);
+
+  if (detailButtons.length === 0) {
+    console.warn('No .lihat-target buttons found! Make sure the PHP data is rendered correctly.');
+  }
+
+  detailButtons.forEach((btn, index) => {
+    console.log(`Button ${index + 1}:`, btn);
+    console.log(`  - data-kode: ${btn.dataset.kode}`);
+    console.log(`  - data-bulanan: ${btn.dataset.bulanan}`);
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      console.log('Button clicked:', btn);
+
+      try {
+        const dataStr = btn.dataset.bulanan;
+        const kode = btn.dataset.kode;
+        const nama = btn.dataset.nama || kode;
+        const satuan = btn.dataset.satuan || '';
+
+        console.log('Raw data string:', dataStr);
+        console.log('Kode:', kode);
+        console.log('Satuan:', satuan);
+
+        // Parse data bulanan
+        let data;
+        try {
+          data = JSON.parse(dataStr);
+        } catch (parseError) {
+          console.error('JSON parse error:', parseError);
+          data = [0,0,0,0,0,0,0,0,0,0,0,0]; // Default 12 bulan dengan nilai 0
+        }
+
+        console.log('Parsed data:', data);
+
+        // Pastikan data adalah array dengan 12 elemen
+        if (!Array.isArray(data)) {
+          data = [0,0,0,0,0,0,0,0,0,0,0,0];
+        }
+
+        // Pastikan ada 12 bulan
+        while (data.length < 12) {
+          data.push(0);
+        }
+
+        // Update modal title
+        modalTitle.textContent = `Target Bulanan: ${nama} (${kode})`;        // Generate table rows dengan target bulanan (bukan kumulatif)
+        const tableRows = data.map((targetBulanan, index) => {
+          // Highlight bulan Desember
+          const isDesember = index === 11;
+          const rowClass = isDesember ? 'table-warning' : '';
+
+          return `
+            <tr class="${rowClass}">
+              <td>
+                <strong>${namaBulan[index]}</strong>
+                ${isDesember ? '<i class="fas fa-star ms-2" title="Target Tahunan"></i>' : ''}
+              </td>
+              <td class="text-end">
+                <strong>${formatNumber(targetBulanan)} ${satuan}</strong>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // Tambahkan baris total tahunan (dari Desember)
+        const targetTahunan = data[11] || 0; // Target tahunan = nilai Desember
+
+        const summaryRow = `
+          <tr class="table-primary">
+            <td>
+              <strong><i class="fas fa-calendar-check me-2"></i>Target Tahunan</strong>
+            </td>
+            <td class="text-end">
+              <strong>${formatNumber(targetTahunan)} ${satuan}</strong>
+            </td>
+          </tr>
+        `;
+
+        console.log('Generated table rows:', tableRows);
+
+        // Pastikan tbody ada dan update kontennya
+        if (tbody) {
+          tbody.innerHTML = tableRows + summaryRow;
+          console.log('Table updated successfully');
+        } else {
+          console.error('tbody element not found');
+        }
+
+      } catch (error) {
+        console.error('Error processing data:', error);
+
+        // Fallback: tampilkan pesan error di tabel
+        if (tbody) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="2" class="text-center text-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Error loading data: ${error.message}
+              </td>
+            </tr>
+          `;
+        }
+      }
     });
+  });
+});
 </script>
 @endsection

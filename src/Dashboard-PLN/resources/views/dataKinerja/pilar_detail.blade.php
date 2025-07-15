@@ -1,455 +1,113 @@
 @extends('layouts.app')
 
 @section('title', 'Detail Pilar - ' . $pilar->nama)
-
 @section('styles')
-<style>
-    .dashboard-content {
-        max-width: 1800px;
-        margin: 0 auto;
-    }
-
-    /* Dashboard Layout */
-    .dashboard-row {
-        display: flex;
-        flex-wrap: wrap;
-        margin: 0 -12px;
-    }
-
-    .dashboard-col {
-        flex: 1;
-        padding: 0 12px;
-        min-width: 250px;
-    }
-
-    /* Pilar Header Card */
-    .pilar-header-card {
-        background: var(--pln-accent-bg, #ffffff);
-        border-radius: 16px;
-        padding: 25px;
-        margin-bottom: 25px;
-        position: relative;
-        overflow: hidden;
-        border: 1px solid var(--pln-border, #e8e8e8);
-        box-shadow: 0 8px 20px var(--pln-shadow, rgba(0,0,0,0.1));
-        display: flex;
-        align-items: center;
-    }
-
-    .pilar-header-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 5px;
-        background: var(--pilar-color, #4e73df);
-    }
-
-    .pilar-icon-large {
-        width: 80px;
-        height: 80px;
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--pilar-color, #4e73df);
-        color: white;
-        font-size: 32px;
-        margin-right: 25px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .pilar-info {
-        flex: 1;
-    }
-
-    .pilar-name {
-        font-size: 24px;
-        font-weight: 700;
-        color: var(--pln-text, #333);
-        margin: 0 0 5px;
-    }
-
-    .pilar-code {
-        font-size: 16px;
-        color: var(--pln-text-secondary, #6c757d);
-        margin-bottom: 10px;
-    }
-
-    .pilar-description {
-        font-size: 15px;
-        color: var(--pln-text-secondary, #6c757d);
-        margin-bottom: 15px;
-    }
-
-    .pilar-value-large {
-        font-size: 36px;
-        font-weight: 700;
-        color: var(--pilar-color, #4e73df);
-    }
-
-    .pilar-stats {
-        display: flex;
-    }
-
-    .pilar-stat-item {
-        margin-right: 30px;
-        text-align: center;
-    }
-
-    .pilar-stat-value {
-        font-size: 20px;
-        font-weight: 600;
-        color: var(--pln-text, #333);
-    }
-
-    .pilar-stat-label {
-        font-size: 13px;
-        color: var(--pln-text-secondary, #6c757d);
-    }
-
-    /* Chart Card */
-    .chart-card {
-        background: var(--pln-accent-bg, #ffffff);
-        border-radius: 16px;
-        padding: 25px;
-        transition: all 0.3s ease;
-        border: 1px solid var(--pln-border, #e8e8e8);
-        box-shadow: 0 8px 20px var(--pln-shadow, rgba(0,0,0,0.1));
-        position: relative;
-        overflow: hidden;
-        margin-bottom: 25px;
-    }
-
-    .chart-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: var(--pilar-color, #4e73df);
-    }
-
-    .chart-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px var(--pln-shadow, rgba(0,0,0,0.15));
-    }
-
-    .chart-title {
-        font-size: 18px;
-        color: var(--pilar-color, #4e73df);
-        margin-bottom: 20px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-    }
-
-    .chart-title i {
-        margin-right: 10px;
-    }
-
-    .chart-container {
-        position: relative;
-        height: 300px;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    /* Indikator Cards */
-    .indikator-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 20px;
-        margin-top: 20px;
-    }
-
-    .indikator-card {
-        background: var(--pln-accent-bg, #ffffff);
-        border-radius: 16px;
-        padding: 20px;
-        position: relative;
-        overflow: hidden;
-        border: 1px solid var(--pln-border, #e8e8e8);
-        box-shadow: 0 8px 20px var(--pln-shadow, rgba(0,0,0,0.1));
-        transition: all 0.3s ease;
-    }
-
-    .indikator-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px var(--pln-shadow, rgba(0,0,0,0.15));
-    }
-
-    .indikator-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 15px;
-    }
-
-    .indikator-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--pln-text, #333);
-        margin: 0 0 5px;
-    }
-
-    .indikator-code {
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--pln-text-secondary, #6c757d);
-        padding: 3px 8px;
-        background: rgba(0, 0, 0, 0.05);
-        border-radius: 4px;
-    }
-
-    .indikator-badge {
-        padding: 5px 10px;
-        border-radius: 12px;
-        font-weight: 500;
-        font-size: 12px;
-        color: white;
-    }
-
-    .indikator-bidang {
-        font-size: 14px;
-        color: var(--pln-text-secondary, #6c757d);
-        margin-bottom: 15px;
-    }
-
-    .indikator-progress {
-        height: 10px;
-        background-color: rgba(0, 0, 0, 0.1);
-        border-radius: 5px;
-        overflow: hidden;
-        margin: 15px 0;
-    }
-
-    .indikator-progress-bar {
-        height: 100%;
-        border-radius: 5px;
-        transition: width 0.5s ease-in-out;
-    }
-
-    .indikator-values {
-        display: flex;
-        justify-content: space-between;
-    }
-
-    .indikator-value-item {
-        text-align: center;
-        padding: 10px;
-        border-radius: 8px;
-        background: rgba(0, 0, 0, 0.03);
-        flex: 1;
-        margin: 0 5px;
-    }
-
-    .indikator-value-item:first-child {
-        margin-left: 0;
-    }
-
-    .indikator-value-item:last-child {
-        margin-right: 0;
-    }
-
-    .indikator-value-label {
-        font-size: 12px;
-        color: var(--pln-text-secondary, #6c757d);
-        margin-bottom: 5px;
-    }
-
-    .indikator-value-number {
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--pln-text, #333);
-    }
-
-    .indikator-actions {
-        margin-top: 15px;
-        text-align: right;
-    }
-
-    /* Data Table */
-    .data-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        border-radius: 8px;
-        overflow: hidden;
-        margin-bottom: 25px;
-        box-shadow: 0 4px 15px var(--pln-shadow, rgba(0,0,0,0.1));
-    }
-
-    .data-table thead th {
-        background: var(--pilar-color, #4e73df);
-        color: #fff;
-        font-weight: 600;
-        text-align: left;
-        padding: 15px;
-        font-size: 14px;
-        border: none;
-    }
-
-    .data-table tbody tr {
-        background-color: var(--pln-accent-bg, #ffffff);
-        transition: all 0.2s ease;
-    }
-
-    .data-table tbody tr:hover {
-        background-color: rgba(0, 156, 222, 0.05);
-        transform: translateY(-2px);
-    }
-
-    .data-table td {
-        padding: 12px 15px;
-        border-top: 1px solid var(--pln-border, #e8e8e8);
-        font-size: 14px;
-        vertical-align: middle;
-    }
-
-    /* Responsive */
-    @media (max-width: 992px) {
-        .pilar-header-card {
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .pilar-icon-large {
-            margin-right: 0;
-            margin-bottom: 15px;
-        }
-
-        .pilar-stats {
-            justify-content: center;
-        }
-
-        .indikator-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .dashboard-col {
-            flex: 0 0 100%;
-        }
-    }
-
-    /* Color Variables based on Pilar Code */
-    .pilar-a { --pilar-color: #4e73df; }
-    .pilar-b { --pilar-color: #1cc88a; }
-    .pilar-c { --pilar-color: #36b9cc; }
-    .pilar-d { --pilar-color: #f6c23e; }
-    .pilar-e { --pilar-color: #e74a3b; }
-    .pilar-f { --pilar-color: #6f42c1; }
-</style>
+<link rel="stylesheet" href="{{ asset('css/dataKinerja.css') }}">
 @endsection
 
+
 @section('content')
-<div class="container-fluid dashboard-content">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <div>
-            <a href="{{ route('dataKinerja.pilar') }}" class="btn btn-sm btn-outline-secondary mb-2">
-                <i class="fas fa-arrow-left"></i> Kembali
-            </a>
-            <h1 class="h3 mb-0 text-gray-800">Detail Pilar {{ $pilar->nama }}</h1>
-        </div>
-        <div class="d-flex">
-            <form action="{{ route('dataKinerja.pilar.detail', $pilar->id) }}" method="GET" class="d-flex align-items-center">
-                <select name="tahun" class="form-control form-control-sm mr-2">
-                    @foreach(range(date('Y') - 5, date('Y') + 1) as $year)
-                        <option value="{{ $year }}" {{ $tahun == $year ? 'selected' : '' }}>{{ $year }}</option>
-                    @endforeach
-                </select>
-                <select name="bulan" class="form-control form-control-sm mr-2">
-                    @foreach(range(1, 12) as $month)
-                        <option value="{{ $month }}" {{ $bulan == $month ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $month, 1)) }}</option>
-                    @endforeach
-                </select>
-                <button type="submit" class="btn btn-sm btn-primary">
-                    <i class="fas fa-filter fa-sm"></i> Filter
-                </button>
-            </form>
+<div class="dashboard-content">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <div class="breadcrumb-custom">
+                <a href="{{ route('dataKinerja.pilar') }}" >
+                    <i class="fas fa-arrow-left"></i> Kembali
+                </a>
+            </div>
+            <h1 class="page-title">Detail Perspektif {{ $pilar->nama }}</h1>
+            <p class="page-subtitle">
+                <i class="fas fa-landmark mr-2"></i>{{ $pilar->nama ?? '-' }}
+            </p>
         </div>
     </div>
+
+    <!-- Filter Panel -->
+    <div class="filter-panel">
+        <div class="filter-title">
+            <i class="fas fa-filter"></i> Filter Data
+        </div>
+        <form action="{{ route('dataKinerja.pilar', $pilar->id) }}" method="GET" class="filter-form" id="filterForm">
+            <div class="filter-group">
+                <label class="filter-label">Tahun</label>
+                <select name="tahun" class="filter-select" id="tahunSelect">
+                    @foreach(range(date('Y') + 1, date('Y') - 5) as $year)
+                        <option value="{{ $year }}" {{ $tahun == $year ? 'selected' : '' }}>
+                            {{ $year }}{{ $year == date('Y') ? ' (Tahun Ini)' : '' }}
+                        </option>
+                    @endforeach
+                </select>
+                <label class="filter-label ml-3">Bulan</label>
+                <select name="bulan" class="filter-select" id="bulanSelect">
+                    @foreach(range(1, 12) as $month)
+                        <option value="{{ $month }}" {{ $bulan == $month ? 'selected' : '' }}>
+                            {{ date('F', mktime(0, 0, 0, $month, 1)) }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter">
+                    <i class="fas fa-search"></i> Terapkan Filter
+                </button>
+                <button type="button" class="btn-reset" onclick="resetFilter()">
+                    <i class="fas fa-undo"></i> Reset
+                </button>
+            </div>
+        </form>
+    </div>
+
 
     @include('components.alert')
 
-    <!-- Pilar Header -->
     <div class="pilar-header-card pilar-{{ strtolower($pilar->kode) }}">
         <div class="pilar-icon-large">
-            @switch(strtolower($pilar->kode))
-                @case('a')
-                    <i class="fas fa-coins"></i>
-                    @break
-                @case('b')
-                    <i class="fas fa-lightbulb"></i>
-                    @break
-                @case('c')
-                    <i class="fas fa-microchip"></i>
-                    @break
-                @case('d')
-                    <i class="fas fa-chart-line"></i>
-                    @break
-                @case('e')
-                    <i class="fas fa-users"></i>
-                    @break
-                @case('f')
-                    <i class="fas fa-balance-scale"></i>
-                    @break
-                @default
-                    <i class="fas fa-star"></i>
-            @endswitch
+            <i class="fas fa-chart-pie"></i>
         </div>
         <div class="pilar-info">
             <h1 class="pilar-name">{{ $pilar->nama }}</h1>
-            <div class="pilar-code">Pilar {{ $pilar->kode }}</div>
+            <div class="pilar-code">Perspektif {{ $pilar->kode }}</div>
             <p class="pilar-description">{{ $pilar->deskripsi ?? 'Pilar Strategis PLN' }}</p>
             <div class="pilar-stats">
                 <div class="pilar-stat-item">
-                    <div class="pilar-value-large">{{ number_format($pilar->nilai, 2) }}%</div>
+                    <div class="pilar-value-large">{{ number_format($pilar->nilai ?? 0, 2) }}%</div>
                     <div class="pilar-stat-label">Nilai Kinerja</div>
                 </div>
                 <div class="pilar-stat-item">
-                    <div class="pilar-stat-value">{{ $pilar->indikators_count }}</div>
+                    <div class="pilar-stat-value">{{ $pilar->indikators_count ?? 0 }}</div>
                     <div class="pilar-stat-label">Total Indikator</div>
                 </div>
                 <div class="pilar-stat-item">
-                    <div class="pilar-stat-value">{{ $pilar->indikators_tercapai }}</div>
+                    <div class="pilar-stat-value">{{ $pilar->indikators_tercapai ?? 0 }}</div>
                     <div class="pilar-stat-label">Indikator Tercapai</div>
                 </div>
                 <div class="pilar-stat-item">
-                    <div class="pilar-stat-value">{{ $pilar->indikators_count - $pilar->indikators_tercapai }}</div>
-                    <div class="pilar-stat-label">Indikator Belum Tercapai</div>
+                    <div class="pilar-stat-value">{{ ($pilar->indikators_count ?? 0) - ($pilar->indikators_tercapai ?? 0) }}</div>
+                    <div class="pilar-stat-label">Belum Tercapai</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Chart Perbandingan Indikator -->
-    <div class="dashboard-row">
-        <div class="dashboard-col">
-            <!-- Grafik Perbandingan Nilai Indikator -->
+    <div class="dashboard-grid">
+        <div class="grid-span-6">
             <div class="chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Perbandingan Nilai Indikator</h3>
+                <h3 class="chart-title"><i class="fas fa-chart-bar"></i> Perbandingan Indikator</h3>
                 <div id="indikatorComparisonChart" class="chart-container">
                     <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
+                        <i class="fas fa-circle-notch fa-spin fa-3x"></i>
                         <span>Memuat data...</span>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="dashboard-col">
-            <!-- Grafik Trend Bulanan -->
+        <div class="grid-span-6">
             <div class="chart-card">
-                <h3 class="chart-title"><i class="fas fa-chart-line"></i> Trend Bulanan {{ $tahun }}</h3>
+                <h3 class="chart-title"><i class="fas fa-chart-line"></i> Trend Bulanan Perspektif {{ $tahun }}</h3>
                 <div id="trendBulananChart" class="chart-container">
                     <div class="loading-chart">
-                        <i class="fas fa-circle-notch fa-spin fa-3x mb-3"></i>
+                        <i class="fas fa-circle-notch fa-spin fa-3x"></i>
                         <span>Memuat data...</span>
                     </div>
                 </div>
@@ -457,97 +115,55 @@
         </div>
     </div>
 
-    <!-- Tabel Indikator -->
-    <div class="chart-card">
-        <h3 class="chart-title"><i class="fas fa-list"></i> Daftar Indikator Pilar {{ $pilar->kode }}</h3>
-
-        <div class="table-responsive">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Kode</th>
-                        <th>Indikator</th>
-                        <th>Bidang</th>
-                        <th>Target</th>
-                        <th>Realisasi</th>
-                        <th>Pencapaian</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($indikators as $indikator)
-                    <tr>
-                        <td><strong>{{ $indikator->kode }}</strong></td>
-                        <td>{{ $indikator->nama }}</td>
-                        <td>{{ $indikator->bidang->nama }}</td>
-                        <td>{{ number_format($indikator->target, 2) }}</td>
-                        <td>{{ number_format($indikator->nilai_aktual, 2) }}</td>
-                        <td>{{ number_format($indikator->persentase, 2) }}%</td>
-                        <td>
-                            @if($indikator->persentase >= 90)
-                                <span class="badge bg-success text-white">Tercapai</span>
-                            @elseif($indikator->persentase >= 70)
-                                <span class="badge bg-warning text-dark">Perlu Perhatian</span>
-                            @else
-                                <span class="badge bg-danger text-white">Tidak Tercapai</span>
-                            @endif
-                        </td>
-                        <td>
-                            <a href="{{ route('dataKinerja.indikator', $indikator->id) }}" class="btn btn-sm btn-primary">
-                                <i class="fas fa-search-plus fa-sm"></i> Detail
-                            </a>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+    <div class="grid-span-12">
+        <h3 class="mb-4"><i class="fas fa-list-alt mr-2"></i> Daftar Indikator</h3>
     </div>
 
-    <!-- Indikator Cards -->
-    <h3 class="h4 mb-3 text-gray-800">Detail Indikator</h3>
-    <div class="indikator-grid">
+    <div class="row">
         @foreach($indikators as $indikator)
-        <div class="indikator-card">
-            <div class="indikator-header">
-                <div>
-                    <h4 class="indikator-title">{{ $indikator->nama }}</h4>
-                    <span class="indikator-code">{{ $indikator->kode }}</span>
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm indikator-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0 font-weight-bold">{{ $indikator->nama }}</h5>
+                        <span class="badge badge-light px-2 py-1">{{ $indikator->kode }}</span>
+                    </div>
+                    <div class="text-muted mb-2">
+                        <i class="fas fa-building mr-1"></i> {{ $indikator->bidang->nama ?? '-' }}
+                    </div>
+@php
+    $persen = $indikator->persentase ?? 0;
+    $warna = $persen >= 100 ? '#1cc88a' : ($persen >= 95 ? '#f6c23e' : '#e74a3b');
+@endphp
+
+<div class="progress mb-3" style="height: 8px;">
+    <div class="progress-bar"
+        role="progressbar"
+        style="width: {{ $persen }}%; background-color: {{ $warna }};"
+        aria-valuenow="{{ $persen }}"
+        aria-valuemin="0"
+        aria-valuemax="110">
+    </div>
+</div>
+
+                    <div class="d-flex justify-content-between text-center mb-3">
+                        <div>
+                            <div class="small text-muted">Target Bulanan</div>
+                            <div class="font-weight-bold">{{ number_format($indikator->target_bulanan ?? 0, 2) }}</div>
+                        </div>
+                        <div>
+                            <div class="small text-muted">Realisasi</div>
+                            <div class="font-weight-bold">{{ number_format($indikator->nilai_aktual ?? 0, 2) }}</div>
+                        </div>
+                        <div>
+                            <div class="small text-muted">Pencapaian</div>
+                            <div class="font-weight-bold">{{ number_format($indikator->persentase ?? 0, 2) }}%</div>
+                        </div>
+                    </div>
+                    <a href="{{ route('dataKinerja.indikator', $indikator->id) }}" class="btn btn-block btn-primary">
+                        <i class="fas fa-search-plus fa-sm"></i> Detail
+                    </a>
                 </div>
-                @if($indikator->persentase >= 90)
-                    <span class="indikator-badge bg-success">Tercapai</span>
-                @elseif($indikator->persentase >= 70)
-                    <span class="indikator-badge bg-warning">Perlu Perhatian</span>
-                @else
-                    <span class="indikator-badge bg-danger">Tidak Tercapai</span>
-                @endif
-            </div>
-            <div class="indikator-bidang">
-                <i class="fas fa-building mr-1"></i> {{ $indikator->bidang->nama }}
-            </div>
-            <div class="indikator-progress">
-                <div class="indikator-progress-bar bg-{{ $indikator->persentase >= 90 ? 'success' : ($indikator->persentase >= 70 ? 'warning' : 'danger') }}"
-                     style="width: {{ min($indikator->persentase, 100) }}%"></div>
-            </div>
-            <div class="indikator-values">
-                <div class="indikator-value-item">
-                    <div class="indikator-value-label">Target</div>
-                    <div class="indikator-value-number">{{ number_format($indikator->target, 2) }}</div>
-                </div>
-                <div class="indikator-value-item">
-                    <div class="indikator-value-label">Realisasi</div>
-                    <div class="indikator-value-number">{{ number_format($indikator->nilai_aktual, 2) }}</div>
-                </div>
-                <div class="indikator-value-item">
-                    <div class="indikator-value-label">Pencapaian</div>
-                    <div class="indikator-value-number">{{ number_format($indikator->persentase, 2) }}%</div>
-                </div>
-            </div>
-            <div class="indikator-actions">
-                <a href="{{ route('dataKinerja.indikator', $indikator->id) }}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-search-plus fa-sm"></i> Detail
-                </a>
             </div>
         </div>
         @endforeach
@@ -555,12 +171,20 @@
 </div>
 @endsection
 
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
 @section('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Data untuk chart
+    document.addEventListener('DOMContentLoaded', function () {
         const indikatorData = @json($indikatorChartData);
         const trendData = @json($trendBulanan);
+
+        // Tentukan warna berdasarkan nilai pencapaian
+        const getColor = (val) => {
+            if (val >= 100) return '#1cc88a';       // hijau
+            if (val >= 95) return '#f6c23e';       // kuning
+            return '#e74a3b';                      // merah
+        };
 
         // Chart Perbandingan Indikator
         if (indikatorData && indikatorData.length > 0 && typeof ApexCharts !== 'undefined') {
@@ -572,64 +196,35 @@
                 chart: {
                     type: 'bar',
                     height: 300,
-                    fontFamily: 'Poppins, sans-serif',
-                    toolbar: {
-                        show: false
-                    }
+                    toolbar: { show: false },
+                    fontFamily: 'Poppins, sans-serif'
                 },
-                colors: ['var(--pilar-color)'],
+                colors: indikatorData.map(item => getColor(item.persentase)),
                 plotOptions: {
                     bar: {
                         horizontal: false,
                         columnWidth: '55%',
-                        borderRadius: 6,
-                        dataLabels: {
-                            position: 'top'
-                        }
+                        borderRadius: 6
                     },
                 },
                 dataLabels: {
                     enabled: true,
-                    formatter: function (val) {
-                        return val.toFixed(1) + "%";
-                    },
+                    formatter: val => val.toFixed(1) + "%",
                     offsetY: -20,
-                    style: {
-                        fontSize: '12px',
-                        colors: ["#304758"]
-                    }
+                    style: { fontSize: '12px', colors: ["#304758"] }
                 },
                 xaxis: {
                     categories: indikatorData.map(item => item.kode),
-                    position: 'bottom',
-                    axisBorder: {
-                        show: false
-                    },
-                    axisTicks: {
-                        show: false
-                    },
-                    labels: {
-                        show: true,
-                        style: {
-                            fontSize: '12px'
-                        }
-                    }
+                    labels: { style: { fontSize: '12px' } }
                 },
                 yaxis: {
-                    min: 0,
                     max: 100,
                     labels: {
-                        formatter: function(val) {
-                            return val.toFixed(0) + '%';
-                        }
+                        formatter: val => val.toFixed(0) + '%'
                     }
                 },
                 tooltip: {
-                    y: {
-                        formatter: function(val) {
-                            return val.toFixed(2) + '%';
-                        }
-                    }
+                    y: { formatter: val => val.toFixed(2) + '%' }
                 },
                 grid: {
                     borderColor: '#e0e0e0',
@@ -637,33 +232,28 @@
                 }
             };
 
-            const indikatorChart = new ApexCharts(document.querySelector('#indikatorComparisonChart'), indikatorOptions);
+            const indikatorChart = new ApexCharts(
+                document.querySelector('#indikatorComparisonChart'),
+                indikatorOptions
+            );
             indikatorChart.render();
-            document.querySelector('#indikatorComparisonChart .loading-chart').style.display = 'none';
+            document.querySelector('#indikatorComparisonChart .loading-chart')?.remove();
         }
 
         // Chart Trend Bulanan
         if (trendData && trendData.length > 0 && typeof ApexCharts !== 'undefined') {
             const trendOptions = {
                 series: [{
-                    name: 'Nilai Pilar',
+                    name: 'rata-rata persentase capaian',
                     data: trendData.map(item => item.nilai)
                 }],
                 chart: {
                     type: 'line',
                     height: 300,
-                    fontFamily: 'Poppins, sans-serif',
-                    toolbar: {
-                        show: false
-                    },
-                    zoom: {
-                        enabled: false
-                    }
+                    toolbar: { show: false },
+                    fontFamily: 'Poppins, sans-serif'
                 },
-                colors: ['var(--pilar-color)'],
-                dataLabels: {
-                    enabled: false
-                },
+                colors: ['#007bff'],
                 stroke: {
                     curve: 'smooth',
                     width: 3
@@ -672,45 +262,23 @@
                     categories: trendData.map(item => item.bulan),
                     labels: {
                         rotate: -45,
-                        rotateAlways: false,
-                        style: {
-                            fontSize: '10px'
-                        }
+                        style: { fontSize: '10px' }
                     }
                 },
                 yaxis: {
-                    min: 0,
                     max: 100,
                     labels: {
-                        formatter: function(val) {
-                            return val.toFixed(0) + '%';
-                        }
+                        formatter: val => val.toFixed(0) + '%'
                     }
                 },
                 tooltip: {
-                    y: {
-                        formatter: function(val) {
-                            return val.toFixed(2) + '%';
-                        }
-                    }
-                },
-                grid: {
-                    borderColor: '#e0e0e0',
-                    strokeDashArray: 4,
-                    xaxis: {
-                        lines: {
-                            show: true
-                        }
-                    }
+                    y: { formatter: val => val.toFixed(2) + '%' }
                 },
                 markers: {
                     size: 5,
                     colors: ['#fff'],
-                    strokeColors: 'var(--pilar-color)',
-                    strokeWidth: 2,
-                    hover: {
-                        size: 7
-                    }
+                    strokeColors: '#007bff',
+                    strokeWidth: 2
                 },
                 fill: {
                     type: 'gradient',
@@ -722,12 +290,20 @@
                         opacityTo: 0.2,
                         stops: [0, 100]
                     }
+                },
+                grid: {
+                    borderColor: '#e0e0e0',
+                    strokeDashArray: 4,
+                    xaxis: { lines: { show: true } }
                 }
             };
 
-            const trendChart = new ApexCharts(document.querySelector('#trendBulananChart'), trendOptions);
+            const trendChart = new ApexCharts(
+                document.querySelector('#trendBulananChart'),
+                trendOptions
+            );
             trendChart.render();
-            document.querySelector('#trendBulananChart .loading-chart').style.display = 'none';
+            document.querySelector('#trendBulananChart .loading-chart')?.remove();
         }
     });
 </script>
