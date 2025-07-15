@@ -1,7 +1,7 @@
 :root {
     --pln-blue: #0057a7;
     --pln-light-blue: #009bd4;
-    --pln-yellow: #f8f9fa;
+    --pln-white: #ffffff;
     --pln-red: #e40613;
     --pln-gradient: linear-gradient(135deg, var(--pln-blue), var(--pln-light-blue));
     --pln-shadow: rgba(0, 87, 167, 0.2);
@@ -20,7 +20,7 @@ body, html {
     margin: 0;
     padding: 0;
     height: 100%;
-    background-color: #f8f9fa;
+    background-color: #ffffff;
 }
 
 body {
@@ -340,7 +340,7 @@ body::before {
 }
 
 .transition-logo {
-    background-color: var(--pln-yellow);
+    background-color: var(--pln-white);
     width: 200px;
     height: 100px;
     display: flex;
