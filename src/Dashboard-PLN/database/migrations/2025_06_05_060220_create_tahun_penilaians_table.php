@@ -13,8 +13,6 @@ return new class extends Migration
             $table->integer('tahun')->unique();
             $table->string('deskripsi')->nullable();
             $table->enum('tipe_periode', ['tahunan', 'semesteran', 'triwulanan', 'bulanan'])->default('tahunan');
-            $table->date('tanggal_mulai')->nullable();
-            $table->date('tanggal_selesai')->nullable();
             $table->boolean('is_aktif')->default(false);
             $table->boolean('is_locked')->default(false);
             $table->foreignId('dibuat_oleh')->nullable()->constrained('users')->nullOnDelete();

@@ -25,8 +25,6 @@ class TahunPenilaian extends Model
         'tahun',
         'deskripsi',
         'periode_tipe',
-        'tanggal_mulai',
-        'tanggal_selesai',
         'is_aktif',
         'is_locked',
         'dibuat_oleh',
@@ -41,8 +39,6 @@ class TahunPenilaian extends Model
     protected $casts = [
         'is_aktif' => 'boolean',
         'is_locked' => 'boolean',
-        'tanggal_mulai' => 'date',
-        'tanggal_selesai' => 'date',
     ];
 
     /**

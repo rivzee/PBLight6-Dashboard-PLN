@@ -270,10 +270,9 @@ class DashboardController extends Controller
 
         $missingInputs = Indikator::where('bidang_id', $bidang->id)
             ->where('aktif', true)
-            ->whereDoesntHave('realisasis', function ($query) use ($tahun, $bulan, $tanggalHariIni) {
+            ->whereDoesntHave('realisasis', function ($query) use ($tahun, $bulan) {
                 $query->where('tahun', $tahun)
-                    ->where('bulan', $bulan)
-                    ->whereDate('tanggal', $tanggalHariIni);
+                    ->where('bulan', $bulan);
             })
             ->get();
 

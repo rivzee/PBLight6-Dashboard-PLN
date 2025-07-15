@@ -62,20 +62,6 @@
 
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="tanggal_mulai" class="form-label">Tanggal Mulai</label>
-                        <input type="date" class="form-control" id="tanggal_mulai" name="tanggal_mulai"
-                               value="{{ old('tanggal_mulai', $tahunPenilaian->tanggal_mulai ? $tahunPenilaian->tanggal_mulai->format('Y-m-d') : '') }}">
-                        <small class="form-text">Jika dikosongkan, akan diisi otomatis berdasarkan tipe periode</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="tanggal_selesai" class="form-label">Tanggal Selesai</label>
-                        <input type="date" class="form-control" id="tanggal_selesai" name="tanggal_selesai"
-                               value="{{ old('tanggal_selesai', $tahunPenilaian->tanggal_selesai ? $tahunPenilaian->tanggal_selesai->format('Y-m-d') : '') }}">
-                        <small class="form-text">Jika dikosongkan, akan diisi otomatis berdasarkan tipe periode</small>
-                    </div>
-
-                    <div class="form-group">
                         <label class="form-check">
                             <input class="form-check-input" type="checkbox" id="is_aktif" name="is_aktif" value="1"
                                    {{ old('is_aktif', $tahunPenilaian->is_aktif) ? 'checked' : '' }}>
@@ -113,44 +99,6 @@
 @section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Logika untuk mengatur tanggal otomatis berdasarkan tipe periode yang dipilih
-        const tipePeriodeSelect = document.getElementById('tipe_periode');
-        const tahunInput = document.getElementById('tahun');
-        const tanggalMulaiInput = document.getElementById('tanggal_mulai');
-        const tanggalSelesaiInput = document.getElementById('tanggal_selesai');
-
-        tipePeriodeSelect.addEventListener('change', function() {
-            const tahun = tahunInput.value;
-            if (!tahun || isNaN(tahun) || tahun < 2020) return;
-
-            // Hanya isi otomatis jika kedua field tanggal kosong
-            if (!tanggalMulaiInput.value && !tanggalSelesaiInput.value) {
-                switch(this.value) {
-                    case 'tahunan':
-                        tanggalMulaiInput.value = `${tahun}-01-01`;
-                        tanggalSelesaiInput.value = `${tahun}-12-31`;
-                        break;
-                    case 'semesteran':
-                        tanggalMulaiInput.value = `${tahun}-01-01`;
-                        tanggalSelesaiInput.value = `${tahun}-06-30`;
-                        break;
-                    case 'triwulanan':
-                        tanggalMulaiInput.value = `${tahun}-01-01`;
-                        tanggalSelesaiInput.value = `${tahun}-03-31`;
-                        break;
-                    case 'bulanan':
-                        tanggalMulaiInput.value = `${tahun}-01-01`;
-                        tanggalSelesaiInput.value = `${tahun}-01-31`;
-                        break;
-                }
-            }
-        });
-
-        // Jika tanggal kosong, trigger change event untuk mengisi tanggal otomatis
-        if (!tanggalMulaiInput.value && !tanggalSelesaiInput.value) {
-            tipePeriodeSelect.dispatchEvent(new Event('change'));
-        }
-
         // Efek animasi saat halaman dimuat
         const formGroups = document.querySelectorAll('.form-group');
         formGroups.forEach((group, index) => {

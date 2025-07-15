@@ -121,23 +121,42 @@
                     <h5 class="card-title">
                         <i class="fas fa-history"></i> Riwayat Aktivitas
                     </h5>
+                </div>
 
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="per-page-selector">
-                            <form method="GET" action="{{ route('aktivitasLog.index') }}" id="perPageForm">
-                                <select name="per_page" id="per_page" class="form-control form-control-sm" onchange="document.getElementById('perPageForm').submit()">
-                                    <option value="10" {{ request('per_page', 15) == 10 ? 'selected' : '' }}>10 per halaman</option>
-                                    <option value="25" {{ request('per_page', 15) == 25 ? 'selected' : '' }}>25 per halaman</option>
-                                    <option value="50" {{ request('per_page', 15) == 50 ? 'selected' : '' }}>50 per halaman</option>
-                                    <option value="100" {{ request('per_page', 15) == 100 ? 'selected' : '' }}>100 per halaman</option>
-                                </select>
-
-                                @foreach(request()->except(['page', 'per_page']) as $key => $value)
-                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                                @endforeach
-                            </form>
+                <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 mb-2 gap-2">
+                    <div class="per-page-selector">
+                        <form method="GET" action="{{ route('aktivitasLog.index') }}" id="perPageForm">
+                            <select name="per_page" id="per_page" class="form-control form-control-sm" onchange="document.getElementById('perPageForm').submit()">
+                                <option value="10" {{ request('per_page', 15) == 10 ? 'selected' : '' }}>10 per halaman</option>
+                                <option value="25" {{ request('per_page', 15) == 25 ? 'selected' : '' }}>25 per halaman</option>
+                                <option value="50" {{ request('per_page', 15) == 50 ? 'selected' : '' }}>50 per halaman</option>
+                                <option value="100" {{ request('per_page', 15) == 100 ? 'selected' : '' }}>100 per halaman</option>
+                            </select>
+                            @foreach(request()->except(['page', 'per_page']) as $key => $value)
+                                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                            @endforeach
+                        </form>
+                    </div>
+                    <div class="pagination-nav">
+                        @if ($logs->hasPages())
+                        <div class="pagination-buttons">
+                            <a href="{{ $logs->appends(request()->except('page'))->url(1) }}" class="btn btn-sm btn-secondary {{ $logs->onFirstPage() ? 'disabled' : '' }}">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                            <a href="{{ $logs->appends(request()->except('page'))->previousPageUrl() }}" class="btn btn-sm btn-secondary {{ $logs->onFirstPage() ? 'disabled' : '' }}">
+                                <i class="fas fa-angle-left"></i> Sebelumnya
+                            </a>
+                            <span class="pagination-info">
+                                Halaman {{ $logs->currentPage() }} dari {{ $logs->lastPage() }}
+                            </span>
+                            <a href="{{ $logs->appends(request()->except('page'))->nextPageUrl() }}" class="btn btn-sm btn-secondary {{ !$logs->hasMorePages() ? 'disabled' : '' }}">
+                                Selanjutnya <i class="fas fa-angle-right"></i>
+                            </a>
+                            <a href="{{ $logs->appends(request()->except('page'))->url($logs->lastPage()) }}" class="btn btn-sm btn-secondary {{ !$logs->hasMorePages() ? 'disabled' : '' }}">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
                         </div>
-                        <span>{{ $logs->total() }} total log</span>
+                        @endif
                     </div>
                 </div>
 
@@ -149,10 +168,9 @@
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th width="40px"><input type="checkbox" class="select-all-checkbox"></th>
-                                        <th width="240px">Waktu</th>
-                                        <th width="180px">Pengguna</th>
-                                        <th width="100px">Tipe</th>
+                                        <th>Waktu</th>
+                                        <th>Pengguna</th>
+                                        <th>Tipe</th>
                                         <th>Detail</th>
                                     </tr>
                                 </thead>
@@ -160,11 +178,10 @@
                                 <tbody>
                                     @forelse($logs as $log)
                                     <tr>
-                                        <td><input type="checkbox" name="log_ids[]" value="{{ $log->id }}" class="select-checkbox"></td>
                                         <td>{{ $log->created_at->format('d M Y, H:i:s') }}</td>
                                         <td>
-                                            @if($log->user)
-                                                <div class="d-flex align-items-center gap-2">
+                                            <div class="d-flex align-items-center gap-2">
+                                                @if($log->user)
                                                     @if($log->user->profile_photo)
                                                         <img src="{{ Storage::url($log->user->profile_photo) }}" alt="{{ $log->user->name }}" class="user-avatar" style="width:32px;height:32px;border-radius:50%;">
                                                     @else
@@ -176,10 +193,10 @@
                                                         <div>{{ $log->user->name }}</div>
                                                         <div class="text-muted small">{{ $log->user->email }}</div>
                                                     </div>
-                                                </div>
-                                            @else
-                                                <span class="text-muted">Sistem</span>
-                                            @endif
+                                                @else
+                                                    <span class="text-muted">Sistem</span>
+                                                @endif
+                                            </div>
                                         </td>
                                         <td>
                                             <span class="badge badge-{{ $log->getTipeColor() }}">
@@ -204,7 +221,7 @@
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="6" class="text-center py-4">
+                                        <td colspan="4" class="text-center py-4">
                                             <div class="d-flex flex-column align-items-center">
                                                 <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
                                                 <h6>Tidak ada log aktivitas ditemukan</h6>
@@ -218,32 +235,11 @@
                         </div>
 
                         <div class="table-actions d-flex justify-content-between align-items-center mt-3">
-                            <button type="submit" class="btn btn-danger" id="deleteMultipleBtn" disabled
+                            <!-- <button type="submit" class="btn btn-danger" id="deleteMultipleBtn" disabled
                                 onclick="return confirm('Apakah Anda yakin ingin menghapus log yang dipilih?')">
                                 <i class="fas fa-trash-alt"></i> Hapus Log Terpilih
-                            </button>
+                            </button> -->
 
-                            <div class="pagination-nav">
-                                @if ($logs->hasPages())
-                                <div class="pagination-buttons">
-                                    <a href="{{ $logs->appends(request()->except('page'))->url(1) }}" class="btn btn-sm btn-secondary {{ $logs->onFirstPage() ? 'disabled' : '' }}">
-                                        <i class="fas fa-angle-double-left"></i>
-                                    </a>
-                                    <a href="{{ $logs->appends(request()->except('page'))->previousPageUrl() }}" class="btn btn-sm btn-secondary {{ $logs->onFirstPage() ? 'disabled' : '' }}">
-                                        <i class="fas fa-angle-left"></i> Sebelumnya
-                                    </a>
-                                    <span class="pagination-info">
-                                        Halaman {{ $logs->currentPage() }} dari {{ $logs->lastPage() }}
-                                    </span>
-                                    <a href="{{ $logs->appends(request()->except('page'))->nextPageUrl() }}" class="btn btn-sm btn-secondary {{ !$logs->hasMorePages() ? 'disabled' : '' }}">
-                                        Selanjutnya <i class="fas fa-angle-right"></i>
-                                    </a>
-                                    <a href="{{ $logs->appends(request()->except('page'))->url($logs->lastPage()) }}" class="btn btn-sm btn-secondary {{ !$logs->hasMorePages() ? 'disabled' : '' }}">
-                                        <i class="fas fa-angle-double-right"></i>
-                                    </a>
-                                </div>
-                                @endif
-                            </div>
                         </div>
                     </div>
                 </form>
@@ -308,16 +304,7 @@
             }
         }
 
-        // Tambahkan konfirmasi untuk hapus log lama
-        const deleteOldForm = document.getElementById('deleteOldForm');
-        const deleteOldBtn = document.getElementById('deleteOldBtn');
-        if (deleteOldForm && deleteOldBtn) {
-            deleteOldForm.addEventListener('submit', function(e) {
-                if (!confirm('Apakah Anda yakin ingin menghapus log lama? Tindakan ini tidak dapat dibatalkan.')) {
-                    e.preventDefault();
-                }
-            });
-        }
+
 
     });
 </script>

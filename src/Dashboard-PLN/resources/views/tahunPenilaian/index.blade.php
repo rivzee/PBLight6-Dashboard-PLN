@@ -38,7 +38,6 @@
                     <th width="5%">No</th>
                     <th width="10%">Tahun</th>
                     <th width="15%">Tipe Periode</th>
-                    <th width="15%">Periode</th>
                     <th width="20%">Deskripsi</th>
                     <th width="10%">Status</th>
                     <th width="25%">Aksi</th>
@@ -50,13 +49,6 @@
                         <td>{{ $index + 1 }}</td>
                         <td><strong>{{ $tahun->tahun }}</strong></td>
                         <td>{{ $tahun->getTipePeriodeLabel() }}</td>
-                        <td>
-                            @if($tahun->tanggal_mulai && $tahun->tanggal_selesai)
-                                {{ $tahun->tanggal_mulai->format('d/m/Y') }} - {{ $tahun->tanggal_selesai->format('d/m/Y') }}
-                            @else
-                                -
-                            @endif
-                        </td>
                         <td>{{ $tahun->deskripsi ?? '-' }}</td>
                         <td>
                             @if($tahun->is_aktif)
