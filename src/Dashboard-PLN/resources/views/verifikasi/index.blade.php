@@ -148,8 +148,8 @@
                                     <form action="{{ route('verifikasi.update', $realisasi->id) }}" method="POST">
                                         @csrf
                                         @method('POST')
-                                        <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Yakin verifikasi?')">
-                                            <i class="fas fa-check"></i> Verifikasi
+                                        <button type="submit" class="btn btn-success btn-sm " onclick="return confirm('Yakin verifikasi?')">
+                                             Verifikasi
                                         </button>
                                     </form>
                                 @else
@@ -157,6 +157,17 @@
                                         <i class="fas fa-check"></i> Sudah Diverifikasi
                                     </span>
                                 @endif
+
+                                <!-- Tombol Tolak -->
+                                @if (!$realisasi->diverifikasi && empty($isPeriodeLocked))
+                                    <button type="button"
+                                        class="btn btn-danger btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalTolak{{ $realisasi->id }}">
+                                        <i class="fas fa-times"></i> Tolak
+                                    </button>
+                                @endif
+
                             </div>
                         </td>
                     </tr>
@@ -164,6 +175,37 @@
             </tbody>
         </table>
     </div>
+    @foreach($realisasis as $realisasi)
+<!-- Modal Tolak -->
+<div class="modal fade" id="modalTolak{{ $realisasi->id }}" tabindex="-1" aria-labelledby="modalTolakLabel{{ $realisasi->id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ route('verifikasi.destroy', $realisasi->id) }}" method="POST">
+                @csrf
+                @method('DELETE')
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTolakLabel{{ $realisasi->id }}">
+                        <i class="fas fa-times-circle text-danger"></i> Tolak KPI ({{ $realisasi->indikator->kode }})
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="alasan_penolakan_{{ $realisasi->id }}" class="form-label">Alasan Penolakan</label>
+                        <textarea name="alasan_penolakan" id="alasan_penolakan_{{ $realisasi->id }}" class="form-control" rows="4" required></textarea>
+                        <small class="text-muted">Tuliskan alasan penolakan untuk KPI ini.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger"><i class="fas fa-times"></i> Tolak KPI</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
+
  </form>
 
     <div class="mt-4">

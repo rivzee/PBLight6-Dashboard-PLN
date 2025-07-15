@@ -169,8 +169,8 @@
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="tinggi-tab" data-bs-toggle="tab" data-bs-target="#kinerja-tinggi" type="button" role="tab" aria-controls="kinerja-tinggi" aria-selected="false">
-        <i class="fas fa-arrow-up me-2"></i>Kinerja Tinggi
-        <span class="badge badge-success">{{ collect($data['pilar'] ?? [])->where('nilai', '>=', 100)->count() }}</span>
+        <i class="fas fa-arrow-up me-2"></i>Kinerja Mencapai Target
+        <span class="badge badge-success">{{ collect(value: $data['pilar'] ?? [])->where('nilai', '>=', 100)->count() }}</span>
       </button>
     </li>
     <li class="nav-item" role="presentation">
@@ -423,7 +423,7 @@
     <div class="grid-span-8">
       <div class="card">
         <div class="card-header bg-primary text-white">
-          <h5 class="card-title"><i class="fas fa-trophy"></i> Kinerja Tertinggi</h5>
+          <h5 class="card-title"><i class="fas fa-trophy"></i> Kinerja Mencapai Target</h5>
           <div>
             <button class="btn btn-sm btn-light" id="refreshTopPerformers">
               <i class="fas fa-sync-alt"></i>

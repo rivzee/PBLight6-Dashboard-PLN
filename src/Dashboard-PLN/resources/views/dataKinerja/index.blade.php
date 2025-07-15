@@ -218,7 +218,7 @@
     <div class="dashboard-grid">
         <div class="grid-span-6">
             <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-arrow-up"></i> Indikator Tertinggi</h3>
+                <h3 class="chart-title"><i class="fas fa-arrow-up"></i> Indikator Mencapai Target</h3>
                 <div class="table-responsive">
                     <table class="data-table">
                         <thead>
@@ -254,7 +254,7 @@
 
         <div class="grid-span-6">
             <div class="card chart-card">
-                <h3 class="chart-title"><i class="fas fa-arrow-down"></i> Indikator Terendah</h3>
+                <h3 class="chart-title"><i class="fas fa-arrow-down"></i> Indikator Perlu Perhatian</h3>
                 <div class="table-responsive">
                     <table class="data-table">
                         <thead>
