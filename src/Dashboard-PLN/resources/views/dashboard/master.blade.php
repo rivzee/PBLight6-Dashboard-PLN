@@ -212,7 +212,7 @@
                 <table class="data-table table">
                     <thead>
                     <tr>
-                        <th>Nama Pilar</th>
+                        <th>Nama Perspektif</th>
                         <th>Nilai (%)</th>
                         <th>Progress Input</th>
                         <th>Status</th>
