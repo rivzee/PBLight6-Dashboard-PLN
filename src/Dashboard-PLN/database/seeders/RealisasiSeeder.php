@@ -25,7 +25,7 @@ class RealisasiSeeder extends Seeder
 
             if (!$targetBulanan) continue;
 
-            for ($bulan = 1; $bulan <= 11; $bulan++) {
+            for ($bulan = 1; $bulan <= 6; $bulan++) {
                 $tanggal = Carbon::create($tahun, $bulan, rand(1, 28));
                 $targetBulan = $targetBulanan[$bulan - 1] ?? 100;
 

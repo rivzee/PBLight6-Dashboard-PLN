@@ -41,7 +41,7 @@ class TargetKPISeeder extends Seeder
             }
 
             // Sesuai controller: target_tahunan = bulan Desember (index ke-11)
-            $targetTahunan = $targetBulanan[11];
+            $targetTahunan = $targetBulanan[5];
 
             TargetKPI::updateOrCreate(
                 [
