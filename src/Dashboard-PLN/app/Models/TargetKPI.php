@@ -63,14 +63,16 @@ class TargetKPI extends Model
      * Mendapatkan target untuk bulan tertentu (1-12)
      */
     public function getTargetBulan(int $bulan): float
-    {
-        if ($this->target_bulanan && isset($this->target_bulanan[$bulan])) {
-            return (float) $this->target_bulanan[$bulan];
-        }
+{
+    $index = $bulan - 1;
 
-        // Jika tidak tersedia, fallback ke rata-rata
-        return $this->target_tahunan > 0 ? ($this->target_tahunan / 12) : 0;
+    if ($this->target_bulanan && isset($this->target_bulanan[$index])) {
+        return (float) $this->target_bulanan[$index];
     }
+
+    return $this->target_tahunan > 0 ? ($this->target_tahunan / 12) : 0;
+}
+
 
     /**
      * Menghitung persentase pencapaian target
