@@ -87,7 +87,7 @@
 
                 <div class="total-display mt-3">
                     <i class="fas fa-chart-line me-2"></i>
-                    <strong>Target Tahunan: <span id="targetTahunan">{{ number_format($target_bulanan[11], 3) }}</span> {{ $indikator->satuan }}</strong>
+                    <strong>Target Tahunan: <span id="targetTahunan">{{ number_format($target_bulanan[11], 2) }}</span> {{ $indikator->satuan }}</strong>
                 </div>
 
                 @if(!$target->disetujui || auth()->user()->isMasterAdmin())
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const desemberInput = inputs[11];
         const targetTahunan = parseFloat(desemberInput.value) || 0;
 
-        document.getElementById('targetTahunan').textContent = targetTahunan.toFixed(3);
+        document.getElementById('targetTahunan').textContent = targetTahunan.toFixed(2);
 
         const totalDisplay = document.querySelector('.total-display');
         if (targetTahunan > 0) {
