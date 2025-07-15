@@ -153,6 +153,13 @@ public function create($indikatorId)
         $targetBulanan = $targetKPI->target_bulanan[$bulan - 1] ?? 0;
     }
 
+    $tahunPenilaian = TahunPenilaian::where('tahun', $tahun)->first();
+
+    if (!$tahunPenilaian || !$tahunPenilaian->is_aktif) {
+        return redirect()->route('realisasi.index', ['tahun' => $tahun, 'bulan' => $bulan])
+            ->with('error', 'Input realisasi hanya dapat dilakukan pada tahun penilaian yang aktif.');
+    }
+
     // Nama bulan dalam bahasa Indonesia
     $namaBulan = [
         1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
@@ -173,13 +180,18 @@ public function store(Request $request, Indikator $indikator)
         'bulan' => 'required|integer|min:1|max:12',
         'nilai' => 'required|numeric|min:0',
         'keterangan' => 'nullable|string|max:1000',
-            'polaritas' => 'required|in:Positif,Negatif,Netral',
+            'polaritas' => 'required|in:Positif,Negatif',
     ]);
 
     $tahun = $request->tahun;
     $bulan = $request->bulan;
     $user = auth()->user();
+    $tahunPenilaian = TahunPenilaian::where('tahun', $tahun)->first();
 
+    if (!$tahunPenilaian || !$tahunPenilaian->is_aktif) {
+        return redirect()->route('realisasi.index', ['tahun' => $tahun, 'bulan' => $bulan])
+            ->with('error', 'Input realisasi hanya dapat dilakukan pada tahun penilaian yang aktif.');
+    }
     // Cek apakah user berwenang menginput indikator ini
     if (!$user->isMasterAdmin() && !$user->isAdmin()) {
         abort(403, 'Anda tidak memiliki hak untuk input realisasi.');
@@ -216,7 +228,7 @@ public function store(Request $request, Indikator $indikator)
 
     // Buat tanggal untuk akhir bulan (untuk keperluan kompatibilitas)
     $tanggalAkhirBulan = Carbon::create($tahun, $bulan, 1)->endOfMonth();
-    
+
    // Ambil bobot indikator, default 1 jika null
 $bobot = $indikator->bobot ?? 1;
 
@@ -275,7 +287,12 @@ $realisasi = new Realisasi([
 
         $tahun = $request->input('tahun', now()->year);
         $bulan = $request->input('bulan', now()->month);
+        $tahunPenilaian = TahunPenilaian::where('tahun', $tahun)->first();
 
+        if (!$tahunPenilaian || !$tahunPenilaian->is_aktif) {
+            return redirect()->route('realisasi.index', ['tahun' => $tahun, 'bulan' => $bulan])
+                ->with('error', 'Edit realisasi hanya dapat dilakukan pada tahun penilaian yang aktif.');
+        }
         $realisasi = Realisasi::where('indikator_id', $indikator->id)
             ->where('tahun', $tahun)
             ->where('bulan', $bulan)
@@ -311,6 +328,12 @@ $realisasi = new Realisasi([
     public function update(Request $request, $id)
     {
         $realisasi = Realisasi::with('indikator')->findOrFail($id);
+        $tahunPenilaian = TahunPenilaian::where('tahun', $realisasi->tahun)->first();
+
+        if (!$tahunPenilaian || !$tahunPenilaian->is_aktif) {
+            return redirect()->route('realisasi.index', ['tahun' => $realisasi->tahun, 'bulan' => $realisasi->bulan])
+                ->with('error', 'Edit realisasi hanya dapat dilakukan pada tahun penilaian yang aktif.');
+        }
         $indikator = $realisasi->indikator;
         $user = Auth::user();
 
