@@ -59,3 +59,78 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+# 📊 Dashboard Target Kinerja - PT PLN MCTN
+
+Aplikasi web berbasis Laravel untuk pengelolaan Data Kinerja yang ada di perusahaan berdasarkan Perspektif, Bidang, dan Tahun Penilaian. Sistem ini mendukung pengisian realisasi, target bulanan kumulatif, perhitungan otomatis NKO, serta role-based access untuk Master Admin, Admin Bidang, dan User.
+
+---
+
+## 📌 Deskripsi Singkat
+
+Dashboard ini dikembangkan untuk membantu proses perencanaan, pengisian, dan evaluasi Kinerja Indikator secara digital. Fitur utama mencakup:
+
+- Manajemen indikator kinerja (target & realisasi)
+- Validasi kumulatif otomatis (target bulanan tidak boleh menurun)
+- Dashboard capaian dan grafik per pilar
+- Verifikasi & persetujuan target
+- Role-based akses (Master Admin, Admin Bidang, User)
+- Ekspor laporan PDF
+- Lokasi
+- Manajemen Akun
+- Manajemen tahun penilaian
+- Log Aktifitas
+
+---
+
+## 🧩 Third-party / Library yang Digunakan
+
+| Teknologi / Library           | Fungsi |
+|-------------------------------|--------|
+| **Laravel 12**                | Framework utama backend |
+| **Bootstrap 5**               | Styling dan layout responsif |
+| **Font Awesome**              | Ikon di UI |
+| **openStreetMap(leaflet.js)** | Peta lokasi kantor PLN |
+| **SweetAlert2** *(opsional)*  | Notifikasi interaktif (jika digunakan) |
+| **Laravel DOMPDF**            | Ekspor laporan ke PDF |
+| **Spatie Laravel-Permission** | Manajemen Role dan Hak Akses |
+| **Carbon**                    | Manipulasi tanggal dan waktu |
+| **Middleware & Policies**     | Validasi akses pengguna |
+| **Google Fonts (Poppins)**    |Untuk font di frontend.
+| **Vite**                      | Build tool modern untuk asset frontend (JS, CSS). Digunakan untuk development dan build asset. |
+| **axios**                     | Library HTTP client untuk JavaScript (AJAX). |
+
+
+## ⚙️ Langkah Instalasi
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/nama-user/pln-dashboard-kinerja.git
+cd pln-dashboard-kinerja
+
+composer install
+
+cp .env.example .env
+
+### 2. Atur konfigurasi database
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=db_pblight
+DB_USERNAME=root
+DB_PASSWORD=
+
+lalu jalankan
+php artisan key:generate
+php artisan migrate --seed
+
+jiks ingin menggunakan data dummy, jalankan
+php artisan db:seed --class=TargetKPISeeder
+php artisan db:seed --class=RealisasiSeeder
+
+lalu
+php artisan serve
+
+(untuk email dan password ada di DtabaseSeeder)

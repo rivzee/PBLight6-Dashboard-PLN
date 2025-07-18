@@ -1,0 +1,162 @@
+@extends('layouts.app')
+
+@section('title', 'Tambah Tahun Penilaian')
+@section('page_title', 'TAMBAH TAHUN PENILAIAN')
+
+@section('styles')
+<link rel="stylesheet" href="{{ asset('css/tahunPenilaian.css') }}">
+@endsection
+
+@section('content')
+<div class="container">
+    <h2 class="tahun-title">Form Tambah Tahun Penilaian</h2>
+
+    <div class="mb-4">
+        <a href="{{ route('tahunPenilaian.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Kembali ke Daftar
+        </a>
+    </div>
+
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show">
+            <ul class="mb-0">
+                @foreach($errors->all() as $error)
+                    <li>Tahun penilaian sudah terdaftar</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <div class="form-container">
+        <form action="{{ route('tahunPenilaian.store') }}" method="POST" class="create-form">
+            @csrf
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="tahun" class="form-label">Tahun <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="tahun" name="tahun" min="2020" max="2100"
+                               value="{{ old('tahun', date('Y')) }}" required>
+                        <small class="form-text">Tahun berupa angka 4 digit, minimal 2020</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deskripsi" class="form-label">Deskripsi (Opsional)</label>
+                        <textarea class="form-control" id="deskripsi" name="deskripsi" rows="2">{{ old('deskripsi') }}</textarea>
+                        <small class="form-text">Berikan deskripsi singkat untuk tahun penilaian ini</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="tipe_periode" class="form-label">Tipe Periode <span class="text-danger">*</span></label>
+                        <select class="form-select" id="tipe_periode" name="tipe_periode" required>
+                            <option value="tahunan" {{ old('tipe_periode') == 'tahunan' ? 'selected' : '' }}>Tahunan</option>
+                        </select>
+                        <small class="form-text">Pilih tipe periode untuk penilaian KPI</small>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_aktif" name="is_aktif" value="1"
+                                   {{ old('is_aktif') ? 'checked' : '' }}>
+                            <span class="checkmark"></span>
+                            <span class="form-check-label">Jadikan sebagai tahun aktif</span>
+                        </label>
+                        <small class="form-text">Jika dicentang, tahun lain yang aktif akan dinonaktifkan</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_locked" name="is_locked" value="1"
+                                   {{ old('is_locked') ? 'checked' : '' }}>
+                            <span class="checkmark"></span>
+                            <span class="form-check-label">Kunci periode penilaian</span>
+                        </label>
+                        <small class="form-text">Jika dicentang, data periode ini tidak dapat diubah kecuali oleh Master Admin</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-bar">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
+                <a href="{{ route('tahunPenilaian.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Batal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Efek animasi saat halaman dimuat
+        const formGroups = document.querySelectorAll('.form-group');
+        formGroups.forEach((group, index) => {
+            group.style.opacity = '0';
+            setTimeout(() => {
+                group.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                group.style.opacity = '1';
+            }, 100 + (index * 50));
+        });
+
+        // Efek ripple pada tombol
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                if (button.type === 'submit') return;
+
+                e.preventDefault();
+
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+
+                this.appendChild(ripple);
+
+                setTimeout(() => {
+                    ripple.remove();
+
+                    // Navigasi ke halaman jika ini adalah link
+                    if (this.tagName === 'A' && this.href) {
+                        window.location.href = this.href;
+                    }
+                }, 600);
+            });
+        });
+
+        // Animasi untuk checkbox
+        const checkboxes = document.querySelectorAll('.form-check-input');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const checkmark = this.nextElementSibling;
+                checkmark.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    checkmark.style.transform = 'scale(1)';
+                }, 200);
+            });
+        });
+
+        // Form field focus animation
+        const formFields = document.querySelectorAll('.form-control, .form-select');
+        formFields.forEach(field => {
+            field.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateX(5px)';
+                setTimeout(() => {
+                    this.parentElement.style.transform = 'translateX(0)';
+                }, 300);
+            });
+        });
+    });
+</script>
+@endsection
